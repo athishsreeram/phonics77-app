@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>🔠 Digraphs · Phonics Hub</title>
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .digraph-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:16px; margin-bottom:28px; }
+    .dg-card { background:white; border-radius:24px; padding:20px 14px; text-align:center; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.10); border:4px solid #eee; transition:transform 0.15s,box-shadow 0.15s; -webkit-tap-highlight-color:transparent; }
+    .dg-card:active { transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.10); }
+    .dg-card:hover  { transform:translateY(-4px); box-shadow:0 8px 0 rgba(0,0,0,0.10); }
+    .dg-card.done   { background:#f0fdf4; border-color:var(--clr-green); }
+    .dg-letters { font-family:'Fredoka One',cursive; font-size:clamp(2rem,8vw,3.2rem); line-height:1; }
+    .dg-sound   { font-size:1rem; font-weight:700; background:var(--clr-accent); border-radius:50px; padding:2px 12px; margin:6px 0; display:inline-block; }
+    .dg-example { font-size:1rem; color:var(--clr-text-soft); font-weight:600; }
+
+    .dg-detail { background:white; border-radius:28px; padding:28px 20px; box-shadow:var(--shadow-md); text-align:center; margin-bottom:24px; display:none; animation:fadeIn 0.3s ease; }
+    .dg-detail.open { display:block; }
+    .dg-detail-letters { font-family:'Fredoka One',cursive; font-size:clamp(4rem,15vw,8rem); margin-bottom:8px; }
+    .word-chips { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:16px 0; }
+    .word-chip-btn { background:#f0f0f0; border-radius:50px; padding:10px 22px; font-family:'Fredoka One',cursive; font-size:1.3rem; cursor:pointer; transition:all 0.15s; border:3px solid transparent; }
+    .word-chip-btn:hover { background:var(--clr-purple); color:white; }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-left">
+      <a href="index.html" class="nav-home-btn">🏠</a>
+      <span class="nav-title">Digraph Practice</span>
+    </div>
+    <div class="nav-right"></div>
+  </nav>
+  <div class="page-header" style="background:linear-gradient(135deg,var(--stage3),#c4b5fd)">
+    <h1>🔠 Digraphs</h1>
+    <p>Two letters — one sound!</p>
+  </div>
+  <main>
+    <p style="text-align:center;font-size:1.1rem;color:var(--clr-text-soft);margin:20px 0">Tap a digraph to hear its sound and explore words!</p>
+    <div class="digraph-grid" id="digraph-grid"></div>
+    <div class="dg-detail" id="dg-detail">
+      <div class="dg-detail-letters" id="dd-letters">sh</div>
+      <div style="font-size:1.3rem;font-weight:700;margin-bottom:8px" id="dd-sound">"shh"</div>
+      <div style="font-size:1.1rem;color:var(--clr-text-soft);margin-bottom:16px" id="dd-desc">Two letters make one sound!</div>
+      <div class="word-chips" id="dd-words"></div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px">
+        <button class="btn btn-purple btn-lg" id="btn-dd-speak">🔊 Say Sound</button>
+        <button class="btn btn-secondary btn-lg" id="btn-dd-close">✕ Close</button>
+      </div>
+    </div>
+    <div class="score-bar">
+      <div class="score-item">✅ <span id="done-count">0</span><span class="score-label"> / 8 Learned</span></div>
+    </div>
+  </main>
+  <script src="js/audio.js"></script>
+  <script src="js/materials.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    const DIGRAPHS = [
+      { dg:'sh', sound:'shh',  color:'#A78BFA', words:['ship','shop','shed','shut','shell','shirt','shoes','shark','sheep','share'] },
+      { dg:'ch', sound:'chuh', color:'#FF6B35', words:['chip','chop','chin','chat','chest','chair','check','chain','cheese','church'] },
+      { dg:'th', sound:'thh',  color:'#4ECDC4', words:['the','this','that','them','then','think','thick','three','throw','tooth'] },
+      { dg:'wh', sound:'wuh',  color:'#FFB347', words:['who','why','what','when','where','which','while','whale','wheat','wheel'] },
+      { dg:'ph', sound:'fuh',  color:'#6BCB77', words:['phone','photo','phase','phish','phrase','phobia','phantom','sphere'] },
+      { dg:'ng', sound:'ngg',  color:'#FF85A1', words:['ring','sing','king','bang','song','long','lung','wing','hang','string'] },
+      { dg:'ck', sound:'kuh',  color:'#4D96FF', words:['back','black','clock','duck','kick','lock','neck','pick','rock','sock'] },
+      { dg:'qu', sound:'kwuh', color:'#A78BFA', words:['queen','quick','quiz','quit','quilt','quest','quiet','quote','quite','quack'] },
+    ];
+    let done = new Set(JSON.parse(localStorage.getItem('digraphs_done')||'[]'));
+    let current = null;
+
+    function buildGrid() {
+      const grid = document.getElementById('digraph-grid');
+      grid.innerHTML = '';
+      DIGRAPHS.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `dg-card ${done.has(item.dg)?'done':''}`;
+        card.style.borderColor = done.has(item.dg) ? '' : item.color + '55';
+        card.innerHTML = `<div class="dg-letters" style="color:${item.color}">${item.dg}</div><div class="dg-sound">"${item.sound}"</div><div class="dg-example">${item.words[0]}</div>${done.has(item.dg)?'<div>✅</div>':''}`;
+        card.addEventListener('click', () => openDetail(item));
+        grid.appendChild(card);
+      });
+      document.getElementById('done-count').textContent = done.size;
+    }
+
+    function openDetail(item) {
+      current = item;
+      document.getElementById('dd-letters').textContent = item.dg;
+      document.getElementById('dd-letters').style.color = item.color;
+      document.getElementById('dd-sound').textContent = `"${item.sound}"`;
+      document.getElementById('dd-desc').textContent = `Two letters, one sound! As in: ${item.words[0]}`;
+      const wr = document.getElementById('dd-words');
+      wr.innerHTML = '';
+      item.words.forEach(w => {
+        const chip = document.createElement('button');
+        chip.className = 'word-chip-btn';
+        // Highlight the digraph
+        const idx = w.indexOf(item.dg);
+        if (idx >= 0) {
+          chip.innerHTML = w.slice(0,idx) + `<span style="color:${item.color};text-decoration:underline">${item.dg}</span>` + w.slice(idx+item.dg.length);
+        } else {
+          chip.textContent = w;
+        }
+        chip.addEventListener('click', () => { AudioManager.speak(w,{rate:0.75}); UI.animateBtn(chip); });
+        wr.appendChild(chip);
+      });
+      document.getElementById('dg-detail').classList.add('open');
+      document.getElementById('dg-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+      AudioManager.speak(`${item.dg} says ${item.sound}. ${item.words[0]}`, {rate:0.75});
+      done.add(item.dg);
+      localStorage.setItem('digraphs_done', JSON.stringify([...done]));
+      buildGrid();
+    }
+
+    document.getElementById('btn-dd-speak').addEventListener('click', () => { if(current) AudioManager.speak(current.sound,{rate:0.6}); });
+    document.getElementById('btn-dd-close').addEventListener('click', () => { document.getElementById('dg-detail').classList.remove('open'); });
+    buildGrid();
+  </script>
+</body>
+</html>

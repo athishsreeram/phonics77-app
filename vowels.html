@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>🗣️ Vowels · Phonics Hub</title>
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .vowel-big-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 500px) { .vowel-big-grid { grid-template-columns: repeat(3, 1fr); } }
+    .vowel-hero-card {
+      aspect-ratio: 1;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.12);
+      transition: transform 0.15s, box-shadow 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      color: white;
+      gap: 4px;
+    }
+    .vowel-hero-card:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.12); }
+    .vowel-hero-card:hover  { transform: translateY(-4px); box-shadow: 0 10px 0 rgba(0,0,0,0.12); }
+    .vowel-letter { font-family: 'Fredoka One', cursive; font-size: clamp(2.5rem, 10vw, 4.5rem); line-height: 1; }
+    .vowel-name   { font-size: clamp(0.9rem, 3vw, 1.2rem); font-weight: 700; opacity: 0.9; }
+
+    .vowel-words-section {
+      background: white;
+      border-radius: 28px;
+      padding: 24px 20px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 24px;
+      animation: fadeIn 0.3s ease;
+    }
+    .vowel-words-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .vowel-words-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 12px;
+    }
+    .vowel-word-btn {
+      background: #f8f8f8;
+      border: 3px solid #eee;
+      border-radius: 16px;
+      padding: 14px 10px;
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.2rem, 4vw, 1.6rem);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      min-height: 60px;
+    }
+    .vowel-word-btn:active { transform: scale(0.93); }
+    .vowel-word-btn:hover  { transform: translateY(-3px); }
+
+    .short-long-tabs {
+      display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .sl-tab {
+      padding: 10px 24px; border-radius: 50px; border: 3px solid #eee;
+      background: white; font-family: var(--font-body); font-size: 1.1rem; font-weight: 800;
+      cursor: pointer; min-height: 52px; transition: all 0.15s;
+    }
+    .sl-tab.active { background: var(--clr-secondary); color: white; border-color: var(--clr-secondary); }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-left">
+      <a href="index.html" class="nav-home-btn">🏠</a>
+      <span class="nav-title">Vowels A E I O U</span>
+    </div>
+    <div class="nav-right"></div>
+  </nav>
+
+  <div class="page-header" style="background:linear-gradient(135deg,var(--stage2),#5dd8d0)">
+    <h1>🗣️ Vowels</h1>
+    <p>A · E · I · O · U — the singing letters!</p>
+  </div>
+
+  <main>
+    <div class="vowel-big-grid" style="margin-top:28px" id="vowel-grid"></div>
+
+    <div class="short-long-tabs">
+      <button class="sl-tab active" data-type="short">Short Vowels</button>
+      <button class="sl-tab" data-type="long">Long Vowels</button>
+    </div>
+
+    <div class="vowel-words-section" id="words-section">
+      <div class="vowel-words-title" id="words-title">🍎 Short A words</div>
+      <div class="vowel-words-grid" id="words-grid"></div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:24px">
+      <button class="btn btn-primary btn-lg" id="btn-sing">🎵 Sing the Vowels!</button>
+    </div>
+  </main>
+
+  <script src="js/audio.js"></script>
+  <script src="js/materials.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    const VOWELS = [
+      { l:'A', color:'#FF6B35', name:'A', short:['cat','bat','hat','rat','fan','cap','map','jam','lap','van'], long:['cake','lake','name','game','tape','date','late','wave','same','came'] },
+      { l:'E', color:'#4ECDC4', name:'E', short:['bed','red','hen','ten','pet','leg','set','net','beg','fed'], long:['bee','tree','see','free','green','meet','feet','keep','need','feed'] },
+      { l:'I', color:'#A78BFA', name:'I', short:['big','pig','sit','bit','lid','fit','tip','win','bin','dip'], long:['bike','like','time','five','pine','mine','ride','side','hide','kite'] },
+      { l:'O', color:'#FFB347', name:'O', short:['hot','pot','dog','fox','box','hop','top','mop','cot','log'], long:['bone','home','nose','rose','rope','hole','mole','vote','note','tone'] },
+      { l:'U', color:'#6BCB77', name:'U', short:['bug','mug','run','sun','cup','pup','cut','nut','fun','bun'], long:['cube','tune','dune','mule','rude','fuse','cute','huge','rule','use'] },
+    ];
+
+    let selectedVowel = 0;
+    let vowelType = 'short';
+
+    // Build vowel cards
+    const grid = document.getElementById('vowel-grid');
+    VOWELS.forEach((v, i) => {
+      const card = document.createElement('div');
+      card.className = 'vowel-hero-card';
+      card.style.background = v.color;
+      card.innerHTML = `<span class="vowel-letter">${v.l}</span><span class="vowel-name">${v.name}</span>`;
+      card.addEventListener('click', () => {
+        selectedVowel = i;
+        AudioManager.speak(`${v.l} says ${v.l.toLowerCase()}`, { rate: 0.75 });
+        AudioManager.playTone('click');
+        showWords();
+      });
+      grid.appendChild(card);
+    });
+
+    function showWords() {
+      const v = VOWELS[selectedVowel];
+      const words = vowelType === 'short' ? v.short : v.long;
+      document.getElementById('words-title').textContent =
+        `${v.l} — ${vowelType === 'short' ? '🔡 Short' : '🔆 Long'} ${v.l} words`;
+      document.getElementById('words-title').style.color = v.color;
+
+      const wg = document.getElementById('words-grid');
+      wg.innerHTML = '';
+      words.forEach(w => {
+        const btn = document.createElement('button');
+        btn.className = 'vowel-word-btn';
+        btn.textContent = w;
+        btn.style.borderColor = v.color;
+        btn.addEventListener('click', () => {
+          AudioManager.speak(w, { rate: 0.75 });
+          AudioManager.playTone('click');
+          UI.animateBtn(btn);
+        });
+        wg.appendChild(btn);
+      });
+    }
+
+    document.querySelectorAll('.sl-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.sl-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        vowelType = tab.dataset.type;
+        showWords();
+        AudioManager.playTone('click');
+      });
+    });
+
+    document.getElementById('btn-sing').addEventListener('click', () => {
+      const vowels = ['A', 'E', 'I', 'O', 'U'];
+      let i = 0;
+      function next() {
+        if (i >= vowels.length) {
+          AudioManager.speak('A E I O U! You know your vowels!', { rate: 0.8 });
+          return;
+        }
+        AudioManager.speak(vowels[i++], { rate: 0.7, onEnd: () => setTimeout(next, 300) });
+      }
+      next();
+    });
+
+    showWords();
+  </script>
+</body>
+</html>

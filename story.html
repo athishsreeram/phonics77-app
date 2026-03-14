@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>📖 Mini Stories · Phonics Hub</title>
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .story-selector { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:14px; margin-bottom:28px; }
+    .story-thumb { background:white; border-radius:20px; padding:16px 12px; text-align:center; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.08); border:4px solid transparent; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
+    .story-thumb:active { transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.08); }
+    .story-thumb:hover  { transform:translateY(-4px); box-shadow:0 8px 0 rgba(0,0,0,0.08); border-color:var(--clr-primary); }
+    .story-thumb.active { border-color:var(--clr-primary); background:#fff8f5; }
+    .story-emoji-big    { font-size:2.5rem; display:block; margin-bottom:6px; }
+    .story-title-sm     { font-family:'Fredoka One',cursive; font-size:1rem; }
+
+    .story-reader { background:white; border-radius:32px; padding:32px 24px; box-shadow:var(--shadow-md); margin-bottom:24px; display:none; animation:fadeIn 0.3s ease; }
+    .story-reader.open { display:block; }
+    .story-header { display:flex; align-items:center; gap:16px; margin-bottom:20px; }
+    .story-big-emoji { font-size:3.5rem; }
+    .story-heading { font-family:'Fredoka One',cursive; font-size:clamp(1.6rem,5vw,2.4rem); }
+    .story-body { font-family:'Fredoka One',cursive; font-size:clamp(1.3rem,4vw,1.8rem); line-height:1.8; color:var(--clr-text); }
+    .story-word { display:inline; cursor:pointer; border-radius:6px; padding:1px 3px; transition:background 0.15s; }
+    .story-word:hover { background:var(--clr-accent); }
+    .story-word:active { background:var(--clr-primary); color:white; }
+    .story-actions { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:20px; }
+    .story-page-info { font-size:1rem; font-weight:700; color:var(--clr-text-soft); text-align:center; margin-bottom:12px; }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-left">
+      <a href="index.html" class="nav-home-btn">🏠</a>
+      <span class="nav-title">Mini Stories</span>
+    </div>
+    <div class="nav-right"></div>
+  </nav>
+  <div class="page-header" style="background:linear-gradient(135deg,var(--stage5),#5dbb6a)">
+    <h1>📖 Mini Stories</h1>
+    <p>Short stories for new readers!</p>
+  </div>
+  <main>
+    <h2 style="font-family:'Fredoka One',cursive;font-size:1.4rem;margin:20px 0 16px;text-align:center">Pick a story:</h2>
+    <div class="story-selector" id="story-selector"></div>
+    <div class="story-reader" id="story-reader">
+      <div class="story-header">
+        <span class="story-big-emoji" id="sr-emoji">🐱</span>
+        <span class="story-heading"   id="sr-title">The Cat</span>
+      </div>
+      <p class="story-page-info" id="page-info">Page 1 / 3</p>
+      <div class="story-body" id="story-body"></div>
+      <div class="story-actions">
+        <button class="btn btn-secondary btn-lg" id="btn-page-prev">◀</button>
+        <button class="btn btn-primary   btn-lg" id="btn-read-page">🔊 Read</button>
+        <button class="btn btn-secondary btn-lg" id="btn-page-next">▶</button>
+      </div>
+    </div>
+  </main>
+  <script src="js/audio.js"></script>
+  <script src="js/materials.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    const STORIES = [
+      {
+        emoji:'🐱', title:'The Cat and the Hat',
+        pages:[
+          'The cat sat on a mat. The cat had a big red hat.',
+          'The cat ran fast. The hat fell off!',
+          'The cat got the hat back. The cat was glad.',
+        ]
+      },
+      {
+        emoji:'🐶', title:'A Dog Named Pip',
+        pages:[
+          'Pip is a little dog. Pip has big brown eyes.',
+          'Pip can run and jump. Pip can dig in the mud.',
+          'At the end of the day, Pip sat in my lap. I love Pip!',
+        ]
+      },
+      {
+        emoji:'☀️', title:'A Hot Day',
+        pages:[
+          'It was a hot day. The sun was up high.',
+          'We got cold cups of juice. We sat in the shade.',
+          'Then we ran in the wet grass. What a fun day!',
+        ]
+      },
+      {
+        emoji:'🐟', title:'The Big Fish',
+        pages:[
+          'Ben went to the pond. He had a rod and a net.',
+          'He saw a big fish swim by. He tried to catch it.',
+          'The fish was too fast! But Ben had fun in the sun.',
+        ]
+      },
+      {
+        emoji:'🦊', title:'Fox in the Box',
+        pages:[
+          'There was a fox. The fox found a big box.',
+          'The fox hid in the box. The box was cozy and warm.',
+          'Then the fox fell fast asleep. Zzz!',
+        ]
+      },
+      {
+        emoji:'🌧️', title:'Rain Day',
+        pages:[
+          'It was a wet and rainy day. We had to stay in.',
+          'Mom got out the paints and glue. We made a bird!',
+          'When the rain stopped, we put the bird in the sun to dry.',
+        ]
+      },
+    ];
+
+    let selectedStory = 0, currentPage = 0;
+
+    const selector = document.getElementById('story-selector');
+    STORIES.forEach((story, i) => {
+      const thumb = document.createElement('div');
+      thumb.className = `story-thumb ${i===0?'active':''}`;
+      thumb.innerHTML = `<span class="story-emoji-big">${story.emoji}</span><span class="story-title-sm">${story.title}</span>`;
+      thumb.addEventListener('click', () => {
+        selector.querySelectorAll('.story-thumb').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+        selectedStory = i; currentPage = 0;
+        showStory();
+        AudioManager.playTone('click');
+      });
+      selector.appendChild(thumb);
+    });
+
+    function showStory() {
+      const story = STORIES[selectedStory];
+      const reader = document.getElementById('story-reader');
+      reader.classList.add('open');
+      document.getElementById('sr-emoji').textContent = story.emoji;
+      document.getElementById('sr-title').textContent = story.title;
+      document.getElementById('page-info').textContent = `Page ${currentPage+1} / ${story.pages.length}`;
+
+      const body = document.getElementById('story-body');
+      body.innerHTML = '';
+      const pageText = story.pages[currentPage];
+      pageText.split(' ').forEach(w => {
+        const span = document.createElement('span');
+        span.className = 'story-word';
+        span.textContent = w + ' ';
+        const clean = w.replace(/[.,!?]/g,'');
+        span.addEventListener('click', () => {
+          AudioManager.speak(clean, {rate:0.75});
+          AudioManager.playTone('click');
+        });
+        body.appendChild(span);
+      });
+      reader.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+
+    document.getElementById('btn-read-page').addEventListener('click', () => {
+      const story = STORIES[selectedStory];
+      AudioManager.speak(story.pages[currentPage], {rate:0.7});
+    });
+    document.getElementById('btn-page-prev').addEventListener('click', () => {
+      const story = STORIES[selectedStory];
+      currentPage = (currentPage - 1 + story.pages.length) % story.pages.length;
+      showStory(); AudioManager.playTone('click');
+    });
+    document.getElementById('btn-page-next').addEventListener('click', () => {
+      const story = STORIES[selectedStory];
+      currentPage = (currentPage + 1) % story.pages.length;
+      showStory(); AudioManager.playTone('click');
+    });
+
+    showStory();
+  </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>2️⃣ Phonic Set 2 · Phonics Hub</title>
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .phonic-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:16px; margin-bottom:28px; }
+    .phonic-card { background:white; border-radius:20px; padding:20px 12px; text-align:center; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,0.10); border:4px solid transparent; transition:transform 0.15s,box-shadow 0.15s; -webkit-tap-highlight-color:transparent; display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .phonic-card:active { transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.10); }
+    .phonic-card:hover  { transform:translateY(-4px); box-shadow:0 8px 0 rgba(0,0,0,0.10); }
+    .phonic-card.done   { background:#f0fdf4; border-color:var(--clr-green); }
+    .phonic-big-letter  { font-family:'Fredoka One',cursive; font-size:clamp(2.2rem,8vw,3.8rem); line-height:1; }
+    .phonic-sound-tag   { font-size:1rem; font-weight:700; background:var(--clr-accent); border-radius:50px; padding:2px 12px; }
+    .phonic-example     { font-size:1rem; color:var(--clr-text-soft); font-weight:600; }
+    .detail-panel { background:white; border-radius:28px; padding:28px 20px; box-shadow:var(--shadow-md); text-align:center; margin-bottom:24px; display:none; animation:fadeIn 0.3s ease; }
+    .detail-panel.open  { display:block; }
+    .detail-big  { font-family:'Fredoka One',cursive; font-size:clamp(4rem,16vw,8rem); line-height:1; margin-bottom:8px; }
+    .detail-words-row { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:16px 0; }
+    .detail-word-chip { background:#f0f0f0; border-radius:50px; padding:10px 20px; font-family:'Fredoka One',cursive; font-size:1.3rem; cursor:pointer; transition:all 0.15s; border:3px solid transparent; }
+    .detail-word-chip:hover { background:var(--clr-secondary); color:white; }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-left">
+      <a href="index.html" class="nav-home-btn">🏠</a>
+      <span class="nav-title">Phonic Set 2</span>
+    </div>
+    <div class="nav-right"></div>
+  </nav>
+  <div class="page-header" style="background:linear-gradient(135deg,var(--stage1),#ff8c5a)">
+    <h1>2️⃣ Phonic Set 2</h1>
+    <p>g · o · c · k · ck · e · u · r · h · b · f · l</p>
+  </div>
+  <main>
+    <p style="text-align:center;font-size:1.1rem;color:var(--clr-text-soft);margin:20px 0">Tap each letter to hear its sound!</p>
+    <div class="phonic-grid" id="phonic-grid"></div>
+    <div class="detail-panel" id="detail-panel">
+      <div class="detail-big" id="detail-letter">g</div>
+      <div style="font-size:1.4rem;font-weight:700;margin-bottom:4px" id="detail-sound">"guh"</div>
+      <div style="font-size:1.1rem;color:var(--clr-text-soft);margin-bottom:12px" id="detail-desc">as in...</div>
+      <div class="detail-words-row" id="detail-words"></div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px">
+        <button class="btn btn-primary btn-lg" id="btn-speak-detail">🔊 Say Sound</button>
+        <button class="btn btn-secondary btn-lg" id="btn-close-detail">✕ Close</button>
+      </div>
+    </div>
+    <div class="score-bar">
+      <div class="score-item">✅ <span id="done-count">0</span><span class="score-label"> / 12 Learned</span></div>
+    </div>
+  </main>
+  <script src="js/audio.js"></script>
+  <script src="js/materials.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    const SET2 = [
+      { l:'g',  sound:'guh',  emoji:'🦍', words:['gap','get','got','gum','gun','gig','gel','gob'] },
+      { l:'o',  sound:'oh',   emoji:'🍊', words:['on','off','odd','opt','orb','oak','oat','ode'] },
+      { l:'c',  sound:'kuh',  emoji:'🐱', words:['cap','cob','cup','cut','cod','cot','cab','cud'] },
+      { l:'k',  sound:'kuh',  emoji:'🪁', words:['kid','kit','kin','keg','ken','kelp','keen','kind'] },
+      { l:'ck', sound:'kuh',  emoji:'🦆', words:['back','black','check','click','dock','duck','kick','lock','neck','pack','pick','rock','sick','sock','tick','truck'] },
+      { l:'e',  sound:'eh',   emoji:'🐘', words:['egg','end','elf','elk','eve','era','echo','each'] },
+      { l:'u',  sound:'uh',   emoji:'☂️', words:['up','us','un','urn','use','ugly','ultra','undo'] },
+      { l:'r',  sound:'ruh',  emoji:'🌈', words:['rat','red','rib','rob','run','rug','ram','rim'] },
+      { l:'h',  sound:'huh',  emoji:'🏠', words:['hat','hen','hit','hop','hub','hug','ham','hip'] },
+      { l:'b',  sound:'buh',  emoji:'⚽', words:['bag','bat','bed','big','bit','bob','bud','bus'] },
+      { l:'f',  sound:'fuh',  emoji:'🐟', words:['fan','fat','fed','fig','fin','fit','fog','fun'] },
+      { l:'l',  sound:'luh',  emoji:'🦁', words:['lab','lap','led','leg','lid','lip','log','lot'] },
+    ];
+    const colors = ['#FF6B35','#4ECDC4','#A78BFA','#FFB347','#6BCB77','#FF85A1','#4D96FF','#FF6B35','#4ECDC4','#A78BFA','#6BCB77','#FF85A1'];
+    let done = new Set(JSON.parse(localStorage.getItem('set2_done') || '[]'));
+    let current = null;
+
+    function buildGrid() {
+      const grid = document.getElementById('phonic-grid');
+      grid.innerHTML = '';
+      SET2.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = `phonic-card ${done.has(item.l) ? 'done' : ''}`;
+        card.innerHTML = `<span class="phonic-big-letter" style="color:${colors[i]}">${item.l}</span><span class="phonic-sound-tag">"${item.sound}"</span><span class="phonic-example">${item.emoji} ${item.words[0]}</span>${done.has(item.l)?'<span>✅</span>':''}`;
+        card.addEventListener('click', () => openDetail(item, colors[i]));
+        grid.appendChild(card);
+      });
+      document.getElementById('done-count').textContent = done.size;
+    }
+
+    function openDetail(item, color) {
+      current = item;
+      document.getElementById('detail-letter').textContent = item.l.toUpperCase() + '  ' + item.l;
+      document.getElementById('detail-letter').style.color = color;
+      document.getElementById('detail-sound').textContent = `"${item.sound}"`;
+      document.getElementById('detail-desc').textContent = `${item.emoji} as in: ${item.words[0]}`;
+      const wr = document.getElementById('detail-words');
+      wr.innerHTML = '';
+      item.words.forEach(w => {
+        const chip = document.createElement('button');
+        chip.className = 'detail-word-chip';
+        chip.textContent = w;
+        chip.addEventListener('click', () => { AudioManager.speak(w, {rate:0.75}); UI.animateBtn(chip); });
+        wr.appendChild(chip);
+      });
+      document.getElementById('detail-panel').classList.add('open');
+      document.getElementById('detail-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
+      AudioManager.speak(`${item.l}. ${item.sound}. ${item.words[0]}`, {rate:0.75});
+      done.add(item.l);
+      localStorage.setItem('set2_done', JSON.stringify([...done]));
+      buildGrid();
+    }
+    document.getElementById('btn-speak-detail').addEventListener('click', () => { if(current) AudioManager.speak(current.sound,{rate:0.6}); });
+    document.getElementById('btn-close-detail').addEventListener('click', () => { document.getElementById('detail-panel').classList.remove('open'); });
+    buildGrid();
+  </script>
+</body>
+</html>

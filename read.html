@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>📗 Read Practice · Phonics Hub</title>
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .sentence-card { background:white; border-radius:32px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); margin-bottom:24px; min-height:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .sentence-text { font-family:'Fredoka One',cursive; font-size:clamp(1.6rem,5vw,2.8rem); line-height:1.5; cursor:pointer; }
+    .sentence-text .word-tap { cursor:pointer; display:inline-block; padding:2px 4px; border-radius:6px; transition:background 0.15s; }
+    .sentence-text .word-tap:hover { background:var(--clr-accent); }
+    .sentence-text .word-tap:active { background:var(--clr-primary); color:white; transform:scale(0.97); }
+    .level-tabs { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:20px; }
+    .level-tab   { padding:10px 20px; border-radius:50px; border:3px solid #eee; background:white; font-family:var(--font-body); font-size:1rem; font-weight:800; cursor:pointer; min-height:52px; transition:all 0.15s; }
+    .level-tab.active { background:var(--clr-green); color:white; border-color:var(--clr-green); }
+    .sentence-counter { font-size:1rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:12px; }
+    .nav-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:20px; }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="nav-left">
+      <a href="index.html" class="nav-home-btn">🏠</a>
+      <span class="nav-title">Read Practice</span>
+    </div>
+    <div class="nav-right"></div>
+  </nav>
+  <div class="page-header" style="background:linear-gradient(135deg,var(--stage5),#5dbb6a)">
+    <h1>📗 Read Practice</h1>
+    <p>Tap each word to hear it!</p>
+  </div>
+  <main>
+    <div class="level-tabs" style="margin-top:24px" id="level-tabs">
+      <button class="level-tab active" data-level="0">Beginner</button>
+      <button class="level-tab" data-level="1">Easy</button>
+      <button class="level-tab" data-level="2">Medium</button>
+    </div>
+
+    <p class="sentence-counter" style="text-align:center">Sentence <span id="s-num">1</span> / <span id="s-total">10</span></p>
+    <div class="progress-wrap" style="margin-bottom:20px"><div class="progress-bar" id="prog-bar" style="width:10%"></div></div>
+
+    <div class="sentence-card">
+      <div class="sentence-text" id="sentence-text"></div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-secondary btn-lg" id="btn-prev">◀ Prev</button>
+      <button class="btn btn-primary   btn-lg" id="btn-read-all">🔊 Read All</button>
+      <button class="btn btn-secondary btn-lg" id="btn-next-s">Next ▶</button>
+    </div>
+
+    <div class="score-bar">
+      <div class="score-item">📖 <span id="read-count">0</span><span class="score-label"> Read</span></div>
+      <div class="score-item">⭐ <span id="stars-count">0</span><span class="score-label"> Stars</span></div>
+    </div>
+  </main>
+  <script src="js/audio.js"></script>
+  <script src="js/materials.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    const LEVELS = [
+      [// Beginner - 3-4 words
+        'The cat sat.', 'A big red bug.', 'The dog can run.', 'I see a hen.',
+        'The pig is fat.', 'A rat in a hat.', 'The sun is hot.', 'I got a cup.',
+        'The fox can hop.', 'A bun for me.',
+      ],
+      [// Easy - 4-6 words
+        'The cat sat on a mat.', 'I can see a big red bus.', 'The dog ran in the mud.',
+        'She has a pet hen at home.', 'A fat pig ate the bun.', 'The sun is up in the sky.',
+        'He hit the ball with a bat.', 'The fish swam in the net.', 'I put the cup on top.',
+        'The red fox hid in a den.',
+      ],
+      [// Medium - 6-8 words
+        'The cat sat on top of the mat.', 'I can see a big red and blue bus.',
+        'The dog ran fast in the wet mud.', 'She has a little pet hen at her home.',
+        'A fat pig sat and ate the big bun.', 'The bright sun is up high in the blue sky.',
+        'He hit the ball and it went very far.', 'The small fish swam right through the net.',
+        'I must put the cold cup back on top.', 'The red fox hid deep in the dark den.',
+      ],
+    ];
+
+    let level = 0, idx = 0, readCount = 0;
+
+    function showSentence() {
+      const sentences = LEVELS[level];
+      const sentence  = sentences[idx];
+      document.getElementById('s-num').textContent   = idx + 1;
+      document.getElementById('s-total').textContent = sentences.length;
+      UI.updateProgress(document.getElementById('prog-bar'), idx + 1, sentences.length);
+
+      // Make each word tappable
+      const words = sentence.replace(/\./g,'').split(' ');
+      const container = document.getElementById('sentence-text');
+      container.innerHTML = '';
+      words.forEach((w, i) => {
+        const span = document.createElement('span');
+        span.className = 'word-tap';
+        span.textContent = w + (i < words.length - 1 ? ' ' : '.');
+        span.addEventListener('click', () => {
+          AudioManager.speak(w, {rate:0.75});
+          readCount++;
+          document.getElementById('read-count').textContent  = readCount;
+          document.getElementById('stars-count').textContent = Math.floor(readCount / 5);
+          UI.setScore('read', {stars: Math.floor(readCount/5), total: readCount});
+        });
+        container.appendChild(span);
+      });
+    }
+
+    document.getElementById('btn-read-all').addEventListener('click', () => {
+      const sentence = LEVELS[level][idx];
+      AudioManager.speak(sentence, {rate:0.7});
+    });
+    document.getElementById('btn-prev').addEventListener('click', () => {
+      idx = (idx - 1 + LEVELS[level].length) % LEVELS[level].length;
+      showSentence(); AudioManager.playTone('click');
+    });
+    document.getElementById('btn-next-s').addEventListener('click', () => {
+      idx = (idx + 1) % LEVELS[level].length;
+      showSentence(); AudioManager.playTone('click');
+    });
+
+    document.querySelectorAll('.level-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.level-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        level = parseInt(tab.dataset.level); idx = 0;
+        showSentence(); AudioManager.playTone('click');
+      });
+    });
+
+    showSentence();
+  </script>
+</body>
+</html>
