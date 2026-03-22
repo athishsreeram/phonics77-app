@@ -1,36 +1,16 @@
 {
-  "buildCommand": "echo 'Static site, no build needed'",
-  "outputDirectory": ".",
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs18.x",
-      "includeFiles": "package.json"
-    }
-  },
-  "env": {
-    "STRIPE_SECRET_KEY": "@stripe_secret_key",
-    "STRIPE_PUBLIC_KEY": "@stripe_public_key"
-  },
+  "rewrites": [
+    { "source": "/api/create-subscription", "destination": "/api/create-subscription.js" },
+    { "source": "/api/verify-subscription",  "destination": "/api/verify-subscription.js"  },
+    { "source": "/api/log-events",           "destination": "/api/log-events.js"           }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        {
-          "key": "Access-Control-Allow-Credentials",
-          "value": "true"
-        },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
-        }
+        { "key": "Access-Control-Allow-Origin",  "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
       ]
     }
   ]

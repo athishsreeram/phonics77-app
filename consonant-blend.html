@@ -1,172 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>🔡 Consonant Blends · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    .blend-tabs { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:24px; }
-    .blend-tab  { padding:12px 20px; border-radius:50px; border:3px solid #eee; background:white; font-family:'Fredoka One',cursive; font-size:1.1rem; cursor:pointer; min-height:var(--tap-min); transition:all 0.15s; }
-    .blend-tab.active { background:var(--clr-blue); color:white; border-color:var(--clr-blue); }
-    .blend-tab:active { transform:scale(0.95); }
-
-    .blend-section { background:white; border-radius:28px; padding:24px 20px; box-shadow:var(--shadow-md); margin-bottom:24px; }
-    .blend-title   { font-family:'Fredoka One',cursive; font-size:clamp(1.5rem,5vw,2.2rem); margin-bottom:16px; text-align:center; }
-
-    .blend-cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; }
-    .blend-card { background:#f0f8ff; border:3px solid var(--clr-blue); border-radius:20px; padding:16px 12px; text-align:center; cursor:pointer; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
-    .blend-card:active { transform:scale(0.93); }
-    .blend-card:hover  { background:var(--clr-blue); color:white; transform:translateY(-3px); }
-    .blend-card:hover .blend-sub { color:rgba(255,255,255,0.8); }
-    .blend-main { font-family:'Fredoka One',cursive; font-size:clamp(1.8rem,6vw,2.6rem); }
-    .blend-sub  { font-size:0.95rem; font-weight:700; color:var(--clr-text-soft); margin-top:4px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔗 Consonant Blends · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.blend-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:14px; margin:24px 0; }
+.blend-chip {
+  background:white; border-radius:18px; padding:18px 10px; text-align:center;
+  box-shadow:var(--shadow-sm); cursor:pointer; border:3px solid transparent;
+  transition:all .2s; -webkit-tap-highlight-color:transparent;
+}
+.blend-chip:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:var(--clr-secondary); }
+.blend-chip.playing { border-color:var(--clr-primary); transform:scale(1.05); }
+.blend-pair { font-family:'Fredoka One',cursive; font-size:2rem; color:var(--clr-primary); }
+.blend-emoji { font-size:1.8rem; margin:4px 0; display:block; }
+.blend-word  { font-size:.8rem; font-weight:800; color:var(--clr-text-soft); }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Consonant Blends</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
-  <div class="page-header" style="background:linear-gradient(135deg,var(--stage3),#c4b5fd)">
-    <h1>🔡 Consonant Blends</h1>
-    <p>Two consonants blend together!</p>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Consonant Blends</span>
   </div>
-  <main>
-    <div class="blend-tabs" id="blend-tabs">
-      <button class="blend-tab active" data-group="l">L Blends</button>
-      <button class="blend-tab" data-group="r">R Blends</button>
-      <button class="blend-tab" data-group="s">S Blends</button>
-      <button class="blend-tab" data-group="end">End Blends</button>
-    </div>
-
-    <div class="blend-section" id="blend-section">
-      <div class="blend-title" id="blend-title">🔵 L Blends</div>
-      <div class="blend-cards-grid" id="blend-grid"></div>
-    </div>
-
-    <div style="text-align:center;margin-bottom:24px">
-      <button class="btn btn-blue btn-lg" id="btn-read-all" style="background:var(--clr-blue);color:white">🔊 Read All</button>
-    </div>
-
-    <div class="score-bar">
-      <div class="score-item">⭐ <span id="stars">0</span><span class="score-label"> Stars</span></div>
-    </div>
-  </main>
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    const GROUPS = {
-      l: {
-        title: '🔵 L Blends',
-        blends: [
-          {blend:'bl', words:['black','blue','blow','blade','blank','blink','block','blast']},
-          {blend:'cl', words:['clap','claw','clay','clip','clock','cloth','clown','club']},
-          {blend:'fl', words:['flag','flat','flew','flip','flock','floor','flow','fly']},
-          {blend:'gl', words:['glad','glass','glen','glide','glow','glue','gloom','glare']},
-          {blend:'pl', words:['plan','play','plea','plod','plot','plow','plug','plum']},
-          {blend:'sl', words:['slab','slap','sled','slim','slip','slop','slow','slug']},
-        ]
-      },
-      r: {
-        title: '🟠 R Blends',
-        blends: [
-          {blend:'br', words:['brag','bran','brat','brave','bread','brick','bride','bring']},
-          {blend:'cr', words:['crab','crack','craft','cram','crash','crew','crib','crop']},
-          {blend:'dr', words:['drag','draw','dream','dress','drill','drive','drop','drum']},
-          {blend:'fr', words:['frog','from','front','frost','frown','fruit','frame','free']},
-          {blend:'gr', words:['grab','grand','grape','grass','gray','green','grip','grin']},
-          {blend:'pr', words:['pram','pray','press','pride','prince','print','prize','prop']},
-          {blend:'tr', words:['track','trade','train','trap','tree','tribe','trick','trip']},
-        ]
-      },
-      s: {
-        title: '🟢 S Blends',
-        blends: [
-          {blend:'sc', words:['scat','scare','scold','scope','score','scout','screw','scan']},
-          {blend:'sk', words:['skate','sketch','skid','skill','skin','skip','skull','sky']},
-          {blend:'sl', words:['slab','slap','sled','slim','slip','slow','slug','slum']},
-          {blend:'sm', words:['small','smash','smell','smile','smog','smoke','smooth','smug']},
-          {blend:'sn', words:['snap','snare','sneak','sniff','snore','snow','snug','snake']},
-          {blend:'sp', words:['span','spare','speak','speed','spin','spit','spot','spur']},
-          {blend:'st', words:['stack','stage','stand','step','stick','stock','stop','stub']},
-          {blend:'sw', words:['swam','swear','sweep','swift','swim','swing','swipe','swoop']},
-        ]
-      },
-      end: {
-        title: '🔴 End Blends',
-        blends: [
-          {blend:'nd', words:['band','bend','bond','end','find','fond','hand','land','sand','wind']},
-          {blend:'nk', words:['bank','blink','bonk','drink','link','pink','rank','sink','tank','wink']},
-          {blend:'nt', words:['ant','bent','dent','faint','hint','hunt','mint','rent','tent','want']},
-          {blend:'st', words:['best','blast','dust','fast','fist','just','last','list','must','past']},
-          {blend:'ft', words:['craft','draft','deft','gift','left','loft','raft','shift','soft','swift']},
-          {blend:'mp', words:['bump','camp','clamp','damp','dump','hump','jump','lamp','pump','stamp']},
-        ]
-      }
-    };
-
-    let currentGroup = 'l';
-    let stars = 0;
-
-    document.querySelectorAll('.blend-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.blend-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentGroup = tab.dataset.group;
-        buildGroup();
-        AudioManager.playTone('click');
-      });
-    });
-
-    function buildGroup() {
-      const group = GROUPS[currentGroup];
-      document.getElementById('blend-title').textContent = group.title;
-      const grid = document.getElementById('blend-grid');
-      grid.innerHTML = '';
-      group.blends.forEach(b => {
-        b.words.forEach(w => {
-          const card = document.createElement('div');
-          card.className = 'blend-card';
-          // Highlight the blend in the word
-          const idx = w.indexOf(b.blend);
-          let display = w;
-          if (idx === 0) {
-            display = `<span style="color:var(--clr-blue);font-weight:900">${b.blend}</span>${w.slice(b.blend.length)}`;
-          } else if (idx > 0) {
-            display = w.slice(0,idx) + `<span style="color:var(--clr-blue);font-weight:900">${b.blend}</span>` + w.slice(idx+b.blend.length);
-          }
-          card.innerHTML = `<div class="blend-main">${display}</div><div class="blend-sub">${b.blend}-blend</div>`;
-          card.addEventListener('click', () => {
-            AudioManager.speak(w, {rate:0.75});
-            AudioManager.playTone('click');
-            UI.animateBtn(card);
-            stars++;
-            document.getElementById('stars').textContent = stars;
-            UI.setScore('consonant_blend', {stars});
-          });
-          grid.appendChild(card);
-        });
-      });
-    }
-
-    document.getElementById('btn-read-all').addEventListener('click', () => {
-      const group = GROUPS[currentGroup];
-      const allWords = group.blends.flatMap(b => b.words.slice(0,2));
-      let i = 0;
-      function next() {
-        if (i >= allWords.length) return;
-        AudioManager.speak(allWords[i++], {rate:0.75, onEnd:()=>setTimeout(next, 400)});
-      }
-      next();
-    });
-
-    buildGroup();
-  </script>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#10b981,#065f46)">
+  <h1>🔗 Consonant Blends</h1>
+  <p>Tap a blend to hear it — learn all 22!</p>
+</div>
+<main>
+  <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-top:20px">Tap any blend to hear its sound and example word.</p>
+  <div class="blend-grid" id="blend-grid"></div>
+</main>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+PHONICS_DATA.consonantBlends.forEach((b, i) => {
+  const grid = document.getElementById('blend-grid');
+  const chip = document.createElement('div');
+  chip.className = 'blend-chip';
+  const hue = (i * 16) % 360;
+  chip.innerHTML = `
+    <div class="blend-pair" style="color:hsl(${hue},65%,45%)">${b.blend.toUpperCase()}</div>
+    <span class="blend-emoji">${b.emoji}</span>
+    <div class="blend-word">${b.word}</div>`;
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.blend-chip').forEach(c => c.classList.remove('playing'));
+    chip.classList.add('playing');
+    AudioManager.speak(`${b.blend}. ${b.word}`, {rate:.8});
+    setTimeout(() => chip.classList.remove('playing'), 1200);
+  });
+  grid.appendChild(chip);
+});
+</script>
 </body>
 </html>

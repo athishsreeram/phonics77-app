@@ -1,160 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>👨‍👩‍👧 Parent Dashboard · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    .dash-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:28px; }
-    .stat-card { background:white; border-radius:24px; padding:20px; box-shadow:var(--shadow-md); }
-    .stat-card-title { font-size:1rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:8px; }
-    .stat-card-value { font-family:'Fredoka One',cursive; font-size:2.4rem; }
-    .activity-row { background:white; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:14px; box-shadow:var(--shadow-sm); margin-bottom:10px; }
-    .activity-icon { font-size:1.8rem; flex-shrink:0; }
-    .activity-info { flex:1; }
-    .activity-name { font-weight:800; font-size:1.1rem; }
-    .activity-meta { font-size:0.9rem; color:var(--clr-text-soft); }
-    .activity-stars { font-size:1.2rem; flex-shrink:0; }
-    .progress-row { margin-bottom:12px; }
-    .progress-label { display:flex; justify-content:space-between; font-weight:700; font-size:1rem; margin-bottom:4px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>👨‍👩‍👧 Parent Dashboard · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.dash-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:32px; }
+.stat-card  { background:white; border-radius:20px; padding:22px 18px; box-shadow:var(--shadow-sm); text-align:center; }
+.stat-big   { font-family:'Fredoka One',cursive; font-size:2.6rem; line-height:1; }
+.stat-lbl   { font-size:.85rem; font-weight:700; color:var(--clr-text-soft); margin-top:4px; }
+.activity-row { display:flex; align-items:center; justify-content:space-between; background:white; border-radius:14px; padding:14px 18px; margin-bottom:10px; box-shadow:var(--shadow-sm); }
+.act-name   { font-weight:800; font-size:.95rem; }
+.act-score  { font-family:'Fredoka One',cursive; font-size:1.2rem; color:var(--clr-primary); }
+.section-head { font-family:'Fredoka One',cursive; font-size:1.3rem; margin:28px 0 12px; color:#444; }
+.bar-wrap    { height:10px; background:#e5e7eb; border-radius:999px; flex:1; margin:0 12px; overflow:hidden; }
+.bar-fill    { height:100%; background:linear-gradient(90deg,var(--clr-accent),var(--clr-primary)); border-radius:999px; transition:width .5s; }
+.empty-state { text-align:center; padding:40px 20px; color:var(--clr-text-soft); }
+.empty-state div { font-size:4rem; margin-bottom:12px; }
+.reset-btn { background:none; border:2px solid #e5e7eb; border-radius:10px; padding:8px 16px; font-size:.85rem; font-weight:700; cursor:pointer; color:var(--clr-text-soft); transition:all .2s; }
+.reset-btn:hover { border-color:var(--clr-primary); color:var(--clr-primary); }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Parent Dashboard</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
-  <div class="page-header" style="background:linear-gradient(135deg,#2D3436,#636e72)">
-    <h1>👨‍👩‍👧 Parent Dashboard</h1>
-    <p>Track your child's learning progress</p>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Parent Dashboard</span>
   </div>
-  <main>
-    <div class="dash-grid" style="margin-top:24px" id="stats-grid"></div>
-    <h2 style="font-family:'Fredoka One',cursive;font-size:1.5rem;margin:0 0 16px">Activity Progress</h2>
-    <div id="activity-list"></div>
-    <h2 style="font-family:'Fredoka One',cursive;font-size:1.5rem;margin:24px 0 16px">Stage Progress</h2>
-    <div id="stage-progress"></div>
-    <div style="text-align:center;margin-top:32px">
-      <button class="btn btn-accent btn-lg" id="btn-reset-all">🗑️ Reset All Progress</button>
-    </div>
-  </main>
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    const ACTIVITIES = [
-      {key:'alphabet',        name:'Alphabet A–Z',       emoji:'🔤', stage:1, max:26},
-      {key:'set1_done',       name:'Phonic Set 1',       emoji:'1️⃣', stage:1, max:11},
-      {key:'set2_done',       name:'Phonic Set 2',       emoji:'2️⃣', stage:1, max:12},
-      {key:'cvc',             name:'CVC Words',          emoji:'🔠', stage:2, max:20},
-      {key:'rhyme',           name:'Rhyme Time',         emoji:'🎵', stage:2, max:20},
-      {key:'listen',          name:'Listen & Choose',    emoji:'👂', stage:2, max:20},
-      {key:'digraphs_done',   name:'Digraphs',           emoji:'🔠', stage:3, max:8},
-      {key:'digraph_fill',    name:'Digraph Test',       emoji:'✏️', stage:3, max:10},
-      {key:'consonant_blend', name:'Consonant Blends',   emoji:'🔡', stage:3, max:30},
-      {key:'read',            name:'Read Practice',      emoji:'📗', stage:5, max:30},
-      {key:'read2',           name:'Read + Voice',       emoji:'🎙️', stage:5, max:10},
-      {key:'word_match',      name:'Word Match',         emoji:'🎯', stage:5, max:18},
-      {key:'sentence_builder',name:'Sentence Builder',   emoji:'🧩', stage:6, max:10},
-      {key:'balloon_pop',     name:'Balloon Pop',        emoji:'🎈', stage:0, max:50},
-      {key:'phkids',          name:'Phonic Games',       emoji:'🎮', stage:0, max:10},
-    ];
+  <div class="nav-right">
+    <button class="reset-btn" id="btn-reset">🗑 Clear Data</button>
+  </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#0f172a,#1e3a5f)">
+  <h1>👨‍👩‍👧 Parent Dashboard</h1>
+  <p>Track your child's phonics progress</p>
+</div>
+<main style="margin-top:24px">
+  <div class="dash-grid" id="summary-grid"></div>
+  <div class="section-head">📊 Activity Progress</div>
+  <div id="activity-list"></div>
+  <div class="section-head">🔤 Alphabet Mastery</div>
+  <div id="alpha-detail"></div>
+</main>
+<script src="js/ui.js"></script>
+<script>
+const ACTIVITIES = [
+  {key:'sound-matching',   label:'Sound Matching',      total:10},
+  {key:'alphabet',         label:'Alphabet A–Z',         total:26},
+  {key:'blending-intro',   label:'Blending Intro',       total:10},
+  {key:'digraph-practice', label:'Digraph Practice',     total:8 },
+  {key:'vowel-blends',     label:'Vowel Blends',         total:10},
+  {key:'cvc-words',        label:'CVC Words',            total:18},
+  {key:'sight-words',      label:'Sight Words',          total:50},
+  {key:'word-match',       label:'Word Match',           total:12},
+  {key:'word-explore',     label:'Word Explorer',        total:26},
+  {key:'phonics-review',   label:'Phonics Review',       total:20},
+  {key:'alphabet-balloon', label:'Balloon Pop',          total:20},
+];
 
-    function getScoreData(key) {
-      // Some pages store as array (done sets), others as objects
-      try {
-        const raw = localStorage.getItem('phonics_score_' + key) || localStorage.getItem(key + '_done');
-        if (!raw) return {stars:0, total:0};
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) return {stars:parsed.length, total:parsed.length};
-        return {stars: parsed.stars||0, total: parsed.total||0};
-      } catch { return {stars:0, total:0}; }
-    }
+function loadData() {
+  let totalStars=0, totalActivities=0, totalPossible=0;
+  const rows = [];
+  ACTIVITIES.forEach(a => {
+    const s = UI.getScore(a.key);
+    const stars = s.stars || 0;
+    const total = s.total || a.total;
+    const pct   = total > 0 ? Math.round((stars/total)*100) : 0;
+    if (stars > 0) { totalStars += stars; totalActivities++; }
+    totalPossible += total;
+    rows.push({label:a.label, stars, total, pct});
+  });
 
-    // Total stars
-    let totalStars = 0, totalActivities = 0;
-    ACTIVITIES.forEach(a => {
-      const d = getScoreData(a.key);
-      totalStars += d.stars;
-      if (d.total > 0) totalActivities++;
-    });
+  // Summary cards
+  const grid = document.getElementById('summary-grid');
+  grid.innerHTML='';
+  const summary = [
+    {num:totalActivities, lbl:'Activities played', color:'#6366f1'},
+    {num:totalStars,      lbl:'Total stars earned', color:'#f59e0b'},
+    {num:Math.round((totalStars/Math.max(totalPossible,1))*100)+'%', lbl:'Overall score', color:'#22c55e'},
+    {num:JSON.parse(localStorage.getItem('alpha_mastered')||'[]').length, lbl:'Letters mastered', color:'#ec4899'},
+  ];
+  summary.forEach(s => {
+    const card = document.createElement('div');
+    card.className='stat-card';
+    card.innerHTML=`<div class="stat-big" style="color:${s.color}">${s.num}</div><div class="stat-lbl">${s.lbl}</div>`;
+    grid.appendChild(card);
+  });
 
-    // Special: alphabet mastered
-    const alphaMastered = JSON.parse(localStorage.getItem('alpha_mastered')||'[]').length;
-
-    // Stats cards
-    const statsGrid = document.getElementById('stats-grid');
-    [
-      {label:'Total ⭐ Stars', value: totalStars, color:'var(--clr-primary)'},
-      {label:'Activities Used', value: totalActivities, color:'var(--clr-secondary)'},
-      {label:'Letters Mastered', value: alphaMastered + ' / 26', color:'var(--clr-green)'},
-      {label:'Material Pack', value: MaterialsManager.getCurrent().emoji + ' ' + MaterialsManager.getCurrent().name, color:'var(--clr-purple)'},
-    ].forEach(s => {
-      const card = document.createElement('div');
-      card.className = 'stat-card';
-      card.innerHTML = `<div class="stat-card-title">${s.label}</div><div class="stat-card-value" style="color:${s.color}">${s.value}</div>`;
-      statsGrid.appendChild(card);
-    });
-
-    // Activity list
-    const actList = document.getElementById('activity-list');
-    ACTIVITIES.forEach(a => {
-      const d = getScoreData(a.key);
-      if (d.total === 0 && d.stars === 0) return;
+  // Activity rows
+  const list = document.getElementById('activity-list');
+  const hasData = rows.some(r => r.stars > 0);
+  if (!hasData) {
+    list.innerHTML='<div class="empty-state"><div>📭</div><p>No activity data yet.<br>Complete some activities to see progress here!</p></div>';
+  } else {
+    list.innerHTML='';
+    rows.forEach(r => {
+      if (r.stars === 0) return;
       const row = document.createElement('div');
-      row.className = 'activity-row';
-      row.innerHTML = `
-        <div class="activity-icon">${a.emoji}</div>
-        <div class="activity-info">
-          <div class="activity-name">${a.name}</div>
-          <div class="activity-meta">Stage ${a.stage > 0 ? a.stage : 'Games'} · ${d.total} interactions</div>
-        </div>
-        <div class="activity-stars">⭐ ${d.stars}</div>
-      `;
-      actList.appendChild(row);
+      row.className='activity-row';
+      row.innerHTML=`
+        <span class="act-name">${r.label}</span>
+        <div class="bar-wrap"><div class="bar-fill" style="width:${r.pct}%"></div></div>
+        <span class="act-score">${r.stars}/${r.total}</span>`;
+      list.appendChild(row);
     });
-    if (!actList.children.length) {
-      actList.innerHTML = '<p style="text-align:center;color:var(--clr-text-soft);font-size:1.1rem;padding:20px">No activity yet — start learning! 🚀</p>';
-    }
+  }
 
-    // Stage progress
-    const stageProg = document.getElementById('stage-progress');
-    const stageNames = ['','Alphabet & Sounds','Vowels & CVC','Digraphs & Blends','Magic E & Long Vowels','Reading','Writing'];
-    for (let s = 1; s <= 6; s++) {
-      const acts = ACTIVITIES.filter(a => a.stage === s);
-      const starsEarned = acts.reduce((sum, a) => sum + getScoreData(a.key).stars, 0);
-      const maxStars    = acts.reduce((sum, a) => sum + a.max, 0);
-      const pct = maxStars ? Math.min(100, Math.round(starsEarned / maxStars * 100)) : 0;
-      const div = document.createElement('div');
-      div.className = 'progress-row';
-      div.innerHTML = `
-        <div class="progress-label">
-          <span>Stage ${s}: ${stageNames[s]}</span>
-          <span>${starsEarned} ⭐ (${pct}%)</span>
-        </div>
-        <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
-      `;
-      stageProg.appendChild(div);
-    }
+  // Alphabet detail
+  const mastered = new Set(JSON.parse(localStorage.getItem('alpha_mastered')||'[]'));
+  const alphaDiv = document.getElementById('alpha-detail');
+  if (mastered.size === 0) {
+    alphaDiv.innerHTML='<div class="empty-state"><div>🔤</div><p>No letters mastered yet in Alphabet A–Z.</p></div>';
+  } else {
+    alphaDiv.innerHTML=`<p style="font-weight:700;color:var(--clr-text-soft);margin-bottom:12px">${mastered.size}/26 letters mastered</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l=>`<div style="width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.2rem;background:${mastered.has(l)?'#dcfce7':'#f3f4f6'};color:${mastered.has(l)?'#15803d':'#999'};border:2px solid ${mastered.has(l)?'#22c55e':'transparent'}">${l}</div>`).join('')}</div>`;
+  }
+}
 
-    document.getElementById('btn-reset-all').addEventListener('click', () => {
-      if (!confirm('Reset ALL progress? This cannot be undone.')) return;
-      const toDelete = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && (k.startsWith('phonics_') || k.endsWith('_done') || k === 'alpha_mastered')) {
-          toDelete.push(k);
-        }
-      }
-      toDelete.forEach(k => localStorage.removeItem(k));
-      UI.toast('All progress reset! 🌟');
-      setTimeout(() => location.reload(), 1000);
-    });
-  </script>
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (!confirm('Clear all activity progress? This cannot be undone.')) return;
+  ACTIVITIES.forEach(a => localStorage.removeItem(`ph_score_${a.key}`));
+  localStorage.removeItem('alpha_mastered');
+  localStorage.removeItem('ph_premium');
+  loadData();
+  alert('All data cleared.');
+});
+
+loadData();
+</script>
 </body>
 </html>

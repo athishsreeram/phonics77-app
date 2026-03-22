@@ -1,180 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>🌟 Word Explorer · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    .search-bar { display:flex; gap:12px; margin-bottom:24px; }
-    .word-input { flex:1; border:4px solid var(--clr-secondary); border-radius:20px; padding:14px 20px; font-family:'Fredoka One',cursive; font-size:1.4rem; outline:none; background:white; }
-    .word-input:focus { border-color:var(--clr-primary); box-shadow:0 0 0 3px rgba(255,107,53,0.2); }
-    .word-card { background:white; border-radius:32px; padding:32px 24px; box-shadow:var(--shadow-md); text-align:center; margin-bottom:24px; display:none; animation:fadeIn 0.3s ease; }
-    .word-card.show { display:block; }
-    .explore-word { font-family:'Fredoka One',cursive; font-size:clamp(3rem,14vw,7rem); color:var(--clr-primary); margin-bottom:8px; }
-    .word-details { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:16px; margin-top:20px; }
-    .detail-box { background:#f8f8f8; border-radius:16px; padding:14px; }
-    .detail-box-label { font-size:0.9rem; font-weight:700; color:var(--clr-text-soft); text-transform:uppercase; margin-bottom:6px; }
-    .detail-box-value { font-family:'Fredoka One',cursive; font-size:1.2rem; }
-
-    .letter-breakdown { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
-    .letter-box { width:60px; height:60px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-family:'Fredoka One',cursive; font-size:1.8rem; cursor:pointer; transition:all 0.15s; box-shadow:var(--shadow-sm); }
-    .letter-box.vowel     { background:#fff0ec; border:3px solid var(--clr-primary); color:var(--clr-primary); }
-    .letter-box.consonant { background:#f0f8ff; border:3px solid var(--clr-blue); color:var(--clr-blue); }
-    .letter-box:active    { transform:scale(0.93); }
-
-    .word-suggestions { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:16px; }
-    .suggest-word { background:#f0f0f0; border-radius:50px; padding:10px 18px; font-family:'Fredoka One',cursive; font-size:1.1rem; cursor:pointer; transition:all 0.15s; border:3px solid transparent; }
-    .suggest-word:hover { background:var(--clr-secondary); color:white; }
-    .suggest-word:active { transform:scale(0.93); }
-
-    .random-words { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:12px; margin-bottom:24px; }
-    .random-word-btn { background:white; border:3px solid #eee; border-radius:16px; padding:14px 12px; font-family:'Fredoka One',cursive; font-size:1.2rem; text-align:center; cursor:pointer; transition:all 0.15s; }
-    .random-word-btn:hover { border-color:var(--clr-secondary); background:#f0fefe; }
-    .random-word-btn:active { transform:scale(0.93); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 Word Explorer · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.explorer-card { background:white; border-radius:28px; padding:32px 20px; box-shadow:var(--shadow-md); max-width:560px; margin:28px auto; }
+.builder-row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin:20px 0; }
+.letter-btn { width:58px; height:64px; border-radius:14px; background:#f3f4f6; border:3px solid #e5e7eb; font-family:'Fredoka One',cursive; font-size:1.6rem; cursor:pointer; transition:all .15s; }
+.letter-btn:hover { background:#e0e7ff; border-color:var(--clr-blue); transform:translateY(-2px); }
+.word-out { font-family:'Fredoka One',cursive; font-size:clamp(2.5rem,10vw,4rem); min-height:80px; display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; color:var(--clr-primary); }
+.built-letter { background:var(--clr-primary); color:white; width:56px; height:64px; border-radius:14px; display:flex; align-items:center; justify-content:center; animation:pop .2s ease; }
+.btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Word Explorer</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
-  <div class="page-header" style="background:linear-gradient(135deg,var(--clr-blue),#60a5fa)">
-    <h1>🌟 Word Explorer</h1>
-    <p>Explore any word!</p>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Word Explorer</span>
   </div>
-  <main>
-    <!-- Search -->
-    <div class="search-bar" style="margin-top:24px">
-      <input class="word-input" id="word-input" type="text" placeholder="Type a word..." maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false">
-      <button class="btn btn-primary btn-lg" id="btn-explore-word">🔍</button>
-    </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">
+  <h1>📊 Word Explorer</h1>
+  <p>Build words letter by letter!</p>
+</div>
+<main>
+<div class="explorer-card">
+  <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-bottom:16px">Tap letters to build a word, then press Hear!</p>
+  <div class="word-out" id="word-out"><span style="color:#ccc;font-size:1.5rem">tap letters…</span></div>
+  <div class="btn-row" style="margin-bottom:20px">
+    <button class="btn btn-primary" id="btn-hear">🔊 Hear Word</button>
+    <button class="btn btn-secondary" id="btn-clear">🗑 Clear</button>
+  </div>
+  <div class="builder-row" id="builder-row"></div>
+</div>
+</main>
+<script src="js/audio.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+let built = [];
 
-    <!-- Word card -->
-    <div class="word-card" id="word-card">
-      <div class="explore-word" id="explored-word">cat</div>
-      <div class="letter-breakdown" id="letter-breakdown"></div>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0">
-        <button class="btn btn-primary" id="btn-say-word">🔊 Say It</button>
-        <button class="btn btn-secondary" id="btn-spell-word">✍️ Spell It</button>
-      </div>
-      <div class="word-details" id="word-details"></div>
-      <div style="margin-top:20px">
-        <p style="font-weight:700;margin-bottom:10px">Similar words:</p>
-        <div class="word-suggestions" id="word-suggestions"></div>
-      </div>
-    </div>
+const row = document.getElementById('builder-row');
+LETTERS.forEach(l => {
+  const btn = document.createElement('button');
+  btn.className = 'letter-btn'; btn.textContent = l;
+  btn.addEventListener('click', () => {
+    built.push(l);
+    render();
+    AudioManager.speak(l, {rate:.7});
+  });
+  row.appendChild(btn);
+});
 
-    <!-- Quick explore section -->
-    <h2 style="font-family:'Fredoka One',cursive;font-size:1.4rem;margin:0 0 16px;text-align:center">Quick explore:</h2>
-    <div class="random-words" id="quick-words"></div>
-  </main>
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    const QUICK = ['cat','dog','sun','bus','pig','hat','run','big','red','hot','cup','man','sit','fun','log'];
-    const VOWELS_SET = new Set('aeiou');
+function render() {
+  const out = document.getElementById('word-out');
+  if (!built.length) { out.innerHTML = `<span style="color:#ccc;font-size:1.5rem">tap letters…</span>`; return; }
+  out.innerHTML = built.map(l => `<div class="built-letter">${l}</div>`).join('');
+}
 
-    function analyzeWord(w) {
-      const lower   = w.toLowerCase();
-      const letters = lower.split('');
-      const vowels  = letters.filter(l => VOWELS_SET.has(l)).length;
-      const cons    = letters.filter(l => /[a-z]/.test(l) && !VOWELS_SET.has(l)).length;
-      const isShort = letters.length <= 3;
-      const hasE    = lower.endsWith('e') && letters.length > 3;
-      const doubVow = /aa|ee|ii|oo|uu|ai|ea|oa|oa|ie/.test(lower);
-
-      let type = 'Unknown';
-      if (letters.length === 3 && vowels === 1) type = 'CVC Word';
-      else if (hasE) type = 'Magic E Word';
-      else if (doubVow) type = 'Vowel Team Word';
-      else type = letters.length <= 4 ? 'Short Word' : 'Longer Word';
-
-      return { letters, vowels, cons, length: letters.length, type };
-    }
-
-    function findSimilar(w) {
-      const all = [...QUICK, 'bed','net','pin','hop','mug','can','ten','win','pop','bun'];
-      const similar = all.filter(x => x !== w && (x[0]===w[0] || x.slice(-2)===w.slice(-2) || x.length===w.length));
-      return UI.shuffle(similar).slice(0, 8);
-    }
-
-    function exploreWord(word) {
-      if (!word.trim()) return;
-      const w   = word.trim().toLowerCase();
-      const info = analyzeWord(w);
-
-      document.getElementById('explored-word').textContent = w;
-      document.getElementById('word-card').classList.add('show');
-
-      // Letter breakdown
-      const lb = document.getElementById('letter-breakdown');
-      lb.innerHTML = '';
-      info.letters.forEach(l => {
-        if (!/[a-z]/.test(l)) return;
-        const box = document.createElement('div');
-        box.className = `letter-box ${VOWELS_SET.has(l) ? 'vowel' : 'consonant'}`;
-        box.textContent = l;
-        box.title = VOWELS_SET.has(l) ? 'Vowel' : 'Consonant';
-        box.addEventListener('click', () => { AudioManager.speakLetter(l); UI.animateBtn(box); });
-        lb.appendChild(box);
-      });
-
-      // Details
-      const details = document.getElementById('word-details');
-      details.innerHTML = `
-        <div class="detail-box"><div class="detail-box-label">Letters</div><div class="detail-box-value">${info.length}</div></div>
-        <div class="detail-box"><div class="detail-box-label">Vowels</div><div class="detail-box-value" style="color:var(--clr-primary)">${info.vowels}</div></div>
-        <div class="detail-box"><div class="detail-box-label">Consonants</div><div class="detail-box-value" style="color:var(--clr-blue)">${info.cons}</div></div>
-        <div class="detail-box"><div class="detail-box-label">Word Type</div><div class="detail-box-value">${info.type}</div></div>
-      `;
-
-      // Similar
-      const sugg = document.getElementById('word-suggestions');
-      sugg.innerHTML = '';
-      findSimilar(w).forEach(sw => {
-        const btn = document.createElement('button');
-        btn.className = 'suggest-word';
-        btn.textContent = sw;
-        btn.addEventListener('click', () => { exploreWord(sw); document.getElementById('word-input').value = sw; });
-        sugg.appendChild(btn);
-      });
-
-      document.getElementById('word-card').scrollIntoView({behavior:'smooth', block:'nearest'});
-      AudioManager.speak(w, {rate:0.75});
-    }
-
-    document.getElementById('btn-explore-word').addEventListener('click', () => {
-      exploreWord(document.getElementById('word-input').value);
-    });
-    document.getElementById('word-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') exploreWord(document.getElementById('word-input').value);
-    });
-    document.getElementById('btn-say-word').addEventListener('click', () => {
-      AudioManager.speak(document.getElementById('explored-word').textContent, {rate:0.75});
-    });
-    document.getElementById('btn-spell-word').addEventListener('click', () => {
-      AudioManager.spellWord(document.getElementById('explored-word').textContent);
-    });
-
-    // Quick words
-    const qgrid = document.getElementById('quick-words');
-    QUICK.forEach(w => {
-      const btn = document.createElement('div');
-      btn.className = 'random-word-btn';
-      btn.textContent = w;
-      btn.addEventListener('click', () => {
-        document.getElementById('word-input').value = w;
-        exploreWord(w);
-        AudioManager.playTone('click');
-      });
-      qgrid.appendChild(btn);
-    });
-  </script>
+document.getElementById('btn-hear').addEventListener('click', () => {
+  if (!built.length) { UI.toast('Add some letters first!'); return; }
+  AudioManager.speak(built.join('').toLowerCase(), {rate:.7});
+});
+document.getElementById('btn-clear').addEventListener('click', () => { built=[]; render(); });
+</script>
 </body>
 </html>

@@ -1,148 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>🎮 Phonic Games · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    .games-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:18px; margin-bottom:32px; }
-    .game-card { background:white; border-radius:24px; padding:20px 14px; text-align:center; cursor:pointer; box-shadow:0 6px 0 rgba(0,0,0,0.10); border:4px solid transparent; transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
-    .game-card:active { transform:translateY(4px); box-shadow:0 2px 0 rgba(0,0,0,0.10); }
-    .game-card:hover  { transform:translateY(-5px); box-shadow:0 11px 0 rgba(0,0,0,0.10); }
-    .game-icon  { font-size:clamp(2.5rem,8vw,3.5rem); display:block; margin-bottom:10px; }
-    .game-title { font-family:'Fredoka One',cursive; font-size:1.1rem; margin-bottom:4px; }
-    .game-desc  { font-size:0.9rem; color:var(--clr-text-soft); font-weight:600; }
-
-    /* ── Quick game: Odd One Out ── */
-    .mini-game { background:white; border-radius:32px; padding:32px 20px; box-shadow:var(--shadow-md); text-align:center; margin-bottom:28px; display:none; animation:fadeIn 0.3s ease; }
-    .mini-game.show { display:block; }
-    .mini-game h2 { font-family:'Fredoka One',cursive; font-size:1.8rem; margin-bottom:12px; }
-    .odd-choices { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin:20px 0; }
-    .odd-btn { background:#f8f8f8; border:4px solid #eee; border-radius:20px; padding:18px 22px; font-family:'Fredoka One',cursive; font-size:clamp(1.4rem,5vw,2rem); cursor:pointer; transition:all 0.15s; min-height:72px; }
-    .odd-btn:hover   { background:#f0f0f0; border-color:var(--clr-secondary); }
-    .odd-btn.correct { background:#f0fdf4; border-color:var(--clr-green); }
-    .odd-btn.wrong   { background:#fff0f0; border-color:var(--clr-primary); }
-    .odd-btn:active  { transform:scale(0.95); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔄 Phonics Review · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.review-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:520px; margin:28px auto; }
+.category-badge { display:inline-block; background:#e0e7ff; color:#4338ca; border-radius:10px; padding:4px 14px; font-size:.8rem; font-weight:800; margin-bottom:16px; }
+.q-display { font-size:clamp(2rem,10vw,4.5rem); font-family:'Fredoka One',cursive; margin:16px 0; color:var(--clr-text); }
+.q-emoji   { font-size:clamp(3rem,11vw,5rem); display:block; margin-bottom:8px; }
+.choices   { display:grid; grid-template-columns:1fr 1fr; gap:14px; max-width:420px; margin:20px auto 0; }
+.cbtn { background:#f3f4f6; border:3px solid transparent; border-radius:16px; padding:16px 12px; font-family:'Fredoka One',cursive; font-size:1.5rem; cursor:pointer; transition:all .15s; min-height:70px; display:flex; align-items:center; justify-content:center; }
+.cbtn:hover  { background:#e0e7ff; border-color:var(--clr-blue); }
+.cbtn.correct { background:#dcfce7; border-color:var(--clr-green); }
+.cbtn.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
+.score-bar { display:flex; gap:20px; justify-content:center; margin-top:16px; font-weight:800; }
+.score-pill { background:#f3f4f6; border-radius:10px; padding:6px 16px; font-size:1rem; }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Phonic Games</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
-  <div class="page-header" style="background:linear-gradient(135deg,#4D96FF,#60a5fa)">
-    <h1>🎮 Phonic Games</h1>
-    <p>Fun games to practice phonics!</p>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Phonics Review</span>
   </div>
-  <main>
-    <div class="games-grid" style="margin-top:24px">
-      <div class="game-card" style="border-color:#FF6B3555" data-game="oddone">
-        <span class="game-icon">🦆</span>
-        <div class="game-title">Odd One Out</div>
-        <div class="game-desc">Which word doesn't rhyme?</div>
-      </div>
-      <a href="alphabet-ballon-pop.html" class="game-card" style="border-color:#4ECDC455;text-decoration:none;color:inherit">
-        <span class="game-icon">🎈</span>
-        <div class="game-title">Balloon Pop</div>
-        <div class="game-desc">Pop the right letters!</div>
-      </a>
-      <a href="listen-choose.html" class="game-card" style="border-color:#A78BFA55;text-decoration:none;color:inherit">
-        <span class="game-icon">👂</span>
-        <div class="game-title">Listen &amp; Choose</div>
-        <div class="game-desc">Can you hear the word?</div>
-      </a>
-      <a href="word-match.html" class="game-card" style="border-color:#6BCB7755;text-decoration:none;color:inherit">
-        <span class="game-icon">🎯</span>
-        <div class="game-title">Word Match</div>
-        <div class="game-desc">Match word to picture!</div>
-      </a>
-      <a href="rhyme.html" class="game-card" style="border-color:#FF85A155;text-decoration:none;color:inherit">
-        <span class="game-icon">🎵</span>
-        <div class="game-title">Rhyme Quiz</div>
-        <div class="game-desc">Find the rhyming words!</div>
-      </a>
-      <a href="alphabet.html" class="game-card" style="border-color:#FF6B3555;text-decoration:none;color:inherit">
-        <span class="game-icon">🔤</span>
-        <div class="game-title">Alphabet Quiz</div>
-        <div class="game-desc">Guess the letter sound!</div>
-      </a>
-    </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#6366f1,#4338ca)">
+  <h1>🔄 Phonics Review</h1>
+  <p>Mixed questions across all topics!</p>
+</div>
+<main>
+<div class="review-card" id="review-card">
+  <div class="category-badge" id="cat-badge">Letters</div>
+  <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:4px" id="q-num">Question 1 of 20</p>
+  <div class="progress-wrap" style="margin-bottom:16px">
+    <div class="progress-bar" id="prog-bar" style="width:5%"></div>
+  </div>
+  <span class="q-emoji" id="q-emoji"></span>
+  <div class="q-display" id="q-text">Loading…</div>
+  <div class="choices" id="choices"></div>
+  <div class="score-bar">
+    <div class="score-pill">✅ <span id="correct-count">0</span></div>
+    <div class="score-pill">❌ <span id="wrong-count">0</span></div>
+  </div>
+</div>
+</main>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const TOTAL = 20;
+let qNum = 0, correct = 0, wrong = 0, answered = false;
 
-    <!-- Odd One Out mini game -->
-    <div class="mini-game" id="game-oddone">
-      <h2>🦆 Odd One Out</h2>
-      <p style="font-size:1.1rem;color:var(--clr-text-soft);margin-bottom:8px">Which word does NOT rhyme with the others?</p>
-      <div class="odd-choices" id="odd-choices"></div>
-      <p style="font-weight:800;font-size:1.1rem;margin-top:12px">Score: <span id="odd-score">0</span> / <span id="odd-total">0</span></p>
-    </div>
-
-    <div class="score-bar">
-      <div class="score-item">⭐ <span id="stars-count">0</span><span class="score-label"> Stars</span></div>
-    </div>
-  </main>
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    // Game card click
-    document.querySelectorAll('.game-card[data-game]').forEach(card => {
-      card.addEventListener('click', () => {
-        const g = card.dataset.game;
-        document.querySelectorAll('.mini-game').forEach(m => m.classList.remove('show'));
-        const el = document.getElementById('game-' + g);
-        if (el) { el.classList.add('show'); el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
-        AudioManager.playTone('click');
-        if (g === 'oddone') nextOddOne();
-      });
+// Build a mixed question pool
+function buildPool() {
+  const pool = [];
+  // Letter sound questions
+  UI.shuffle(PHONICS_DATA.alphabet).slice(0,7).forEach(l => {
+    pool.push({
+      category:'Letters', emoji:'', text:`What sound does "${l.l}" make?`,
+      answer: l.sound,
+      options: UI.shuffle(PHONICS_DATA.alphabet.filter(x=>x.l!==l.l)).slice(0,3).map(x=>x.sound).concat(l.sound),
     });
+  });
+  // Digraph questions
+  UI.shuffle(PHONICS_DATA.digraphs).slice(0,5).forEach(d => {
+    pool.push({
+      category:'Digraphs', emoji: d.emoji, text:`"${d.word}" starts with which digraph?`,
+      answer: d.pair,
+      options: UI.shuffle(PHONICS_DATA.digraphs.filter(x=>x.pair!==d.pair)).slice(0,3).map(x=>x.pair).concat(d.pair),
+    });
+  });
+  // CVC word questions
+  UI.shuffle(PHONICS_DATA.cvc).slice(0,5).forEach(w => {
+    pool.push({
+      category:'CVC Words', emoji: w.emoji, text:`What word matches this picture?`,
+      answer: w.word,
+      options: UI.shuffle(PHONICS_DATA.cvc.filter(x=>x.word!==w.word)).slice(0,3).map(x=>x.word).concat(w.word),
+    });
+  });
+  // Blend questions
+  UI.shuffle(PHONICS_DATA.consonantBlends).slice(0,3).forEach(b => {
+    pool.push({
+      category:'Blends', emoji: b.emoji, text:`"${b.word}" starts with which blend?`,
+      answer: b.blend.toUpperCase(),
+      options: UI.shuffle(PHONICS_DATA.consonantBlends.filter(x=>x.blend!==b.blend)).slice(0,3).map(x=>x.blend.toUpperCase()).concat(b.blend.toUpperCase()),
+    });
+  });
+  return UI.shuffle(pool).slice(0, TOTAL);
+}
 
-    // Odd One Out
-    const ODD_SETS = [
-      {words:['cat','bat','hat','dog'], odd:'dog'},
-      {words:['hen','ten','men','bus'], odd:'bus'},
-      {words:['pig','big','dig','sun'], odd:'sun'},
-      {words:['hop','mop','top','sit'], odd:'sit'},
-      {words:['bug','mug','run','jug'], odd:'run'},
-      {words:['ship','chip','drip','cake'], odd:'cake'},
-      {words:['black','clock','frog','block'], odd:'frog'},
-      {words:['three','tree','see','blue'], odd:'blue'},
-      {words:['night','light','fight','round'], odd:'round'},
-      {words:['cake','lake','make','sun'], odd:'sun'},
-    ];
+const POOL = buildPool();
 
-    let oddIdx = 0, oddScore = 0, oddTotal = 0, stars = 0;
+function loadQ() {
+  if (qNum >= TOTAL) { endGame(); return; }
+  answered = false;
+  const q = POOL[qNum];
+  document.getElementById('cat-badge').textContent  = q.category;
+  document.getElementById('q-num').textContent      = `Question ${qNum+1} of ${TOTAL}`;
+  document.getElementById('q-emoji').textContent    = q.emoji;
+  document.getElementById('q-text').textContent     = q.text;
+  UI.updateProgress(document.getElementById('prog-bar'), qNum+1, TOTAL);
 
-    function nextOddOne() {
-      const set = ODD_SETS[oddIdx % ODD_SETS.length];
-      oddIdx++;
-      const shuffled = UI.shuffle(set.words);
-      const choices  = document.getElementById('odd-choices');
-      choices.innerHTML = '';
-      shuffled.forEach(w => {
-        const btn = document.createElement('button');
-        btn.className = 'odd-btn';
-        btn.textContent = w;
-        btn.addEventListener('click', () => {
-          const correct = w === set.odd;
-          btn.classList.add(correct ? 'correct' : 'wrong');
-          if (!correct) choices.querySelectorAll('.odd-btn').forEach(b => { if(b.textContent===set.odd) b.classList.add('correct'); });
-          choices.querySelectorAll('.odd-btn').forEach(b => b.style.pointerEvents='none');
-          oddTotal++;
-          if (correct) { oddScore++; stars++; AudioManager.playTone('correct'); UI.showFeedback(true, 900); document.getElementById('stars-count').textContent = stars; }
-          else            { AudioManager.playTone('wrong'); }
-          document.getElementById('odd-score').textContent = oddScore;
-          document.getElementById('odd-total').textContent = oddTotal;
-          UI.setScore('phkids', {stars, total: oddTotal});
-          setTimeout(nextOddOne, correct ? 1200 : 1800);
-        });
-        choices.appendChild(btn);
-      });
-    }
-  </script>
+  if (q.emoji) AudioManager.speak(q.answer, {rate:.75});
+
+  const ch = document.getElementById('choices');
+  ch.innerHTML = '';
+  UI.shuffle(q.options).forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'cbtn'; btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      if (answered) return; answered = true;
+      const isRight = opt === q.answer;
+      btn.classList.add(isRight ? 'correct' : 'wrong');
+      if (isRight) { correct++; AudioManager.playTone('correct'); UI.showFeedback(true); }
+      else { wrong++; AudioManager.playTone('wrong'); UI.showFeedback(false); ch.querySelectorAll('.cbtn').forEach(b=>{ if(b.textContent===q.answer) b.classList.add('correct'); }); }
+      document.getElementById('correct-count').textContent = correct;
+      document.getElementById('wrong-count').textContent   = wrong;
+      ch.querySelectorAll('.cbtn').forEach(b => b.style.pointerEvents='none');
+      qNum++; setTimeout(loadQ, 1400);
+    });
+    ch.appendChild(btn);
+  });
+}
+
+function endGame() {
+  const pct = Math.round((correct/TOTAL)*100);
+  document.getElementById('review-card').innerHTML = `
+    <div style="font-size:4rem;margin-bottom:16px">${pct>=80?'🏆':pct>=60?'⭐':'💪'}</div>
+    <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${pct>=80?'Excellent!':pct>=60?'Good work!':'Keep practising!'}</h2>
+    <p style="font-size:1.2rem;color:#666;margin-bottom:24px">Score: ${correct}/${TOTAL} (${pct}%)</p>
+    <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>
+    <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>`;
+  UI.setScore('phonics-review', {stars:correct, total:TOTAL});
+}
+
+loadQ();
+</script>
 </body>
 </html>

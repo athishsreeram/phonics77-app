@@ -1,103 +1,55 @@
-// Stripe Configuration - CONFIGURED FOR YOUR ACCOUNT
-const STRIPE_PUBLIC_KEY = 'pk_test_51TDdbkQ3NpLw3uEvtmmWhLSCeJDajOusgpa89cEXPMb7HvT37PgS6M9bkAQFgGsrFsYLxSMgNl18iN56pUw6H6k900lwEaAoqf';
-const SUBSCRIPTION_PRICE_ID = 'price_1TDdsWQ3NpLw3uEvjnvehml9'; // YOUR PRICE ID - CONFIGURED ✓
+/* js/payment.js – GitHub Pages compatible (no backend needed) */
+'use strict';
 
-class PaymentManager {
-  constructor() {
-    this.stripe = Stripe(STRIPE_PUBLIC_KEY);
-    this.userSession = this.loadSession();
-  }
+const paymentManager = (() => {
 
-  // Initialize subscription checkout
-  async initiateSubscription() {
-    try {
-      const sessionResponse = await fetch('/api/create-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          priceId: SUBSCRIPTION_PRICE_ID,
-          successUrl: window.location.origin + '/pages/success.html',
-          cancelUrl: window.location.origin + '/',
-          userId: this.userSession.userId
-        })
-      });
-
-      const { sessionId } = await sessionResponse.json();
-      if (!sessionId) {
-        alert('Error initiating checkout. Please try again.');
-        return;
-      }
-      
-      await this.stripe.redirectToCheckout({ sessionId });
-    } catch (error) {
-      console.error('Subscription error:', error);
-      alert('Payment error. Please try again.');
+  function initiateSubscription() {
+    let modal = document.getElementById('_payment-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = '_payment-modal';
+      modal.innerHTML = `
+        <div class="modal-overlay open" id="_modal-overlay">
+          <div class="modal-box">
+            <h2>⭐ Go Premium</h2>
+            <p>Unlock all 16+ phonics activities for <strong>$9.99/month</strong>.<br>
+               Start with a <strong>7-day free trial</strong> — cancel anytime.</p>
+            <button class="modal-btn" onclick="paymentManager.redirectToStripe()">
+              🚀 Start Free Trial
+            </button>
+            <button class="modal-btn" style="background:linear-gradient(135deg,#22c55e,#16a34a)" onclick="paymentManager.redirectToStripe()">
+              💳 Subscribe $9.99/mo
+            </button>
+            <button class="modal-close" onclick="paymentManager.closeModal()">✕ Maybe later</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
     }
+    document.getElementById('_modal-overlay').classList.add('open');
   }
 
-  // Verify subscription status
-  async verifySubscription(userId) {
-    const cachedStatus = localStorage.getItem(`subscription_${userId}`);
-    
-    // Use cache if valid (24 hours)
-    if (cachedStatus && this.isTokenValid(cachedStatus)) {
-      return JSON.parse(cachedStatus);
-    }
-
-    try {
-      const response = await fetch('/api/verify-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
-      });
-
-      if (!response.ok) throw new Error('Verification failed');
-      
-      const status = await response.json();
-      
-      // Cache the result
-      localStorage.setItem(`subscription_${userId}`, 
-        JSON.stringify({ ...status, timestamp: Date.now() }));
-      
-      return status;
-    } catch (error) {
-      console.error('Verification error:', error);
-      // Return free tier on error (safe fallback)
-      return { isPaid: false, userId };
-    }
+  function closeModal() {
+    const o = document.getElementById('_modal-overlay');
+    if (o) o.classList.remove('open');
   }
 
-  // Check if cached subscription is still valid (24-hour cache)
-  isTokenValid(cachedData) {
-    try {
-      const { timestamp } = JSON.parse(cachedData);
-      const ageMs = Date.now() - timestamp;
-      const oneDayMs = 24 * 60 * 60 * 1000;
-      return ageMs < oneDayMs;
-    } catch {
-      return false;
-    }
+  function redirectToStripe() {
+    // Replace this URL with your real Stripe payment link
+    const stripeLink = 'https://buy.stripe.com/test_placeholder';
+    closeModal();
+    alert('Stripe payment link not configured yet.\n\nReplace the stripeLink in js/payment.js with your real Stripe checkout URL.');
+    // window.location.href = stripeLink;  // uncomment once you have a real link
   }
 
-  // Load or create user session
-  loadSession() {
-    let session = localStorage.getItem('phonics_session');
-    if (!session) {
-      session = {
-        userId: this.generateUserId(),
-        createdAt: Date.now(),
-        isPaid: false
-      };
-      localStorage.setItem('phonics_session', JSON.stringify(session));
-    }
-    return JSON.parse(session);
+  function isPremium() {
+    // Check localStorage for a subscription token
+    // In production this should verify against your backend / Stripe
+    return localStorage.getItem('ph_premium') === 'true';
   }
 
-  // Generate unique user ID
-  generateUserId() {
-    return 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+  function setPremium(val) {
+    localStorage.setItem('ph_premium', val ? 'true' : 'false');
   }
-}
 
-// Initialize globally
-const paymentManager = new PaymentManager();
+  return { initiateSubscription, closeModal, redirectToStripe, isPremium, setPremium };
+})();

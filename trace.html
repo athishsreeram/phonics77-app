@@ -1,173 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>✍️ Letter Tracing · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    .letter-picker { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:24px; }
-    .lp-btn { width:56px; height:56px; border-radius:14px; border:3px solid #eee; background:white; font-family:'Fredoka One',cursive; font-size:1.5rem; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; }
-    .lp-btn.active { background:var(--clr-pink); color:white; border-color:var(--clr-pink); transform:scale(1.1); }
-    .lp-btn:active { transform:scale(0.93); }
-
-    .trace-area { background:white; border-radius:28px; padding:20px; box-shadow:var(--shadow-md); text-align:center; margin-bottom:24px; }
-    .guide-letter { font-family:'Fredoka One',cursive; font-size:clamp(6rem,25vw,14rem); color:#f0f0f0; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; user-select:none; line-height:1; }
-    .canvas-wrap { position:relative; display:inline-block; border-radius:20px; overflow:hidden; border:4px dashed #eee; touch-action:none; }
-    #trace-canvas { display:block; background:#fafafa; cursor:crosshair; }
-    .trace-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
-
-    .color-picker { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:16px; }
-    .color-swatch { width:44px; height:44px; border-radius:50%; border:4px solid white; cursor:pointer; transition:transform 0.15s; box-shadow:var(--shadow-sm); }
-    .color-swatch.active { border-color:var(--clr-text); transform:scale(1.15); }
-    .color-swatch:active { transform:scale(0.93); }
-
-    .stroke-size { display:flex; gap:8px; justify-content:center; align-items:center; margin-bottom:16px; }
-    .stroke-btn { border-radius:50%; background:var(--clr-text); border:3px solid white; cursor:pointer; transition:transform 0.15s; box-shadow:var(--shadow-sm); }
-    .stroke-btn.active { border-color:var(--clr-primary); transform:scale(1.2); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📈 Alphabet Tracing · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.trace-card { background:white; border-radius:28px; padding:32px 20px; text-align:center; box-shadow:var(--shadow-md); max-width:500px; margin:28px auto; }
+.letter-nav { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:16px; }
+.letter-show { font-family:'Fredoka One',cursive; font-size:clamp(5rem,20vw,10rem); line-height:1; }
+.canvas-wrap { position:relative; margin:0 auto; display:inline-block; }
+canvas { border:3px dashed #e5e7eb; border-radius:20px; cursor:crosshair; touch-action:none; display:block; }
+.trace-guide { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.trace-guide span { font-family:'Fredoka One',cursive; font-size:clamp(6rem,25vw,12rem); color:rgba(200,200,200,.35); line-height:1; }
+.info-row { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); margin-top:8px; }
+.btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+.stroke-info { font-size:.85rem; color:var(--clr-text-soft); font-weight:700; margin:8px 0; }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Letter Tracing</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
-  <div class="page-header" style="background:linear-gradient(135deg,var(--stage6),#ffaac1)">
-    <h1>✍️ Letter Tracing</h1>
-    <p>Trace over the letter guide!</p>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Alphabet Tracing</span>
   </div>
-  <main>
-    <!-- Letter picker -->
-    <div class="letter-picker" id="letter-picker"></div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#d946ef,#9d174d)">
+  <h1>📈 Alphabet Tracing</h1>
+  <p>Trace each letter with your finger!</p>
+</div>
+<main>
+<div class="trace-card">
+  <div class="letter-nav">
+    <button class="btn btn-secondary" id="btn-prev">←</button>
+    <span class="letter-show" id="letter-show" style="color:#667eea">A</span>
+    <button class="btn btn-secondary" id="btn-next">→</button>
+  </div>
+  <div class="info-row" id="info-row">Letter 1 of 26 · A is for Apple 🍎</div>
+  <p class="stroke-info">Trace over the letter below. Press 🔊 to hear it.</p>
+  <div class="canvas-wrap">
+    <div class="trace-guide"><span id="guide-letter">A</span></div>
+    <canvas id="trace-canvas" width="280" height="280"></canvas>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" id="btn-speak">🔊 Hear Letter</button>
+    <button class="btn btn-secondary" id="btn-clear">🗑 Clear</button>
+    <button class="btn btn-green" id="btn-done">✅ Done!</button>
+  </div>
+</div>
+</main>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const LETTERS = PHONICS_DATA.alphabet;
+const COLORS   = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
+let idx = 0, drawing = false;
+const canvas = document.getElementById('trace-canvas');
+const ctx    = canvas.getContext('2d');
 
-    <!-- Canvas area -->
-    <div class="trace-area">
-      <p style="font-size:1.1rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:12px" id="trace-instruction">Trace the letter <span id="trace-letter-label">A</span>!</p>
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const src  = e.touches ? e.touches[0] : e;
+  return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+}
 
-      <!-- Color picker -->
-      <div class="color-picker" id="color-picker"></div>
-      <!-- Stroke size -->
-      <div class="stroke-size" id="stroke-size">
-        <button class="stroke-btn active" data-size="12" style="width:24px;height:24px"></button>
-        <button class="stroke-btn" data-size="20" style="width:32px;height:32px"></button>
-        <button class="stroke-btn" data-size="30" style="width:44px;height:44px"></button>
-      </div>
+function render() {
+  const d = LETTERS[idx];
+  const hue = (idx * 14) % 360;
+  document.getElementById('letter-show').textContent  = d.l;
+  document.getElementById('letter-show').style.color  = `hsl(${hue},70%,50%)`;
+  document.getElementById('guide-letter').textContent = d.l;
+  document.getElementById('guide-letter').style.color = `hsla(${hue},60%,60%,.3)`;
+  document.getElementById('info-row').textContent     = `Letter ${idx+1} of 26 · ${d.l} is for ${d.word} ${d.emoji}`;
+  clearCanvas();
+}
 
-      <div class="canvas-wrap" id="canvas-wrap">
-        <div class="guide-letter" id="guide-letter">A</div>
-        <canvas id="trace-canvas"></canvas>
-      </div>
+function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
-      <div class="trace-actions">
-        <button class="btn btn-accent btn-lg" id="btn-clear">🗑️ Clear</button>
-        <button class="btn btn-primary btn-lg" id="btn-speak-letter">🔊 Hear It</button>
-        <button class="btn btn-green  btn-lg" id="btn-done">✅ Done!</button>
-      </div>
-    </div>
-  </main>
+canvas.addEventListener('mousedown',  e => { drawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
+canvas.addEventListener('mousemove',  e => { if(!drawing) return; const p=getPos(e); ctx.lineWidth=8; ctx.lineCap='round'; ctx.strokeStyle=COLORS[idx%COLORS.length]; ctx.lineTo(p.x,p.y); ctx.stroke(); });
+canvas.addEventListener('mouseup',    ()=>{ drawing=false; });
+canvas.addEventListener('mouseleave', ()=>{ drawing=false; });
+canvas.addEventListener('touchstart', e=>{ e.preventDefault(); drawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }, {passive:false});
+canvas.addEventListener('touchmove',  e=>{ e.preventDefault(); if(!drawing) return; const p=getPos(e); ctx.lineWidth=10; ctx.lineCap='round'; ctx.strokeStyle=COLORS[idx%COLORS.length]; ctx.lineTo(p.x,p.y); ctx.stroke(); }, {passive:false});
+canvas.addEventListener('touchend',   ()=>{ drawing=false; });
 
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-    const COLORS   = ['#FF6B35','#4ECDC4','#A78BFA','#6BCB77','#FF85A1','#4D96FF','#FFB347','#2D3436'];
+document.getElementById('btn-prev').addEventListener('click',  ()=>{ idx=(idx-1+26)%26; render(); });
+document.getElementById('btn-next').addEventListener('click',  ()=>{ idx=(idx+1)%26; render(); });
+document.getElementById('btn-speak').addEventListener('click', ()=>{ const d=LETTERS[idx]; AudioManager.speak(`${d.l}. ${d.sound}. ${d.word}`,{rate:.75}); });
+document.getElementById('btn-clear').addEventListener('click', clearCanvas);
+document.getElementById('btn-done').addEventListener('click',  ()=>{ AudioManager.playTone('star'); UI.showFeedback(true); UI.toast(`Great tracing of ${LETTERS[idx].l}! ⭐`); });
 
-    let currentLetter = 'A';
-    let drawing = false;
-    let color   = COLORS[0];
-    let size    = 12;
-
-    const canvas = document.getElementById('trace-canvas');
-    const ctx    = canvas.getContext('2d');
-    const wrap   = document.getElementById('canvas-wrap');
-
-    // Size canvas
-    function resizeCanvas() {
-      const w = Math.min(window.innerWidth - 80, 480);
-      canvas.width  = w;
-      canvas.height = w;
-      canvas.style.width  = w + 'px';
-      canvas.style.height = w + 'px';
-      ctx.lineCap   = 'round';
-      ctx.lineJoin  = 'round';
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    // Letter picker
-    const picker = document.getElementById('letter-picker');
-    LETTERS.forEach(l => {
-      const btn = document.createElement('button');
-      btn.className = `lp-btn ${l==='A'?'active':''}`;
-      btn.textContent = l;
-      btn.addEventListener('click', () => {
-        picker.querySelectorAll('.lp-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentLetter = l;
-        document.getElementById('guide-letter').textContent = l;
-        document.getElementById('trace-letter-label').textContent = l;
-        clearCanvas();
-        AudioManager.speakLetter(l);
-      });
-      picker.appendChild(btn);
-    });
-
-    // Color picker
-    const cpick = document.getElementById('color-picker');
-    COLORS.forEach((c, i) => {
-      const swatch = document.createElement('div');
-      swatch.className = `color-swatch ${i===0?'active':''}`;
-      swatch.style.background = c;
-      swatch.addEventListener('click', () => {
-        cpick.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-        swatch.classList.add('active');
-        color = c;
-        AudioManager.playTone('click');
-      });
-      cpick.appendChild(swatch);
-    });
-
-    // Stroke size
-    document.querySelectorAll('.stroke-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.stroke-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        size = parseInt(btn.dataset.size);
-        AudioManager.playTone('click');
-      });
-    });
-
-    // Drawing
-    function getPos(e) {
-      const r = canvas.getBoundingClientRect();
-      const src = e.touches ? e.touches[0] : e;
-      return { x: src.clientX - r.left, y: src.clientY - r.top };
-    }
-
-    canvas.addEventListener('mousedown',  e => { drawing = true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
-    canvas.addEventListener('mousemove',  e => { if(!drawing) return; const p=getPos(e); ctx.strokeStyle=color; ctx.lineWidth=size; ctx.lineTo(p.x,p.y); ctx.stroke(); });
-    canvas.addEventListener('mouseup',    () => drawing = false);
-    canvas.addEventListener('mouseleave', () => drawing = false);
-
-    canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }, {passive:false});
-    canvas.addEventListener('touchmove',  e => { e.preventDefault(); if(!drawing) return; const p=getPos(e); ctx.strokeStyle=color; ctx.lineWidth=size; ctx.lineTo(p.x,p.y); ctx.stroke(); }, {passive:false});
-    canvas.addEventListener('touchend',   () => drawing = false);
-
-    function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-
-    document.getElementById('btn-clear').addEventListener('click', () => { clearCanvas(); AudioManager.playTone('click'); });
-    document.getElementById('btn-speak-letter').addEventListener('click', () => AudioManager.speakLetter(currentLetter));
-    document.getElementById('btn-done').addEventListener('click', () => {
-      AudioManager.playTone('star');
-      UI.showFeedback(true);
-      UI.toast(`Great job tracing ${currentLetter}! 🌟`);
-      clearCanvas();
-    });
-  </script>
+render();
+</script>
 </body>
 </html>

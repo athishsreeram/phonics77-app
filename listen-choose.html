@@ -1,155 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>👂 Listen &amp; Choose · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    .listen-card {
-      background: white; border-radius: 32px; padding: 36px 24px;
-      text-align: center; box-shadow: var(--shadow-md); margin-bottom: 28px;
-    }
-    .play-btn {
-      width: clamp(120px,35vw,180px); height: clamp(120px,35vw,180px);
-      border-radius: 50%; background: var(--clr-primary); border: none;
-      font-size: clamp(3rem,12vw,5rem); cursor: pointer;
-      box-shadow: 0 8px 0 rgba(0,0,0,0.15);
-      transition: transform 0.15s, box-shadow 0.15s;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 28px; -webkit-tap-highlight-color: transparent;
-    }
-    .play-btn:active { transform: translateY(6px); box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
-    .play-btn.playing { background: var(--clr-secondary); animation: pulse 0.6s ease infinite alternate; }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.06); } }
-
-    .choices-grid {
-      display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; max-width: 460px; margin: 0 auto;
-    }
-    @media (min-width:600px) { .choices-grid { grid-template-columns: repeat(4,1fr); } }
-    .choice-btn {
-      background: #f8f8f8; border: 4px solid transparent; border-radius: 20px;
-      padding: 18px 12px; font-family: 'Fredoka One', cursive;
-      font-size: clamp(1.4rem,5vw,2rem); cursor: pointer;
-      transition: all 0.15s; min-height: 72px;
-      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 4px;
-    }
-    .choice-btn .choice-emoji { font-size: 1.8rem; }
-    .choice-btn:hover   { background: #f0f0f0; border-color: var(--clr-secondary); }
-    .choice-btn.correct { background: #f0fdf4; border-color: var(--clr-green); }
-    .choice-btn.wrong   { background: #fff0f0; border-color: var(--clr-primary); }
-    .choice-btn:active  { transform: scale(0.95); }
-
-    .round-info { font-size: 1.2rem; font-weight: 700; color: var(--clr-text-soft); margin-bottom: 12px; }
-    .score-display { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--clr-primary); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔊 Sound Matching · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.listen-card {
+  background: white; border-radius: 28px; padding: 36px 24px;
+  text-align: center; box-shadow: var(--shadow-md);
+  max-width: 500px; margin: 32px auto;
+}
+.sound-btn {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--clr-primary), #ff8c5a);
+  border: none; font-size: 3rem; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(255,107,107,.4);
+  transition: transform .15s, box-shadow .15s;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 28px;
+}
+.sound-btn:active { transform: scale(.93); box-shadow: 0 2px 8px rgba(255,107,107,.3); }
+.sound-btn:hover  { transform: scale(1.06); }
+.choices-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+  max-width: 400px; margin: 0 auto;
+}
+@media (min-width: 500px) { .choices-grid { grid-template-columns: repeat(4, 1fr); } }
+.choice-btn {
+  background: #f3f4f6; border: 4px solid transparent; border-radius: 18px;
+  padding: 18px 8px; font-family: 'Fredoka One', cursive;
+  font-size: clamp(1.6rem,6vw,2.4rem); cursor: pointer;
+  transition: transform .15s, border-color .15s, background .15s;
+  min-height: 74px; display: flex; align-items: center; justify-content: center;
+}
+.choice-btn:hover  { background: #e9ecef; border-color: var(--clr-secondary); }
+.choice-btn.correct { background: #dcfce7; border-color: var(--clr-green); animation: pop .3s ease; }
+.choice-btn.wrong   { background: #fee2e2; border-color: var(--clr-primary); animation: wiggle .3s ease; }
+.round-info { font-size: 1rem; font-weight: 700; color: var(--clr-text-soft); margin-bottom: 12px; }
+.score-display { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: var(--clr-primary); margin-top: 20px; }
+.hint-text { font-size: .95rem; color: var(--clr-text-soft); margin-bottom: 20px; font-weight: 600; }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Listen &amp; Choose</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
-  <div class="page-header" style="background:linear-gradient(135deg,var(--stage2),#5dd8d0)">
-    <h1>👂 Listen &amp; Choose</h1>
-    <p>Hear the word — tap the right one!</p>
+
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn" aria-label="Home">🏠</a>
+    <span class="nav-title">Sound Matching</span>
   </div>
-  <main>
+</nav>
+
+<div class="page-header" style="background:linear-gradient(135deg,#a855f7,#7c3aed)">
+  <h1>🔊 Sound Matching</h1>
+  <p>Listen to the sound — pick the right letter!</p>
+</div>
+
+<main>
+  <div class="listen-card">
+    <p class="round-info" id="round-info">Round 1 of 10</p>
+    <div class="progress-wrap" style="margin-bottom:24px">
+      <div class="progress-bar" id="round-bar" style="width:10%"></div>
+    </div>
+    <p class="hint-text">🎧 Press the speaker then choose the letter!</p>
+    <button class="sound-btn" id="play-btn" aria-label="Play sound">🔊</button>
+    <div class="choices-grid" id="choices"></div>
+    <div class="score-display">⭐ <span id="score">0</span> / <span id="total">0</span></div>
+  </div>
+</main>
+
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const LETTERS = PHONICS_DATA.alphabet;
+const TOTAL_ROUNDS = 10;
+let round = 0, score = 0, answered = false, currentLetter = null;
+
+function loadRound() {
+  if (round >= TOTAL_ROUNDS) { endGame(); return; }
+  answered = false;
+  const idx = Math.floor(Math.random() * LETTERS.length);
+  currentLetter = LETTERS[idx];
+
+  document.getElementById('round-info').textContent = `Round ${round + 1} of ${TOTAL_ROUNDS}`;
+  UI.updateProgress(document.getElementById('round-bar'), round + 1, TOTAL_ROUNDS);
+
+  const pool = UI.shuffle(LETTERS.filter(l => l.l !== currentLetter.l)).slice(0, 3);
+  const options = UI.shuffle([currentLetter, ...pool]);
+
+  const grid = document.getElementById('choices');
+  grid.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn'; btn.textContent = opt.l;
+    btn.addEventListener('click', () => answer(opt.l === currentLetter.l, btn));
+    grid.appendChild(btn);
+  });
+
+  AudioManager.speak(currentLetter.sound, { rate: 0.7 });
+}
+
+document.getElementById('play-btn').addEventListener('click', () => {
+  if (currentLetter) AudioManager.speak(currentLetter.sound, { rate: 0.7 });
+});
+
+function answer(correct, btn) {
+  if (answered) return;
+  answered = true;
+  document.getElementById('total').textContent = round + 1;
+
+  if (correct) {
+    score++;
+    btn.classList.add('correct');
+    AudioManager.playTone('correct'); UI.showFeedback(true);
+    AudioManager.speak(`${currentLetter.l}! ${currentLetter.word}!`, { rate: 0.9 });
+  } else {
+    btn.classList.add('wrong');
+    AudioManager.playTone('wrong'); UI.showFeedback(false);
+    // Reveal correct
+    document.querySelectorAll('.choice-btn').forEach(b => {
+      if (b.textContent === currentLetter.l) b.classList.add('correct');
+    });
+  }
+  document.getElementById('score').textContent = score;
+  document.querySelectorAll('.choice-btn').forEach(b => b.style.pointerEvents = 'none');
+  round++;
+  setTimeout(loadRound, 1500);
+}
+
+function endGame() {
+  const pct = Math.round((score / TOTAL_ROUNDS) * 100);
+  const msg = pct >= 80 ? '🌟 Amazing!' : pct >= 60 ? '👍 Good job!' : '💪 Keep practising!';
+  document.querySelector('main').innerHTML = `
     <div class="listen-card">
-      <p class="round-info">Round <span id="round-num">1</span> — which word do you hear?</p>
-      <button class="play-btn" id="play-btn" aria-label="Play word">🔊</button>
-      <div class="choices-grid" id="choices-grid"></div>
-    </div>
-    <div class="score-bar">
-      <div class="score-item">✅ <span id="correct-count">0</span> <span class="score-label">Correct</span></div>
-      <div class="score-item">❌ <span id="wrong-count">0</span>  <span class="score-label">Wrong</span></div>
-      <div class="score-item">⭐ <span id="stars-count">0</span>  <span class="score-label">Stars</span></div>
-    </div>
-  </main>
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    const WORD_POOL = [
-      {word:'cat',emoji:'🐱'},{word:'dog',emoji:'🐶'},{word:'pig',emoji:'🐷'},{word:'hen',emoji:'🐔'},
-      {word:'fox',emoji:'🦊'},{word:'bat',emoji:'🦇'},{word:'bug',emoji:'🐛'},{word:'rat',emoji:'🐀'},
-      {word:'sun',emoji:'☀️'},{word:'cup',emoji:'🥤'},{word:'hat',emoji:'🎩'},{word:'bed',emoji:'🛏️'},
-      {word:'pot',emoji:'🍳'},{word:'box',emoji:'📦'},{word:'bus',emoji:'🚌'},{word:'map',emoji:'🗺️'},
-      {word:'pen',emoji:'🖊️'},{word:'top',emoji:'🔝'},{word:'net',emoji:'🥅'},{word:'log',emoji:'🪵'},
-      {word:'sit',emoji:'🪑'},{word:'run',emoji:'🏃'},{word:'hop',emoji:'🐇'},{word:'mix',emoji:'🥣'},
-    ];
+      <div style="font-size:4rem;margin-bottom:16px">${pct >= 80 ? '🏆' : pct >= 60 ? '⭐' : '💪'}</div>
+      <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${msg}</h2>
+      <p style="font-size:1.2rem;color:#666;margin-bottom:24px">Score: ${score} / ${TOTAL_ROUNDS} (${pct}%)</p>
+      <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Play Again</button>
+      <br><br>
+      <a href="index.html" class="btn btn-secondary">🏠 Home</a>
+    </div>`;
+  UI.setScore('sound-matching', { stars: score, total: TOTAL_ROUNDS });
+}
 
-    let answer = null, round = 1, correct = 0, wrong = 0;
-
-    function nextRound() {
-      const pool = UI.shuffle(WORD_POOL);
-      answer = pool[0];
-      const choices = pool.slice(0, 4);
-
-      document.getElementById('round-num').textContent = round;
-      const grid = document.getElementById('choices-grid');
-      grid.innerHTML = '';
-      choices.forEach(ch => {
-        const btn = document.createElement('button');
-        btn.className = 'choice-btn';
-        btn.innerHTML = `<span class="choice-emoji">${ch.emoji}</span><span>${ch.word}</span>`;
-        btn.addEventListener('click', () => answer(btn, ch, grid));
-        grid.appendChild(btn);
-      });
-
-      playWord();
-    }
-
-    // shadow the function name — use closure
-    function buildRound() {
-      const pool = UI.shuffle(WORD_POOL);
-      const ans = pool[0];
-      const choices = pool.slice(0, 4);
-
-      answer = ans;
-      document.getElementById('round-num').textContent = round;
-      const grid = document.getElementById('choices-grid');
-      grid.innerHTML = '';
-      choices.forEach(ch => {
-        const btn = document.createElement('button');
-        btn.className = 'choice-btn';
-        btn.innerHTML = `<span class="choice-emoji">${ch.emoji}</span><span>${ch.word}</span>`;
-        btn.addEventListener('click', () => {
-          const isCorrect = ch.word === ans.word;
-          btn.classList.add(isCorrect ? 'correct' : 'wrong');
-          if (!isCorrect) {
-            grid.querySelectorAll('.choice-btn').forEach(b => {
-              if (b.querySelector('span:last-child').textContent === ans.word) b.classList.add('correct');
-            });
-          }
-          grid.querySelectorAll('.choice-btn').forEach(b => b.style.pointerEvents = 'none');
-          if (isCorrect) { correct++; AudioManager.playTone('correct'); UI.showFeedback(true, 900); }
-          else            { wrong++;   AudioManager.playTone('wrong'); }
-          document.getElementById('correct-count').textContent = correct;
-          document.getElementById('wrong-count').textContent   = wrong;
-          document.getElementById('stars-count').textContent   = Math.floor(correct / 2);
-          UI.setScore('listen', { stars: Math.floor(correct/2), total: correct+wrong });
-          round++;
-          setTimeout(buildRound, isCorrect ? 1200 : 1800);
-        });
-        grid.appendChild(btn);
-      });
-    }
-
-    function playWord() {
-      if (!answer) return;
-      const btn = document.getElementById('play-btn');
-      btn.classList.add('playing');
-      AudioManager.speak(answer.word, { rate: 0.7, onEnd: () => btn.classList.remove('playing') });
-    }
-
-    document.getElementById('play-btn').addEventListener('click', playWord);
-
-    buildRound();
-    setTimeout(playWord, 600);
-  </script>
+loadRound();
+</script>
 </body>
 </html>

@@ -1,50 +1,30 @@
-// api/verify-subscription.js - Vercel Serverless Function
+// api/verify-subscription.js  –  Vercel Serverless Function
+// Verifies a Stripe checkout session and confirms subscription status
+
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  const { session_id } = req.query;
+  if (!session_id) return res.status(400).json({ error: 'Missing session_id' });
 
   try {
-    const { userId, sessionId } = req.body;
-
-    let isPaid = false;
-    let subscriptionId = null;
-    let customerId = null;
-
-    // If session ID provided, check checkout session
-    if (sessionId) {
-      try {
-        const session = await stripe.checkout.sessions.retrieve(sessionId);
-        isPaid = session.payment_status === 'paid';
-        subscriptionId = session.subscription;
-        customerId = session.customer;
-      } catch (err) {
-        console.error('Session lookup error:', err);
-      }
-    }
-
-    return res.status(200).json({
-      userId,
-      isPaid,
-      subscriptionId,
-      customerId,
-      timestamp: Date.now()
+    const session = await stripe.checkout.sessions.retrieve(session_id, {
+      expand: ['subscription'],
     });
-  } catch (error) {
-    console.error('Verification error:', error);
-    return res.status(500).json({ 
-      isPaid: false, 
-      error: error.message 
+
+    const active = session.subscription?.status === 'active' ||
+                   session.subscription?.status === 'trialing';
+
+    res.status(200).json({
+      active,
+      status: session.subscription?.status || 'unknown',
+      customer: session.customer,
     });
+  } catch (err) {
+    console.error('Verify error:', err.message);
+    res.status(500).json({ error: err.message });
   }
-}
+};

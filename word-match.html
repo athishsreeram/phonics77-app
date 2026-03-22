@@ -1,152 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>🎯 Word Match · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    .match-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; margin-bottom:28px; }
-    .match-card {
-      background:white; border:4px solid #eee; border-radius:20px;
-      padding:18px 12px; text-align:center; cursor:pointer;
-      font-family:'Fredoka One',cursive; font-size:clamp(1.4rem,5vw,2rem);
-      transition:all 0.15s; -webkit-tap-highlight-color:transparent;
-      min-height:80px; display:flex; align-items:center; justify-content:center;
-      flex-direction:column; gap:4px;
-    }
-    .match-card:active  { transform:scale(0.93); }
-    .match-card.selected { border-color:var(--clr-primary); background:#fff5f0; transform:scale(1.05); }
-    .match-card.matched  { border-color:var(--clr-green); background:#f0fdf4; pointer-events:none; opacity:0.7; }
-    .match-card.wrong    { border-color:var(--clr-primary); background:#fff0f0; animation:wiggle 0.4s ease; }
-    .match-card.word-type { background:#f0f8ff; border-color:var(--clr-blue); }
-    .match-card.emoji-type { background:#fffbf0; border-color:var(--clr-accent); font-size:clamp(2rem,8vw,3rem); }
-    .match-card.word-type.selected  { background:#dbeafe; border-color:var(--clr-blue); }
-    .match-card.emoji-type.selected { background:#fef3c7; border-color:#f59e0b; }
-
-    .instructions { background:white; border-radius:20px; padding:16px 20px; box-shadow:var(--shadow-sm); margin-bottom:20px; text-align:center; font-size:1.1rem; font-weight:700; color:var(--clr-text-soft); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 Word Match · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.match-card { background:white; border-radius:28px; padding:32px 20px; text-align:center; box-shadow:var(--shadow-md); max-width:500px; margin:28px auto; }
+.target-emoji { font-size:clamp(4rem,14vw,7rem); display:block; margin-bottom:8px; }
+.match-choices { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px; }
+.match-btn { background:#f3f4f6; border:3px solid transparent; border-radius:16px; padding:16px 10px; font-family:'Fredoka One',cursive; font-size:1.5rem; cursor:pointer; transition:all .15s; }
+.match-btn:hover { background:#e0e7ff; border-color:var(--clr-blue); }
+.match-btn.correct { background:#dcfce7; border-color:var(--clr-green); }
+.match-btn.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
+.round-label { font-weight:700; color:var(--clr-text-soft); margin-bottom:12px; }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Word Match</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
-  <div class="page-header" style="background:linear-gradient(135deg,var(--stage5),#5dbb6a)">
-    <h1>🎯 Word Match</h1>
-    <p>Match the word to the picture!</p>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Word Match</span>
   </div>
-  <main>
-    <div class="instructions">Tap a <span style="color:var(--clr-blue)">word</span>, then tap the matching <span style="color:#f59e0b">picture</span>!</div>
-    <div class="match-grid" id="match-grid"></div>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px">
-      <button class="btn btn-primary btn-lg" id="btn-new-game">🔄 New Game</button>
-    </div>
-    <div class="score-bar">
-      <div class="score-item">✅ <span id="matched-count">0</span><span class="score-label"> Matched</span></div>
-      <div class="score-item">⭐ <span id="stars-count">0</span><span class="score-label"> Stars</span></div>
-    </div>
-  </main>
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    const WORD_PAIRS = [
-      {word:'cat',emoji:'🐱'},{word:'dog',emoji:'🐶'},{word:'pig',emoji:'🐷'},
-      {word:'hen',emoji:'🐔'},{word:'fox',emoji:'🦊'},{word:'bug',emoji:'🐛'},
-      {word:'bat',emoji:'🦇'},{word:'sun',emoji:'☀️'},{word:'cup',emoji:'🥤'},
-      {word:'hat',emoji:'🎩'},{word:'bus',emoji:'🚌'},{word:'map',emoji:'🗺️'},
-      {word:'bed',emoji:'🛏️'},{word:'pot',emoji:'🍳'},{word:'box',emoji:'📦'},
-      {word:'pen',emoji:'🖊️'},{word:'net',emoji:'🥅'},{word:'log',emoji:'🪵'},
-    ];
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+  <h1>📊 Word Match</h1>
+  <p>Match the picture to its word!</p>
+</div>
+<main>
+<div class="match-card" id="match-card">
+  <p class="round-label" id="round-label">Round 1 of 12</p>
+  <div class="progress-wrap" style="margin-bottom:20px">
+    <div class="progress-bar" id="prog-bar" style="width:8%"></div>
+  </div>
+  <span class="target-emoji" id="target-emoji">🐱</span>
+  <p style="font-size:.95rem;font-weight:700;color:var(--clr-text-soft)">Which word matches this picture?</p>
+  <div class="match-choices" id="match-choices"></div>
+  <p style="margin-top:16px;font-weight:700;color:var(--clr-text-soft)">⭐ <span id="mscore">0</span> / <span id="mtotal">0</span></p>
+</div>
+</main>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const ITEMS = UI.shuffle(PHONICS_DATA.cvc).slice(0,12);
+const TOTAL = ITEMS.length;
+let idx=0, mscore=0;
 
-    let selectedWord = null, matchedCount = 0, stars = 0;
-    const PAIRS_PER_GAME = 6;
+function loadRound() {
+  if(idx>=TOTAL){ endGame(); return; }
+  const item = ITEMS[idx];
+  document.getElementById('round-label').textContent = `Round ${idx+1} of ${TOTAL}`;
+  document.getElementById('target-emoji').textContent = item.emoji;
+  UI.updateProgress(document.getElementById('prog-bar'), idx+1, TOTAL);
 
-    function newGame() {
-      const pool = UI.shuffle(WORD_PAIRS).slice(0, PAIRS_PER_GAME);
-      selectedWord = null;
-
-      const wordCards  = pool.map(p => ({ ...p, type:'word' }));
-      const emojiCards = pool.map(p => ({ ...p, type:'emoji' }));
-      const allCards   = UI.shuffle([...wordCards, ...emojiCards]);
-
-      const grid = document.getElementById('match-grid');
-      grid.innerHTML = '';
-      allCards.forEach(item => {
-        const card = document.createElement('div');
-        card.className = `match-card ${item.type}-type`;
-        card.textContent = item.type === 'word' ? item.word : item.emoji;
-        card.dataset.word = item.word;
-        card.dataset.type = item.type;
-        card.addEventListener('click', () => handleClick(card, item));
-        grid.appendChild(card);
-      });
-    }
-
-    function handleClick(card, item) {
-      if (card.classList.contains('matched')) return;
-      AudioManager.playTone('click');
-
-      if (!selectedWord) {
-        // First selection — must be a word
-        if (item.type === 'word') {
-          // Deselect others
-          document.querySelectorAll('.match-card.selected').forEach(c => c.classList.remove('selected'));
-          card.classList.add('selected');
-          selectedWord = item.word;
-          AudioManager.speak(item.word, {rate:0.75});
-        } else {
-          // Tapped emoji first — speak it
-          AudioManager.speak(item.word, {rate:0.75});
-        }
-      } else {
-        // Second selection — check match
-        if (item.type === 'emoji' && item.word === selectedWord) {
-          // Correct!
-          const wordCard = document.querySelector(`.match-card[data-word="${selectedWord}"][data-type="word"]`);
-          [card, wordCard].forEach(c => { c.classList.remove('selected'); c.classList.add('matched'); c.innerHTML += '<br>✅'; });
-          AudioManager.playTone('correct');
-          UI.showFeedback(true, 800);
-          matchedCount++;
-          stars = Math.floor(matchedCount / 2);
-          document.getElementById('matched-count').textContent = matchedCount;
-          document.getElementById('stars-count').textContent   = stars;
-          UI.setScore('word_match', {stars, total: matchedCount});
-          selectedWord = null;
-          if (matchedCount % PAIRS_PER_GAME === 0) {
-            setTimeout(() => { UI.toast('🎉 All matched! New game!'); newGame(); }, 1200);
-          }
-        } else {
-          // Wrong
-          card.classList.add('wrong');
-          AudioManager.playTone('wrong');
-          setTimeout(() => {
-            card.classList.remove('wrong', 'selected');
-            document.querySelectorAll('.match-card.selected').forEach(c => c.classList.remove('selected'));
-          }, 700);
-          selectedWord = null;
-        }
-      }
-    }
-
-    document.getElementById('btn-new-game').addEventListener('click', () => { newGame(); AudioManager.playTone('click'); });
-
-    // Reload pairs when material changes
-    document.addEventListener('materialChanged', () => {
-      const pack = MaterialsManager.getCurrent();
-      if (pack.wordSets && pack.wordSets.length >= 6) {
-        WORD_PAIRS.length = 0;
-        pack.wordSets.forEach(ws => WORD_PAIRS.push({word:ws.word, emoji:ws.emoji}));
-      }
-      newGame();
+  const pool = UI.shuffle(ITEMS.filter(x=>x.word!==item.word)).slice(0,3);
+  const opts  = UI.shuffle([item, ...pool]);
+  const ch    = document.getElementById('match-choices');
+  ch.innerHTML='';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className='match-btn'; btn.textContent=o.word;
+    btn.addEventListener('click', () => {
+      const right = o.word===item.word;
+      btn.classList.add(right?'correct':'wrong');
+      if(right){ mscore++; AudioManager.playTone('correct'); UI.showFeedback(true); }
+      else { AudioManager.playTone('wrong'); ch.querySelectorAll('.match-btn').forEach(x=>{if(x.textContent===item.word)x.classList.add('correct');}); }
+      document.getElementById('mscore').textContent=mscore;
+      document.getElementById('mtotal').textContent=idx+1;
+      ch.querySelectorAll('.match-btn').forEach(x=>x.style.pointerEvents='none');
+      AudioManager.speak(item.word, {rate:.8});
+      idx++; setTimeout(loadRound,1500);
     });
+    ch.appendChild(btn);
+  });
+}
 
-    newGame();
-  </script>
+function endGame(){
+  document.querySelector('main').innerHTML=`
+    <div class="match-card">
+      <div style="font-size:4rem;margin-bottom:16px">${mscore>=9?'🏆':'⭐'}</div>
+      <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${mscore>=9?'Excellent!':'Nice work!'}</h2>
+      <p style="font-size:1.1rem;color:#666;margin-bottom:24px">Score: ${mscore}/${TOTAL}</p>
+      <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Play Again</button>
+      <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>
+    </div>`;
+  UI.setScore('word-match',{stars:mscore,total:TOTAL});
+}
+loadRound();
+</script>
 </body>
 </html>

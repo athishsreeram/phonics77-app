@@ -1,125 +1,74 @@
-// Define which activities are free vs paid
-const ACTIVITY_TIERS = {
-  free: [
+/* js/activity-gating.js – controls free vs paid activity access */
+'use strict';
+
+const activityGating = (() => {
+
+  /* Map from data-activity-id  →  HTML page filename */
+  const ACTIVITY_MAP = {
+    /* FREE */
+    'sound-matching':    'listen-choose.html',
+    'letter-recognition':'alphabet.html',
+    'blending-intro':    'phonic-set1.html',
+
+    /* PREMIUM */
+    'digraph-practice':  'digraphs.html',
+    'vowel-blends':      'vowels.html',
+    'cvc-words':         'cvc.html',
+    'sight-words':       'sight-words.html',
+    'sentence-reading':  'read.html',
+    'word-families':     'rhyme.html',
+    'consonant-blends':  'consonant-blend.html',
+    'r-controlled-vowels':'phonic-set2.html',
+    'silent-e-words':    'magic-e.html',
+    'vowel-digraphs':    'digraph_fill.html',
+    'phonics-review':    'phkids.html',
+    'assessment-level-1':'word-match.html',
+    'assessment-level-2':'word-explore.html',
+    'story-time':        'story.html',
+    'parent-dashboard':  'parent-dashboard.html',
+    'progress-tracker':  'trace.html',
+  };
+
+  const FREE_ACTIVITIES = new Set([
     'sound-matching',
-    'letter-recognition', 
-    'blending-intro'
-  ],
-  paid: [
-    'digraph-practice',
-    'vowel-blends',
-    'cvc-words',
-    'sight-words',
-    'sentence-reading',
-    'word-families',
-    'consonant-blends',
-    'r-controlled-vowels',
-    'silent-e-words',
-    'vowel-digraphs',
-    'phonics-review',
-    'assessment-level-1',
-    'assessment-level-2',
-    'story-time',
-    'parent-dashboard',
-    'progress-tracker'
-  ]
-};
+    'letter-recognition',
+    'blending-intro',
+  ]);
 
-class ActivityGating {
-  constructor(paymentManager) {
-    this.paymentManager = paymentManager;
-    this.userSubscriptionStatus = null;
-  }
+  async function initializeActivityGating() {
+    const premium = paymentManager.isPremium();
+    const cards = document.querySelectorAll('.activity-card');
 
-  // Initialize gating when page loads
-  async initializeActivityGating() {
-    const userId = this.paymentManager.userSession.userId;
-    this.userSubscriptionStatus = await this.paymentManager.verifySubscription(userId);
-    this.applyActivityGating();
-  }
+    cards.forEach(card => {
+      const id = card.dataset.activityId;
+      const page = ACTIVITY_MAP[id];
+      const btn = card.querySelector('.play-btn, button');
+      if (!btn || !page) return;
 
-  // Apply lock/unlock to activity elements
-  applyActivityGating() {
-    document.querySelectorAll('[data-activity-id]').forEach(activityEl => {
-      const activityId = activityEl.getAttribute('data-activity-id');
-      const tier = this.getActivityTier(activityId);
-      
-      if (tier === 'free' || this.userSubscriptionStatus.isPaid) {
-        // Unlock activity
-        activityEl.classList.remove('locked');
-        const button = activityEl.querySelector('button');
-        if (button) {
-          button.removeAttribute('disabled');
-          button.classList.remove('unlock-btn');
+      const isFree = FREE_ACTIVITIES.has(id);
+      const hasAccess = isFree || premium;
+
+      if (hasAccess) {
+        card.classList.remove('locked');
+        // Make the button a working link
+        btn.addEventListener('click', () => {
+          analytics.trackActivityStart(id);
+          window.location.href = page;
+        });
+        btn.style.cursor = 'pointer';
+        if (!isFree) {
+          btn.textContent = '▶️ Play';
+          btn.style.background = '#22c55e';
         }
       } else {
-        // Lock activity
-        this.lockActivity(activityEl, activityId);
+        card.classList.add('locked');
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          paymentManager.initiateSubscription();
+        });
       }
     });
   }
 
-  // Determine if activity is free or paid
-  getActivityTier(activityId) {
-    if (ACTIVITY_TIERS.free.includes(activityId)) return 'free';
-    if (ACTIVITY_TIERS.paid.includes(activityId)) return 'paid';
-    return 'unknown';
-  }
-
-  // Apply lock visual to activity
-  lockActivity(activityEl, activityId) {
-    activityEl.classList.add('locked');
-    const button = activityEl.querySelector('button');
-    
-    if (button) {
-      button.setAttribute('disabled', 'true');
-      button.classList.add('unlock-btn');
-      button.textContent = '🔒 Unlock with Premium';
-      button.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.showUpgradeModal(activityId);
-      };
-    }
-  }
-
-  // Show modal encouraging upgrade
-  showUpgradeModal(activityId) {
-    // Check if modal already exists
-    if (document.querySelector('.upgrade-modal')) return;
-
-    const modal = document.createElement('div');
-    modal.className = 'upgrade-modal';
-    modal.innerHTML = `
-      <div class="modal-backdrop"></div>
-      <div class="modal-content">
-        <button class="modal-close" onclick="this.closest('.upgrade-modal').remove()">✕</button>
-        <h2>Unlock Premium Access</h2>
-        <p>Get full access to all ${ACTIVITY_TIERS.paid.length} premium phonics activities</p>
-        <p class="price">Only <strong>$9.99/month</strong></p>
-        <button class="btn-primary" onclick="paymentManager.initiateSubscription()">
-          Start Free Trial (7 Days)
-        </button>
-        <button class="btn-secondary" onclick="this.closest('.upgrade-modal').remove()">
-          Continue with Free Tier
-        </button>
-        <p class="modal-footer">Cancel anytime. No credit card required for trial.</p>
-      </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Track upgrade click
-    if (typeof analytics !== 'undefined') {
-      analytics.trackUpgradeClick();
-    }
-  }
-}
-
-// Initialize globally
-const activityGating = new ActivityGating(paymentManager);
-
-// Initialize on page load
-window.addEventListener('load', async () => {
-  await activityGating.initializeActivityGating();
-});
+  return { initializeActivityGating, ACTIVITY_MAP, FREE_ACTIVITIES };
+})();

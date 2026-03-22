@@ -1,183 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>🎙️ Read + Voice · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    .read-card { background:white; border-radius:32px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); margin-bottom:24px; }
-    .target-sentence { font-family:'Fredoka One',cursive; font-size:clamp(1.8rem,6vw,3.2rem); line-height:1.4; margin:16px 0 24px; }
-    .word-token { display:inline-block; padding:4px 8px; border-radius:10px; transition:background 0.2s; margin:2px; }
-    .word-token.matched { background:var(--clr-green); color:white; }
-    .word-token.missed  { background:#ffcccc; }
-
-    .mic-btn {
-      width:clamp(100px,28vw,150px); height:clamp(100px,28vw,150px);
-      border-radius:50%; border:none; cursor:pointer;
-      font-size:clamp(2.5rem,10vw,4.5rem);
-      box-shadow:0 6px 0 rgba(0,0,0,0.15);
-      transition:transform 0.15s, box-shadow 0.15s, background 0.2s;
-      display:flex; align-items:center; justify-content:center;
-      margin:0 auto 20px; background:var(--clr-primary);
-      -webkit-tap-highlight-color:transparent;
-    }
-    .mic-btn.recording { background:var(--clr-green); animation:pulse 0.8s ease infinite alternate; box-shadow:0 0 0 12px rgba(107,203,119,0.3); }
-    .mic-btn:active { transform:translateY(4px); box-shadow:0 2px 0 rgba(0,0,0,0.15); }
-    @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.08)} }
-
-    .transcript-box { background:#f8f8f8; border-radius:16px; padding:14px 16px; min-height:52px; font-size:1.2rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:16px; }
-    .status-msg { font-size:1.1rem; font-weight:700; margin-bottom:12px; }
-    .no-support { background:#fff3cd; border-radius:16px; padding:16px; font-size:1.1rem; font-weight:700; color:#856404; margin-bottom:20px; display:none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 Reading Level 2 · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.read2-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:580px; margin:28px auto; }
+.passage { font-size:clamp(1.1rem,3.5vw,1.4rem); font-weight:700; line-height:2; color:var(--clr-text); text-align:left; margin:20px 0; }
+.passage .phonics-word { color:var(--clr-primary); cursor:pointer; border-bottom:2px dotted var(--clr-primary); }
+.passage .phonics-word:hover { background:#fff0f0; border-radius:4px; }
+.passage-title { font-family:'Fredoka One',cursive; font-size:1.8rem; color:var(--clr-primary); margin-bottom:8px; }
+.passage-emoji { font-size:3rem; display:block; margin-bottom:8px; }
+.level-badge { display:inline-block; background:#fef3c7; color:#92400e; border-radius:8px; padding:4px 12px; font-size:.8rem; font-weight:800; margin-bottom:16px; }
+.btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
+.tab-row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
+.tab-btn { background:#f3f4f6; border:3px solid transparent; border-radius:10px; padding:8px 14px; font-weight:800; font-size:.85rem; cursor:pointer; transition:all .2s; }
+.tab-btn.active { background:var(--clr-primary); color:white; }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Read + Voice</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
-  <div class="page-header" style="background:linear-gradient(135deg,var(--stage5),#5dbb6a)">
-    <h1>🎙️ Read + Voice</h1>
-    <p>Read aloud and see your words!</p>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Reading Level 2</span>
   </div>
-  <main>
-    <div class="no-support" id="no-support">
-      🎤 Voice recognition is not supported on this browser. Try Chrome on desktop or Android. You can still tap the sentences to hear them!
-    </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#0891b2,#0e7490)">
+  <h1>📚 Reading Level 2</h1>
+  <p>Longer passages for growing readers!</p>
+</div>
+<main>
+<div class="read2-card">
+  <div class="tab-row" id="tab-row"></div>
+  <span class="passage-emoji" id="p-emoji">🦆</span>
+  <h2 class="passage-title" id="p-title">The Duck Pond</h2>
+  <div class="level-badge">Level 2 · Blends &amp; Digraphs</div>
+  <div class="passage" id="p-body"></div>
+  <div class="btn-row">
+    <button class="btn btn-primary btn-lg" id="btn-read">🔊 Read Aloud</button>
+    <button class="btn btn-secondary" id="btn-stop">⏹ Stop</button>
+  </div>
+</div>
+</main>
+<script src="js/audio.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const PASSAGES = [
+  {
+    title:'The Duck Pond',
+    emoji:'🦆',
+    phonics:['duck','pond','swim','quick','splash','thick','when','that','then','them'],
+    text:'A duck lived at the pond. The duck liked to swim in the thick green pond. When the sun came up, the duck would splash and swim. Then the other ducks came to swim with them. They were quick in the water. That was their best time of day.'
+  },
+  {
+    title:'The Sheep and the Ship',
+    emoji:'🐑',
+    phonics:['sheep','ship','shore','shallow','shade','white','while','there'],
+    text:'A white sheep stood on the shore. A big ship was far out at sea. The sheep watched the ship while it floated there. The water was shallow near the shore. The sheep found some shade under a tree. There it rested while the ship sailed away.'
+  },
+  {
+    title:'Clark and the Dark Cave',
+    emoji:'🦇',
+    phonics:['clark','dark','cave','stars','far','bar','park','card','hard','sharp'],
+    text:'Clark hiked far into the park. He found a dark cave in the hard rock. Inside, he saw sharp rocks and a card left by an old explorer. Clark looked at the stars on the card. It was a map! He was not far from a hidden garden bar. Clark smiled and followed the stars on the card.'
+  },
+];
 
-    <div class="read-card">
-      <p style="font-size:1rem;color:var(--clr-text-soft);margin-bottom:12px">Sentence <span id="s-num">1</span> / 10</p>
-      <div class="target-sentence" id="target-sentence"></div>
-      <button class="btn btn-secondary" id="btn-listen" style="margin:0 auto 20px;display:flex">🔊 Hear It</button>
+let cur = 0;
 
-      <button class="mic-btn" id="mic-btn">🎤</button>
-      <div class="status-msg" id="status-msg">Tap the mic to read aloud!</div>
-      <div class="transcript-box" id="transcript-box">Your words will appear here...</div>
+function renderPassage() {
+  const p = PASSAGES[cur];
+  document.getElementById('p-emoji').textContent  = p.emoji;
+  document.getElementById('p-title').textContent  = p.title;
+  const body = document.getElementById('p-body');
+  body.innerHTML = p.text.split(/\b/).map(w => {
+    const clean = w.toLowerCase().replace(/[^a-z]/g,'');
+    if(p.phonics.includes(clean)) return `<span class="phonics-word" onclick="AudioManager.speak('${clean}',{rate:.7})">${w}</span>`;
+    return w;
+  }).join('');
+  document.querySelectorAll('.tab-btn').forEach((t,i) => t.classList.toggle('active',i===cur));
+}
 
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px">
-        <button class="btn btn-secondary" id="btn-prev">◀ Prev</button>
-        <button class="btn btn-primary"   id="btn-next-s">Next ▶</button>
-      </div>
-    </div>
+function buildTabs() {
+  const row = document.getElementById('tab-row');
+  row.innerHTML = '';
+  PASSAGES.forEach((p,i) => {
+    const btn = document.createElement('button');
+    btn.className=`tab-btn${i===0?' active':''}`;
+    btn.textContent = p.emoji+' '+p.title.split(' ').slice(0,2).join(' ');
+    btn.addEventListener('click',()=>{ cur=i; renderPassage(); });
+    row.appendChild(btn);
+  });
+}
 
-    <div class="score-bar">
-      <div class="score-item">✅ <span id="correct-count">0</span><span class="score-label"> Correct</span></div>
-      <div class="score-item">⭐ <span id="stars-count">0</span><span class="score-label"> Stars</span></div>
-    </div>
-  </main>
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    const SENTENCES = [
-      'The cat sat on a mat.','I can see a big red bus.','The dog ran in the mud.',
-      'She has a pet hen at home.','A fat pig ate the bun.','The sun is up in the sky.',
-      'He hit the ball with a bat.','The fish swam in the net.','I put the cup on top.',
-      'The red fox hid in a den.',
-    ];
+document.getElementById('btn-read').addEventListener('click', () => AudioManager.speak(PASSAGES[cur].text,{rate:.82}));
+document.getElementById('btn-stop').addEventListener('click', () => AudioManager.stop());
 
-    let idx = 0, correctCount = 0, recording = false;
-    let recognition = null;
-
-    // Check speech recognition support
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      document.getElementById('no-support').style.display = 'block';
-    } else {
-      recognition = new SpeechRecognition();
-      recognition.lang = 'en-US';
-      recognition.continuous = false;
-      recognition.interimResults = true;
-
-      recognition.onresult = (e) => {
-        const transcript = Array.from(e.results).map(r => r[0].transcript).join(' ').toLowerCase().trim();
-        document.getElementById('transcript-box').textContent = transcript;
-        if (e.results[0].isFinal) checkMatch(transcript);
-      };
-      recognition.onend = () => {
-        recording = false;
-        document.getElementById('mic-btn').classList.remove('recording');
-        document.getElementById('mic-btn').textContent = '🎤';
-        document.getElementById('status-msg').textContent = 'Tap the mic to read aloud!';
-      };
-      recognition.onerror = () => {
-        recording = false;
-        document.getElementById('mic-btn').classList.remove('recording');
-        document.getElementById('status-msg').textContent = '❌ Could not hear — try again!';
-      };
-    }
-
-    function showSentence() {
-      const sentence = SENTENCES[idx];
-      document.getElementById('s-num').textContent = idx + 1;
-      document.getElementById('transcript-box').textContent = 'Your words will appear here...';
-      document.getElementById('status-msg').textContent = 'Tap the mic to read aloud!';
-
-      const words = sentence.replace(/\./g,'').split(' ');
-      const container = document.getElementById('target-sentence');
-      container.innerHTML = '';
-      words.forEach(w => {
-        const span = document.createElement('span');
-        span.className = 'word-token';
-        span.dataset.word = w.toLowerCase();
-        span.textContent = w + ' ';
-        container.appendChild(span);
-      });
-    }
-
-    function checkMatch(transcript) {
-      const tokens = document.querySelectorAll('.word-token');
-      let matched = 0;
-      tokens.forEach(t => {
-        const w = t.dataset.word.replace(/[.,!?]/g,'');
-        if (transcript.includes(w)) { t.classList.add('matched'); matched++; }
-        else { t.classList.add('missed'); }
-      });
-      const pct = matched / tokens.length;
-      if (pct >= 0.7) {
-        document.getElementById('status-msg').textContent = '🎉 Great reading!';
-        AudioManager.playTone('star');
-        UI.showFeedback(true);
-        correctCount++;
-        document.getElementById('correct-count').textContent = correctCount;
-        document.getElementById('stars-count').textContent = Math.floor(correctCount / 2);
-        UI.setScore('read2', {stars: Math.floor(correctCount/2), total: correctCount});
-      } else {
-        document.getElementById('status-msg').textContent = '💪 Try again!';
-        AudioManager.playTone('wrong');
-      }
-    }
-
-    document.getElementById('mic-btn').addEventListener('click', () => {
-      if (!recognition) return;
-      if (recording) { recognition.stop(); return; }
-      recording = true;
-      document.getElementById('mic-btn').classList.add('recording');
-      document.getElementById('mic-btn').textContent = '🛑';
-      document.getElementById('status-msg').textContent = '🎤 Listening...';
-      // Reset highlights
-      document.querySelectorAll('.word-token').forEach(t => t.classList.remove('matched','missed'));
-      document.getElementById('transcript-box').textContent = '...';
-      recognition.start();
-    });
-
-    document.getElementById('btn-listen').addEventListener('click', () => {
-      AudioManager.speak(SENTENCES[idx], {rate:0.7});
-    });
-    document.getElementById('btn-prev').addEventListener('click', () => {
-      idx = (idx - 1 + SENTENCES.length) % SENTENCES.length;
-      showSentence(); AudioManager.playTone('click');
-    });
-    document.getElementById('btn-next-s').addEventListener('click', () => {
-      idx = (idx + 1) % SENTENCES.length;
-      showSentence(); AudioManager.playTone('click');
-    });
-
-    showSentence();
-  </script>
+buildTabs(); renderPassage();
+</script>
 </body>
 </html>

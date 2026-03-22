@@ -1,133 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>✨ Magic E · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    .magic-card { background:white; border-radius:32px; padding:32px 20px; text-align:center; box-shadow:var(--shadow-md); margin-bottom:24px; }
-    .word-pair { display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; margin:16px 0; }
-    .word-box {
-      background:#f8f0ff; border:4px solid var(--clr-purple); border-radius:20px;
-      padding:20px 28px; font-family:'Fredoka One',cursive;
-      font-size:clamp(2.4rem,10vw,4.5rem); cursor:pointer;
-      transition:all 0.15s; -webkit-tap-highlight-color:transparent;
-    }
-    .word-box:active { transform:scale(0.93); }
-    .word-box:hover  { background:var(--clr-purple); color:white; transform:scale(1.05); }
-    .word-box.short-word { background:#fff8e1; border-color:#FFB347; }
-    .word-box.short-word:hover { background:#FFB347; color:white; }
-    .magic-e { color:var(--clr-purple); font-size:1.2em; }
-    .arrow { font-size:2.5rem; }
-    .transformation { font-size:1.1rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:8px; }
-
-    .pairs-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; margin-bottom:28px; }
-    .pair-row { background:white; border-radius:20px; padding:16px; box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:space-around; gap:8px; }
-    .pair-word { font-family:'Fredoka One',cursive; font-size:clamp(1.4rem,5vw,2rem); cursor:pointer; padding:8px 14px; border-radius:12px; transition:all 0.15s; }
-    .pair-word.before { background:#fff8e1; color:#e67e00; }
-    .pair-word.after  { background:#f8f0ff; color:var(--clr-purple); }
-    .pair-word:active { transform:scale(0.93); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🤫 Magic E · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.magic-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:520px; margin:28px auto; }
+.transform-row { display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; margin:20px 0; }
+.word-box { text-align:center; }
+.word-big { font-family:'Fredoka One',cursive; font-size:clamp(2.4rem,10vw,4.5rem); line-height:1; }
+.word-emoji { font-size:clamp(2.5rem,9vw,4rem); display:block; margin-bottom:6px; }
+.arrow-box { font-size:2.5rem; color:var(--clr-text-soft); }
+.magic-e-highlight { color:var(--clr-primary); font-size:clamp(2.8rem,11vw,5rem); }
+.label { font-size:.8rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--clr-text-soft); margin-top:4px; }
+.btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
+.nav-info { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:8px; }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Magic E</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
-  <div class="page-header" style="background:linear-gradient(135deg,#f4a228,#FFE66D,#A78BFA)">
-    <h1>✨ Magic E</h1>
-    <p>The silent E makes the vowel say its name!</p>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Magic E</span>
   </div>
-  <main>
-    <!-- Feature card -->
-    <div class="magic-card" style="margin-top:24px">
-      <p style="font-size:1.2rem;font-weight:700;margin-bottom:8px">The Magic E Rule:</p>
-      <p style="font-size:1.1rem;color:var(--clr-text-soft);margin-bottom:20px">When a word ends in <strong style="color:var(--clr-purple)">E</strong>, the vowel before it says its <em>long</em> sound!</p>
-
-      <div id="demo-pair">
-        <div class="transformation" id="demo-label">Short A → Long A</div>
-        <div class="word-pair">
-          <div class="word-box short-word" id="demo-before">cap</div>
-          <div class="arrow">→ ✨</div>
-          <div class="word-box" id="demo-after">cap<span class="magic-e">e</span></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px">
-        <button class="btn btn-accent btn-lg" id="btn-before">🔊 Short</button>
-        <button class="btn btn-purple btn-lg" id="btn-after">✨ Long</button>
-        <button class="btn btn-secondary btn-lg" id="btn-next">Next ▶</button>
-      </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+  <h1>🤫 Magic E</h1>
+  <p>The silent E changes the vowel sound!</p>
+</div>
+<main>
+<div class="magic-card">
+  <p class="nav-info" id="nav-info">Pair 1 of 8</p>
+  <div class="progress-wrap" style="margin-bottom:20px">
+    <div class="progress-bar" id="prog-bar" style="width:12.5%"></div>
+  </div>
+  <div class="transform-row">
+    <div class="word-box">
+      <span class="word-emoji" id="emoji1">🧢</span>
+      <div class="word-big" id="cvc-word" style="color:#22c55e">cap</div>
+      <div class="label">Short vowel</div>
     </div>
+    <div class="arrow-box">→ + E →</div>
+    <div class="word-box">
+      <span class="word-emoji" id="emoji2">🦸</span>
+      <div class="word-big" id="magic-word" style="color:var(--clr-primary)">cap<span class="magic-e-highlight">e</span></div>
+      <div class="label">Long vowel!</div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="btn-say1">🔊 Say "<span id="lbl1">cap</span>"</button>
+    <button class="btn btn-primary" id="btn-say2">🔊 Say "<span id="lbl2">cape</span>"</button>
+    <button class="btn btn-accent" id="btn-both">🔊 Both</button>
+  </div>
+  <div class="btn-row" style="margin-top:12px">
+    <button class="btn btn-secondary" id="btn-prev">← Prev</button>
+    <button class="btn btn-green" id="btn-next">Next →</button>
+  </div>
+</div>
+</main>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const PAIRS = PHONICS_DATA.magicE;
+let idx = 0;
 
-    <h2 style="font-family:'Fredoka One',cursive;font-size:1.6rem;margin:0 0 16px;text-align:center">All Magic E Pairs</h2>
-    <div class="pairs-grid" id="pairs-grid"></div>
-  </main>
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    const PAIRS = [
-      {before:'cap', after:'cape', vowel:'A'}, {before:'hat', after:'hate', vowel:'A'},
-      {before:'man', after:'mane', vowel:'A'}, {before:'plan',after:'plane',vowel:'A'},
-      {before:'tap', after:'tape', vowel:'A'}, {before:'mat', after:'mate', vowel:'A'},
-      {before:'kit', after:'kite', vowel:'I'}, {before:'bit', after:'bite', vowel:'I'},
-      {before:'hid', after:'hide', vowel:'I'}, {before:'rid', after:'ride', vowel:'I'},
-      {before:'pin', after:'pine', vowel:'I'}, {before:'dim', after:'dime', vowel:'I'},
-      {before:'rob', after:'robe', vowel:'O'}, {before:'hop', after:'hope', vowel:'O'},
-      {before:'not', after:'note', vowel:'O'}, {before:'rod', after:'rode', vowel:'O'},
-      {before:'cod', after:'code', vowel:'O'}, {before:'ton', after:'tone', vowel:'O'},
-      {before:'cub', after:'cube', vowel:'U'}, {before:'cut', after:'cute', vowel:'U'},
-      {before:'tub', after:'tube', vowel:'U'}, {before:'dun', after:'dune', vowel:'U'},
-    ];
+function render() {
+  const p = PAIRS[idx];
+  document.getElementById('nav-info').textContent   = `Pair ${idx+1} of ${PAIRS.length}`;
+  document.getElementById('emoji1').textContent     = p.emoji1;
+  document.getElementById('emoji2').textContent     = p.emoji2;
+  document.getElementById('cvc-word').innerHTML     = p.cvc;
+  document.getElementById('magic-word').innerHTML   = `${p.magic.slice(0,-1)}<span class="magic-e-highlight">e</span>`;
+  document.getElementById('lbl1').textContent       = p.cvc;
+  document.getElementById('lbl2').textContent       = p.magic;
+  UI.updateProgress(document.getElementById('prog-bar'), idx+1, PAIRS.length);
+}
 
-    let idx = 0;
+document.getElementById('btn-say1').addEventListener('click', () => AudioManager.speak(PAIRS[idx].cvc,  {rate:.75}));
+document.getElementById('btn-say2').addEventListener('click', () => AudioManager.speak(PAIRS[idx].magic,{rate:.75}));
+document.getElementById('btn-both').addEventListener('click', () => {
+  const p = PAIRS[idx];
+  AudioManager.speak(`${p.cvc}... ${p.magic}`, {rate:.7});
+});
+document.getElementById('btn-prev').addEventListener('click', () => { idx=(idx-1+PAIRS.length)%PAIRS.length; render(); });
+document.getElementById('btn-next').addEventListener('click', () => { idx=(idx+1)%PAIRS.length; render(); });
 
-    function showPair(i) {
-      const p = PAIRS[i];
-      document.getElementById('demo-label').textContent = `Short ${p.vowel} → Long ${p.vowel}`;
-      document.getElementById('demo-before').textContent = p.before;
-      document.getElementById('demo-after').innerHTML = p.before + `<span class="magic-e">e</span>`;
-    }
-
-    document.getElementById('btn-before').addEventListener('click', () => {
-      AudioManager.speak(PAIRS[idx].before, {rate:0.75});
-    });
-    document.getElementById('btn-after').addEventListener('click', () => {
-      AudioManager.speak(PAIRS[idx].after, {rate:0.75});
-      AudioManager.playTone('star');
-    });
-    document.getElementById('btn-next').addEventListener('click', () => {
-      idx = (idx+1) % PAIRS.length;
-      showPair(idx);
-      AudioManager.playTone('click');
-    });
-
-    // Build all pairs grid
-    const grid = document.getElementById('pairs-grid');
-    PAIRS.forEach(p => {
-      const row = document.createElement('div');
-      row.className = 'pair-row';
-      const bBtn = document.createElement('div');
-      bBtn.className = 'pair-word before';
-      bBtn.textContent = p.before;
-      bBtn.addEventListener('click', () => { AudioManager.speak(p.before,{rate:0.75}); UI.animateBtn(bBtn); });
-      const arrow = document.createElement('span');
-      arrow.textContent = '→✨';
-      arrow.style.fontSize = '1.4rem';
-      const aBtn = document.createElement('div');
-      aBtn.className = 'pair-word after';
-      aBtn.innerHTML = p.before + `<span style="color:var(--clr-purple)">e</span>`;
-      aBtn.addEventListener('click', () => { AudioManager.speak(p.after,{rate:0.75}); AudioManager.playTone('click'); UI.animateBtn(aBtn); });
-      row.appendChild(bBtn); row.appendChild(arrow); row.appendChild(aBtn);
-      grid.appendChild(row);
-    });
-
-    showPair(0);
-  </script>
+render();
+</script>
 </body>
 </html>

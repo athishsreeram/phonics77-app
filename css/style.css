@@ -1,13 +1,141 @@
-/* Phonics Hub - Main Styles */
-/* Add your existing CSS here or import from other files */
+/* css/style.css  – index page styles */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
 
-:root {
-  --primary-color: #667eea;
-  --secondary-color: #764ba2;
-  --success-color: #639922;
-  --danger-color: #e24b4a;
-  --warning-color: #ba7517;
-  --info-color: #378add;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #f8f9fa;
+  color: #333;
 }
 
-/* Import this file or add your existing styles */
+.navbar {
+  background: white;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+.logo {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.6rem;
+  color: #667eea;
+  text-decoration: none;
+}
+
+.upgrade-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-size: .9rem;
+  font-weight: 800;
+  transition: transform .2s, box-shadow .2s;
+}
+.upgrade-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,.35); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+
+.hero {
+  text-align: center;
+  padding: 40px 28px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  margin-bottom: 40px;
+}
+.hero h1 { font-family: 'Fredoka One', cursive; font-size: clamp(1.6rem,4vw,2.4rem); margin-bottom: 12px; }
+.hero p  { font-size: clamp(.95rem,2.5vw,1.1rem); opacity: .9; }
+
+.pricing-badge {
+  display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;
+  background: rgba(255,255,255,.2);
+  padding: 14px 24px;
+  border-radius: 14px;
+  margin: 16px 0 8px;
+}
+.pricing-badge .price { font-family: 'Fredoka One', cursive; font-size: 1.5rem; }
+.pricing-badge button {
+  background: white; color: #667eea; border: none;
+  padding: 10px 18px; border-radius: 8px;
+  cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 800;
+  transition: transform .2s;
+}
+.pricing-badge button:hover { transform: scale(1.05); }
+
+/* ── Section headers ──────────────────────────────────── */
+.section-header {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.3rem;
+  margin: 36px 0 16px;
+  color: #444;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ── Activity grid ────────────────────────────────────── */
+.activities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.activity-card {
+  background: white;
+  border-radius: 16px;
+  padding: 22px 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  transition: transform .25s, box-shadow .25s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.activity-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0,0,0,.12); }
+
+.activity-card h3 { font-size: 1rem; font-weight: 800; color: #2d2d2d; }
+.activity-card p  { font-size: .85rem; color: #666; flex: 1; }
+
+.activity-card .play-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  width: 100%;
+  font-size: .9rem;
+  transition: background .2s, transform .15s;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+}
+.activity-card .play-btn:hover { background: #5568d3; transform: translateY(-1px); }
+
+.activity-card.locked {
+  opacity: .6;
+}
+.activity-card.locked .play-btn {
+  background: #9ca3af;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.lock-badge {
+  position: absolute;
+  top: 12px; right: 14px;
+  font-size: 1.1rem;
+}
+
+/* ── Footer ────────────────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 32px 20px;
+  color: #999;
+  font-size: .85rem;
+}

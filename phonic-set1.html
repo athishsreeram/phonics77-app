@@ -1,177 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>1️⃣ Phonic Set 1 · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    .phonic-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    .phonic-card {
-      background: white;
-      border-radius: 20px;
-      padding: 20px 12px;
-      text-align: center;
-      cursor: pointer;
-      box-shadow: 0 4px 0 rgba(0,0,0,0.10);
-      border: 4px solid transparent;
-      transition: transform 0.15s, box-shadow 0.15s;
-      -webkit-tap-highlight-color: transparent;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-    .phonic-card:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.10); }
-    .phonic-card:hover  { transform: translateY(-4px); box-shadow: 0 8px 0 rgba(0,0,0,0.10); }
-    .phonic-card.done   { background: #f0fdf4; border-color: var(--clr-green); }
-    .phonic-big-letter  { font-family: 'Fredoka One', cursive; font-size: clamp(2.4rem, 8vw, 4rem); line-height: 1; }
-    .phonic-sound-tag   { font-size: 1rem; font-weight: 700; background: var(--clr-accent); border-radius: 50px; padding: 2px 12px; }
-    .phonic-example     { font-size: 1rem; color: var(--clr-text-soft); font-weight: 600; }
-
-    .detail-panel {
-      background: white; border-radius: 28px; padding: 28px 20px;
-      box-shadow: var(--shadow-md); text-align: center; margin-bottom: 24px;
-      display: none; animation: fadeIn 0.3s ease;
-    }
-    .detail-panel.open { display: block; }
-    .detail-big { font-family: 'Fredoka One', cursive; font-size: clamp(5rem, 20vw, 9rem); line-height: 1; margin-bottom: 8px; }
-    .detail-words-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 16px 0; }
-    .detail-word-chip {
-      background: #f0f0f0; border-radius: 50px; padding: 10px 20px;
-      font-family: 'Fredoka One', cursive; font-size: 1.3rem; cursor: pointer;
-      transition: all 0.15s; border: 3px solid transparent;
-    }
-    .detail-word-chip:active { transform: scale(0.93); }
-    .detail-word-chip:hover  { background: var(--clr-secondary); color: white; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔤 Blending Intro · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.blend-card {
+  background: white; border-radius: 28px; padding: 36px 24px;
+  text-align: center; box-shadow: var(--shadow-md);
+  max-width: 560px; margin: 28px auto;
+}
+.word-display {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(3rem, 12vw, 6rem);
+  letter-spacing: 0.15em;
+  margin: 16px 0;
+  color: var(--clr-text);
+}
+.word-emoji { font-size: clamp(3rem, 10vw, 5rem); margin-bottom: 12px; display: block; }
+.letters-row {
+  display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+  margin: 20px 0;
+}
+.letter-tile {
+  width: 64px; height: 64px; border-radius: 16px;
+  background: #f3f4f6; border: 3px solid #e5e7eb;
+  font-family: 'Fredoka One', cursive; font-size: 1.8rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform .15s, background .15s, border-color .15s;
+}
+.letter-tile:hover { background: #e0e7ff; border-color: var(--clr-blue); transform: translateY(-3px); }
+.letter-tile.highlight { background: #dbeafe; border-color: var(--clr-blue); transform: scale(1.1); }
+.btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+.progress-label { font-size: .9rem; font-weight: 700; color: var(--clr-text-soft); margin-bottom: 8px; }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Phonic Set 1</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
 
-  <div class="page-header" style="background:linear-gradient(135deg,var(--stage1),#ff8c5a)">
-    <h1>1️⃣ Phonic Set 1</h1>
-    <p>s · a · t · i · p · n · e · h · r · m · d</p>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Blending Intro</span>
   </div>
+</nav>
 
-  <main>
-    <p style="text-align:center;font-size:1.1rem;color:var(--clr-text-soft);margin:20px 0">
-      Tap each letter to hear its sound and see example words!
-    </p>
+<div class="page-header" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">
+  <h1>🔤 Blending Intro</h1>
+  <p>Tap each letter, then blend them together!</p>
+</div>
 
-    <div class="phonic-grid" id="phonic-grid"></div>
-
-    <div class="detail-panel" id="detail-panel">
-      <div class="detail-big" id="detail-letter">s</div>
-      <div style="font-size:1.4rem;font-weight:700;margin-bottom:4px" id="detail-sound">"sss"</div>
-      <div style="font-size:1.1rem;color:var(--clr-text-soft);margin-bottom:12px" id="detail-desc">as in...</div>
-      <div class="detail-words-row" id="detail-words"></div>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px">
-        <button class="btn btn-primary btn-lg" id="btn-speak-detail">🔊 Say the Sound</button>
-        <button class="btn btn-secondary btn-lg" id="btn-close-detail">✕ Close</button>
-      </div>
+<main>
+  <div class="blend-card">
+    <p class="progress-label" id="progress-label">Word 1 of 10</p>
+    <div class="progress-wrap" style="margin-bottom:20px">
+      <div class="progress-bar" id="progress-bar" style="width:10%"></div>
     </div>
-
-    <div class="score-bar">
-      <div class="score-item">✅ <span id="done-count">0</span><span class="score-label"> / 11 Learned</span></div>
+    <span class="word-emoji" id="word-emoji">🐱</span>
+    <div class="letters-row" id="letters-row"></div>
+    <div class="word-display" id="word-display" style="opacity:.2">???</div>
+    <div class="btn-row">
+      <button class="btn btn-primary btn-lg" id="btn-blend">🔊 Blend!</button>
+      <button class="btn btn-green btn-lg" id="btn-reveal">👁 Reveal</button>
+      <button class="btn btn-secondary" id="btn-next">➡️ Next</button>
     </div>
-  </main>
+  </div>
+</main>
 
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    const SET1 = [
-      { l:'s', sound:'sss',  emoji:'☀️', words:['sat','sit','sun','set','six','sad','sip','sob'] },
-      { l:'a', sound:'aah',  emoji:'🍎', words:['ant','and','at','an','ask','act','add','arm'] },
-      { l:'t', sound:'tuh',  emoji:'🐯', words:['tap','tip','top','tan','ten','tin','tub','tag'] },
-      { l:'i', sound:'ih',   emoji:'🐛', words:['it','in','is','if','ill','inn','ink','imp'] },
-      { l:'p', sound:'puh',  emoji:'🐷', words:['pat','pan','pin','pot','pit','peg','pup','pod'] },
-      { l:'n', sound:'nuh',  emoji:'🌙', words:['nap','nit','net','not','nun','nod','nip','nag'] },
-      { l:'e', sound:'eh',   emoji:'🐘', words:['egg','end','elk','elf','elm','err','eat','eve'] },
-      { l:'h', sound:'huh',  emoji:'🎩', words:['hat','hen','hit','hop','hub','hug','hum','hip'] },
-      { l:'r', sound:'ruh',  emoji:'🌈', words:['rat','red','rip','rob','run','rug','rod','rim'] },
-      { l:'m', sound:'muh',  emoji:'🌙', words:['mat','men','mix','mob','mud','mug','map','met'] },
-      { l:'d', sound:'duh',  emoji:'🐶', words:['dad','den','did','dot','dug','dim','dip','dam'] },
-    ];
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const WORDS = UI.shuffle(PHONICS_DATA.cvc).slice(0, 10);
+let idx = 0, revealed = false, score = 0;
 
-    let done = new Set(JSON.parse(localStorage.getItem('set1_done') || '[]'));
-    let current = null;
+function loadWord() {
+  if (idx >= WORDS.length) { endGame(); return; }
+  revealed = false;
+  const item = WORDS[idx];
+  const letters = item.word.split('');
 
-    const grid = document.getElementById('phonic-grid');
-    const colors = ['#FF6B35','#4ECDC4','#A78BFA','#FFB347','#6BCB77','#FF85A1','#4D96FF','#FF6B35','#4ECDC4','#A78BFA','#6BCB77'];
+  document.getElementById('progress-label').textContent = `Word ${idx + 1} of ${WORDS.length}`;
+  UI.updateProgress(document.getElementById('progress-bar'), idx + 1, WORDS.length);
+  document.getElementById('word-emoji').textContent = item.emoji;
+  document.getElementById('word-display').textContent = '???';
+  document.getElementById('word-display').style.opacity = '.2';
+  document.getElementById('word-display').style.color = 'var(--clr-text)';
 
-    function buildGrid() {
-      grid.innerHTML = '';
-      SET1.forEach((item, i) => {
-        const card = document.createElement('div');
-        card.className = `phonic-card ${done.has(item.l) ? 'done' : ''}`;
-        card.style.borderColor = done.has(item.l) ? '' : colors[i] + '55';
-        card.innerHTML = `
-          <span class="phonic-big-letter" style="color:${colors[i]}">${item.l}</span>
-          <span class="phonic-sound-tag">"${item.sound}"</span>
-          <span class="phonic-example">${item.emoji} ${item.words[0]}</span>
-          ${done.has(item.l) ? '<span>✅</span>' : ''}
-        `;
-        card.addEventListener('click', () => openDetail(item, colors[i]));
-        grid.appendChild(card);
-      });
-      document.getElementById('done-count').textContent = done.size;
-    }
-
-    function openDetail(item, color) {
-      current = item;
-      const panel = document.getElementById('detail-panel');
-      document.getElementById('detail-letter').textContent = item.l.toUpperCase() + '  ' + item.l;
-      document.getElementById('detail-letter').style.color = color;
-      document.getElementById('detail-sound').textContent = `"${item.sound}"`;
-      document.getElementById('detail-desc').textContent = `${item.emoji} as in: ${item.words[0]}`;
-
-      const wr = document.getElementById('detail-words');
-      wr.innerHTML = '';
-      item.words.forEach(w => {
-        const chip = document.createElement('button');
-        chip.className = 'detail-word-chip';
-        chip.textContent = w;
-        chip.style.borderColor = color + '55';
-        chip.addEventListener('click', () => {
-          AudioManager.speak(w, { rate: 0.75 });
-          UI.animateBtn(chip);
-        });
-        wr.appendChild(chip);
-      });
-
-      panel.classList.add('open');
-      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      AudioManager.speak(`${item.l}. ${item.sound}. ${item.words[0]}`, { rate: 0.75 });
-      AudioManager.playTone('click');
-
-      // Mark as done
-      done.add(item.l);
-      localStorage.setItem('set1_done', JSON.stringify([...done]));
-      buildGrid();
-    }
-
-    document.getElementById('btn-speak-detail').addEventListener('click', () => {
-      if (current) AudioManager.speak(current.sound, { rate: 0.6 });
+  const row = document.getElementById('letters-row');
+  row.innerHTML = '';
+  letters.forEach((ch, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'letter-tile';
+    tile.textContent = ch.toUpperCase();
+    tile.addEventListener('click', () => {
+      tile.classList.toggle('highlight');
+      AudioManager.speak(ch, { rate: 0.7 });
     });
-    document.getElementById('btn-close-detail').addEventListener('click', () => {
-      document.getElementById('detail-panel').classList.remove('open');
-    });
+    row.appendChild(tile);
+  });
+}
 
-    buildGrid();
-  </script>
+document.getElementById('btn-blend').addEventListener('click', () => {
+  const item = WORDS[idx];
+  AudioManager.speak(item.word, { rate: 0.6 });
+  if (!revealed) {
+    revealed = true;
+    document.getElementById('word-display').textContent = item.word.toUpperCase();
+    document.getElementById('word-display').style.opacity = '1';
+    document.getElementById('word-display').style.color = 'var(--clr-primary)';
+    score++;
+  }
+});
+
+document.getElementById('btn-reveal').addEventListener('click', () => {
+  const item = WORDS[idx];
+  revealed = true;
+  document.getElementById('word-display').textContent = item.word.toUpperCase();
+  document.getElementById('word-display').style.opacity = '1';
+  AudioManager.speak(item.word, { rate: 0.7 });
+});
+
+document.getElementById('btn-next').addEventListener('click', () => { idx++; loadWord(); });
+
+function endGame() {
+  document.querySelector('main').innerHTML = `
+    <div class="blend-card">
+      <div style="font-size:4rem;margin-bottom:16px">🎉</div>
+      <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">Great blending!</h2>
+      <p style="font-size:1.1rem;color:#666;margin-bottom:24px">You blended ${score} words!</p>
+      <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>
+      <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>
+    </div>`;
+  UI.setScore('blending-intro', { stars: score, total: WORDS.length });
+}
+
+loadWord();
+</script>
 </body>
 </html>

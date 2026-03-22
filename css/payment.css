@@ -1,214 +1,40 @@
-/* Locked Activity State */
-.activity.locked,
-.activity-card.locked {
-  opacity: 0.65;
-  position: relative;
-  pointer-events: none;
-}
+/* css/payment.css – payment UI styles (stubs for GH Pages) */
 
-.activity.locked::after,
-.activity-card.locked::after {
-  content: '🔒';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 48px;
-  z-index: 5;
-  pointer-events: auto;
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 900;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s;
 }
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
 
-/* Unlock Button Styling */
-.activity button.unlock-btn,
-.activity-card button.unlock-btn {
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  color: white !important;
-  border: none !important;
-  padding: 10px 16px !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-  font-weight: 500 !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
-}
-
-.activity button.unlock-btn:hover,
-.activity-card button.unlock-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5) !important;
-}
-
-.activity button.unlock-btn:active,
-.activity-card button.unlock-btn:active {
-  transform: scale(0.98);
-}
-
-/* Upgrade Modal */
-.upgrade-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s ease;
-}
-
-.modal-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.modal-content {
-  position: relative;
+.modal-box {
   background: white;
-  padding: 32px;
-  border-radius: 16px;
-  max-width: 400px;
+  border-radius: 24px;
+  padding: 36px 28px;
+  max-width: 420px;
+  width: 100%;
   text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
 }
+.modal-box h2 { font-family: 'Fredoka One', cursive; font-size: 1.8rem; margin-bottom: 8px; color: #1e1e2e; }
+.modal-box p  { color: #666; margin-bottom: 20px; font-size: .95rem; }
+
+.modal-btn {
+  display: block; width: 100%;
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  color: white; border: none;
+  padding: 14px; border-radius: 12px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem;
+  cursor: pointer; margin-bottom: 10px;
+  transition: transform .2s;
+}
+.modal-btn:hover { transform: translateY(-2px); }
 
 .modal-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #999;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s;
-}
-
-.modal-close:hover {
-  color: #333;
-}
-
-.modal-content h2 {
-  margin: 0 0 12px 0;
-  color: #333;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.modal-content p {
-  color: #666;
-  margin: 8px 0;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.modal-content p.price {
-  font-size: 18px;
-  color: #667eea;
-  margin: 16px 0;
-  font-weight: 500;
-}
-
-.modal-content p.modal-footer {
-  margin-top: 16px;
-  font-size: 12px;
-  color: #999;
-}
-
-.btn-primary, .btn-secondary {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  margin-top: 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background: #667eea;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.btn-secondary {
-  background: #f0f0f0;
-  color: #333;
-  border: 0.5px solid #ddd;
-}
-
-.btn-secondary:hover {
-  background: #e0e0e0;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  .modal-content {
-    background: #2a2a2a;
-    color: #fff;
-  }
-  
-  .modal-content h2 {
-    color: #fff;
-  }
-  
-  .modal-content p {
-    color: #ccc;
-  }
-  
-  .modal-close {
-    color: #999;
-  }
-  
-  .modal-close:hover {
-    color: #fff;
-  }
-  
-  .btn-secondary {
-    background: #444;
-    color: #fff;
-    border-color: #555;
-  }
-  
-  .btn-secondary:hover {
-    background: #555;
-  }
+  background: none; border: none; color: #aaa;
+  font-size: .9rem; cursor: pointer; margin-top: 8px;
 }

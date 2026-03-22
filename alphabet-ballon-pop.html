@@ -1,183 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>🎈 Balloon Pop · Phonics Hub</title>
-  <link rel="stylesheet" href="css/shared.css">
-  <style>
-    body { overflow-x: hidden; }
-    .game-header { background:linear-gradient(135deg,#4ECDC4,#a8edea); padding:20px; text-align:center; }
-    .game-header h1 { font-family:'Fredoka One',cursive; font-size:clamp(1.8rem,6vw,3rem); color:white; text-shadow:0 2px 8px rgba(0,0,0,0.2); }
-    .target-display { background:white; border-radius:24px; padding:16px 24px; text-align:center; margin:16px; box-shadow:var(--shadow-md); }
-    .target-label { font-size:1.1rem; color:var(--clr-text-soft); font-weight:700; }
-    .target-letter { font-family:'Fredoka One',cursive; font-size:clamp(3rem,14vw,7rem); color:var(--clr-primary); line-height:1; }
-    .game-area { position:relative; width:100%; height:60vh; min-height:300px; background:linear-gradient(180deg,#e0f7fa,#b2ebf2); overflow:hidden; border-radius:20px; margin:0 16px; width:calc(100% - 32px); }
-    .balloon { position:absolute; cursor:pointer; transition:none; -webkit-tap-highlight-color:transparent; user-select:none; animation:rise linear forwards; }
-    @keyframes rise { from { transform:translateY(0); } to { transform:translateY(-110vh); } }
-    .balloon-body { width:clamp(60px,16vw,90px); height:clamp(72px,20vw,110px); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Fredoka One',cursive; font-size:clamp(1.6rem,6vw,2.4rem); color:white; text-shadow:0 1px 4px rgba(0,0,0,0.3); box-shadow:inset -6px -6px 12px rgba(0,0,0,0.1), inset 4px 4px 8px rgba(255,255,255,0.3); position:relative; }
-    .balloon-body::after { content:''; position:absolute; bottom:-12px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent; border-top:14px solid currentColor; }
-    .balloon-string { width:2px; height:30px; background:#aaa; margin:0 auto; }
-    .pop-burst { position:absolute; pointer-events:none; font-size:3rem; animation:burst 0.5s ease forwards; }
-    @keyframes burst { 0%{transform:scale(0);opacity:1} 100%{transform:scale(2);opacity:0} }
-
-    .controls-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:16px; }
-    .score-display { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; padding:12px 20px; background:white; border-radius:20px; margin:0 16px 24px; box-shadow:var(--shadow-sm); }
-    .score-item-big { font-family:'Fredoka One',cursive; font-size:1.6rem; display:flex; align-items:center; gap:8px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎈 Balloon Pop · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+body { overflow: hidden; }
+#game-canvas { display:block; background:linear-gradient(180deg,#87ceeb 0%,#b8e4f7 60%,#e8f5e9 100%); }
+.hud { position:fixed; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:rgba(255,255,255,.85); backdrop-filter:blur(6px); z-index:20; }
+.target-box { text-align:center; }
+.target-letter { font-family:'Fredoka One',cursive; font-size:2.2rem; color:var(--clr-primary); line-height:1; }
+.target-label  { font-size:.75rem; font-weight:800; color:var(--clr-text-soft); }
+.score-box { font-family:'Fredoka One',cursive; font-size:1.4rem; color:var(--clr-text); }
+.lives-box { font-size:1.4rem; letter-spacing:2px; }
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:50; display:flex; align-items:center; justify-content:center; }
+.overlay-box { background:white; border-radius:28px; padding:40px 28px; text-align:center; max-width:380px; width:90%; }
+.overlay-box h2 { font-family:'Fredoka One',cursive; font-size:2.2rem; margin-bottom:12px; }
+.overlay-box p  { font-size:1rem; color:#666; margin-bottom:24px; }
+</style>
 </head>
 <body>
-  <nav class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="nav-home-btn">🏠</a>
-      <span class="nav-title">Balloon Pop</span>
-    </div>
-    <div class="nav-right"></div>
-  </nav>
-
-  <div class="game-header">
-    <h1>🎈 Balloon Pop!</h1>
-  </div>
-
-  <div class="target-display">
-    <div class="target-label">Pop the balloon with the letter:</div>
+<div class="hud">
+  <div class="lives-box" id="lives">❤️❤️❤️</div>
+  <div class="target-box">
     <div class="target-letter" id="target-letter">A</div>
-    <button class="btn btn-primary" id="btn-say-target" style="margin:8px auto 0;display:flex">🔊 Say it</button>
+    <div class="target-label">Pop this!</div>
   </div>
-
-  <div class="game-area" id="game-area"></div>
-
-  <div class="controls-row">
-    <button class="btn btn-green btn-lg" id="btn-start">▶️ Start</button>
-    <button class="btn btn-accent btn-lg" id="btn-pause">⏸ Pause</button>
+  <div class="score-box">⭐ <span id="score-val">0</span></div>
+</div>
+<canvas id="game-canvas"></canvas>
+<div class="overlay" id="start-overlay">
+  <div class="overlay-box">
+    <h2>🎈 Balloon Pop</h2>
+    <p>Pop the balloon showing the correct letter!<br>3 lives – good luck!</p>
+    <button class="btn btn-primary btn-lg" onclick="startGame()">🚀 Start!</button>
+    <br><br><a href="index.html" class="btn btn-secondary" style="display:inline-block;margin-top:8px">🏠 Home</a>
   </div>
-
-  <div class="score-display">
-    <div class="score-item-big">✅ <span id="score">0</span></div>
-    <div class="score-item-big">❌ <span id="misses">0</span></div>
-    <div class="score-item-big">⭐ <span id="stars">0</span></div>
+</div>
+<div class="overlay" id="end-overlay" style="display:none">
+  <div class="overlay-box">
+    <h2 id="end-title">Game Over!</h2>
+    <p id="end-msg">Final score: 0</p>
+    <button class="btn btn-primary btn-lg" onclick="startGame()">🔄 Play Again</button>
+    <br><br><a href="index.html" class="btn btn-secondary" style="display:inline-block;margin-top:8px">🏠 Home</a>
   </div>
+</div>
 
-  <script src="js/audio.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-    const BALLOON_COLORS = ['#FF6B35','#4ECDC4','#A78BFA','#6BCB77','#FF85A1','#4D96FF','#FFB347','#FF6B80'];
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const canvas = document.getElementById('game-canvas');
+const ctx    = canvas.getContext('2d');
+const LETTERS = PHONICS_DATA.alphabet.map(a => a.l);
+const BALLOON_COLORS = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#c77dff','#ff9f1c','#00b4d8'];
 
-    let target = 'A', score = 0, misses = 0, stars = 0;
-    let running = false, spawnTimer = null, balloons = [];
+let balloons = [], target = '', score = 0, lives = 3, raf = null, running = false;
+let spawnTimer = 0, spawnInterval = 80, speedMult = 1;
 
-    function newTarget() {
-      target = LETTERS[Math.floor(Math.random() * LETTERS.length)];
-      document.getElementById('target-letter').textContent = target;
-      AudioManager.speak(target, {rate:0.7});
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function pickTarget() {
+  target = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+  document.getElementById('target-letter').textContent = target;
+  AudioManager.speak(target, {rate:.7});
+}
+
+function spawnBalloon() {
+  const letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+  const r = 36 + Math.random() * 18;
+  balloons.push({
+    x: r + Math.random() * (canvas.width - 2*r),
+    y: canvas.height + r + 20,
+    r, letter,
+    speed: (1.2 + Math.random() * 1.2) * speedMult,
+    color: BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
+    pop: false, popAnim: 0,
+    wobble: Math.random() * Math.PI * 2,
+  });
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  balloons.forEach(b => {
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    if (b.pop) {
+      // Pop burst
+      for (let i=0;i<8;i++) {
+        const angle = (i/8)*Math.PI*2;
+        const dist  = b.popAnim * b.r;
+        ctx.beginPath();
+        ctx.arc(Math.cos(angle)*dist, Math.sin(angle)*dist, b.r*0.2*(1-b.popAnim), 0, Math.PI*2);
+        ctx.fillStyle = b.color; ctx.globalAlpha = 1-b.popAnim;
+        ctx.fill();
+      }
+    } else {
+      const wob = Math.sin(b.wobble) * 4;
+      ctx.scale(1 + wob*0.006, 1);
+      // Balloon body
+      ctx.beginPath();
+      ctx.ellipse(0, 0, b.r, b.r*1.2, 0, 0, Math.PI*2);
+      ctx.fillStyle = b.color; ctx.globalAlpha = .92;
+      ctx.fill();
+      // Shine
+      ctx.beginPath();
+      ctx.ellipse(-b.r*.25, -b.r*.35, b.r*.22, b.r*.18, -0.4, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,.45)';
+      ctx.fill();
+      // String
+      ctx.beginPath();
+      ctx.moveTo(0, b.r*1.2);
+      ctx.lineTo(0, b.r*1.2+30);
+      ctx.strokeStyle='#999'; ctx.lineWidth=1.5; ctx.globalAlpha=.6;
+      ctx.stroke();
+      // Letter
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${b.r*.9}px 'Fredoka One', cursive`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(b.letter, 0, 0);
     }
+    ctx.restore();
+  });
+}
 
-    function spawnBalloon() {
-      if (!running) return;
-      const area = document.getElementById('game-area');
-      const isTarget = Math.random() < 0.4;
-      const letter = isTarget ? target : LETTERS[Math.floor(Math.random() * LETTERS.length)];
-      const color  = BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
-      const x      = 5 + Math.random() * 80;
-      const dur    = 4 + Math.random() * 4;
-
-      const wrap = document.createElement('div');
-      wrap.className = 'balloon';
-      wrap.style.cssText = `left:${x}%;bottom:0;animation-duration:${dur}s`;
-
-      const body = document.createElement('div');
-      body.className = 'balloon-body';
-      body.style.background = color;
-      body.style.color = color;
-      body.style.color = 'white';
-      body.innerHTML = `<span style="position:relative;z-index:1">${letter}</span>`;
-
-      const string = document.createElement('div');
-      string.className = 'balloon-string';
-
-      wrap.appendChild(body);
-      wrap.appendChild(string);
-
-      wrap.addEventListener('click', (e) => {
-        if (!running) return;
-        if (letter === target) {
-          // Correct pop
-          score++;
-          stars = Math.floor(score / 3);
-          document.getElementById('score').textContent  = score;
-          document.getElementById('stars').textContent  = stars;
-          AudioManager.playTone('pop');
-          AudioManager.playTone('correct');
-          // Burst animation
-          const burst = document.createElement('div');
-          burst.className = 'pop-burst';
-          burst.textContent = '💥';
-          burst.style.cssText = `left:${x}%;bottom:50%;`;
-          area.appendChild(burst);
-          setTimeout(() => burst.remove(), 500);
-          wrap.remove();
-          if (score % 5 === 0) newTarget();
-          if (score % 10 === 0) UI.showFeedback(true, 900);
-          UI.setScore('balloon_pop', {stars, total: score});
-        } else {
-          // Wrong — shake it
-          misses++;
-          document.getElementById('misses').textContent = misses;
-          AudioManager.playTone('wrong');
-          wrap.style.animation = 'none';
-          wrap.style.transform = 'rotate(-10deg)';
-          setTimeout(() => { wrap.style.transform = 'rotate(10deg)'; }, 150);
-          setTimeout(() => { wrap.style.transform = ''; wrap.style.animation = `rise ${dur}s linear forwards`; }, 300);
-        }
-      });
-
-      area.appendChild(wrap);
-      balloons.push(wrap);
-
-      // Clean up when balloon exits
-      wrap.addEventListener('animationend', () => {
-        if (wrap.parentNode) {
-          if (letter === target) {
-            // Escaped target
-            misses++;
-            document.getElementById('misses').textContent = misses;
-          }
-          wrap.remove();
-        }
-      });
-
-      // Schedule next
-      const interval = Math.max(600, 1500 - score * 20);
-      spawnTimer = setTimeout(spawnBalloon, interval);
+function update() {
+  spawnTimer++;
+  if (spawnTimer >= spawnInterval) { spawnBalloon(); spawnTimer=0; spawnInterval=Math.max(30,spawnInterval-0.3); }
+  speedMult = 1 + score * 0.015;
+  balloons.forEach(b => {
+    b.wobble += 0.04;
+    if (b.pop) { b.popAnim += 0.08; }
+    else        { b.y -= b.speed; }
+  });
+  // Remove gone or fully popped
+  const before = balloons.length;
+  balloons = balloons.filter(b => {
+    if (b.pop && b.popAnim >= 1) return false;
+    if (!b.pop && b.y < -80) return true; // off screen
+    return true;
+  });
+  // Check if target balloon escaped
+  balloons.forEach(b => {
+    if (!b.pop && b.y < -60 && b.letter === target) {
+      loseLife();
+      b.pop = true;
     }
+  });
+  balloons = balloons.filter(b => b.y > -100);
+}
 
-    document.getElementById('btn-start').addEventListener('click', () => {
-      if (running) return;
-      running = true;
-      document.getElementById('btn-start').textContent = '🔄 Restart';
-      score = 0; misses = 0; stars = 0;
-      document.getElementById('score').textContent  = 0;
-      document.getElementById('misses').textContent = 0;
-      document.getElementById('stars').textContent  = 0;
-      document.getElementById('game-area').innerHTML = '';
-      newTarget();
-      spawnBalloon();
-    });
+function loseLife() {
+  lives--;
+  const hearts = '❤️'.repeat(Math.max(0,lives));
+  document.getElementById('lives').textContent = hearts || '💔';
+  AudioManager.playTone('wrong');
+  if (lives <= 0) { endGame(); }
+  else { pickTarget(); }
+}
 
-    document.getElementById('btn-pause').addEventListener('click', () => {
-      running = !running;
-      document.getElementById('btn-pause').textContent = running ? '⏸ Pause' : '▶️ Resume';
-      if (running) spawnBalloon();
-      else clearTimeout(spawnTimer);
-      AudioManager.playTone('click');
-    });
+function tap(x, y) {
+  if (!running) return;
+  for (let i = balloons.length-1; i >= 0; i--) {
+    const b = balloons[i];
+    if (b.pop) continue;
+    const dist = Math.hypot(x-b.x, y-b.y);
+    if (dist < b.r * 1.3) {
+      if (b.letter === target) {
+        b.pop = true; score++;
+        document.getElementById('score-val').textContent = score;
+        AudioManager.playTone('correct'); UI.showFeedback(true,400);
+        pickTarget();
+      } else {
+        AudioManager.playTone('wrong');
+        // Shake
+        const orig = b.x;
+        let shakes = 0;
+        const shakeInterval = setInterval(() => {
+          b.x = orig + (shakes%2===0 ? 10:-10); shakes++;
+          if(shakes>5){ b.x=orig; clearInterval(shakeInterval); }
+        }, 60);
+      }
+      break;
+    }
+  }
+}
 
-    document.getElementById('btn-say-target').addEventListener('click', () => {
-      AudioManager.speak(target, {rate:0.7});
-    });
-  </script>
+canvas.addEventListener('click',     e => { const r=canvas.getBoundingClientRect(); tap(e.clientX-r.left, e.clientY-r.top); });
+canvas.addEventListener('touchstart', e => { e.preventDefault(); const r=canvas.getBoundingClientRect(); const t=e.touches[0]; tap(t.clientX-r.left,t.clientY-r.top); }, {passive:false});
+
+function gameLoop() {
+  if (!running) return;
+  update(); draw();
+  raf = requestAnimationFrame(gameLoop);
+}
+
+function startGame() {
+  balloons=[]; score=0; lives=3; spawnTimer=0; spawnInterval=80; speedMult=1;
+  document.getElementById('score-val').textContent='0';
+  document.getElementById('lives').textContent='❤️❤️❤️';
+  document.getElementById('start-overlay').style.display='none';
+  document.getElementById('end-overlay').style.display='none';
+  running=true;
+  if(raf) cancelAnimationFrame(raf);
+  pickTarget();
+  gameLoop();
+}
+
+function endGame() {
+  running=false;
+  cancelAnimationFrame(raf);
+  const end = document.getElementById('end-overlay');
+  document.getElementById('end-title').textContent = score>=15?'🏆 Amazing!':score>=8?'⭐ Nice!':'💪 Try Again!';
+  document.getElementById('end-msg').textContent   = `Final score: ${score}`;
+  end.style.display='flex';
+  UI.setScore('alphabet-balloon',{stars:score,total:score});
+}
+</script>
 </body>
 </html>

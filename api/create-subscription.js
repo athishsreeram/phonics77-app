@@ -1,13 +1,14 @@
-// api/create-subscription.js - Vercel Serverless Function
+// api/create-subscription.js  –  Vercel Serverless Function
+// Creates a Stripe Checkout session for the monthly subscription
+
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-export default async function handler(req, res) {
-  // Allow CORS for GitHub Pages
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
+module.exports = async (req, res) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     return res.status(200).end();
   }
 
@@ -16,38 +17,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { priceId, successUrl, cancelUrl, userId } = req.body;
-
-    if (!priceId || !successUrl || !cancelUrl) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
     const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [
         {
-          price: priceId,
+          price: process.env.STRIPE_PRICE_ID,
           quantity: 1,
-        }
+        },
       ],
-      mode: 'subscription',
-      success_url: successUrl + '?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: cancelUrl,
-      billing_address_collection: 'auto',
-      allow_promotion_codes: true,
-      metadata: {
-        userId: userId || 'guest'
-      }
+      subscription_data: {
+        trial_period_days: 7,
+      },
+      success_url: `${req.headers.origin || 'https://athishsreeram.github.io/phonics77-app'}/pages/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${req.headers.origin || 'https://athishsreeram.github.io/phonics77-app'}/index.html`,
     });
 
-    return res.status(200).json({ 
-      sessionId: session.id,
-      sessionUrl: session.url 
-    });
-  } catch (error) {
-    console.error('Stripe error:', error);
-    return res.status(500).json({ 
-      error: error.message || 'Internal server error' 
-    });
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.status(200).json({ url: session.url });
+  } catch (err) {
+    console.error('Stripe error:', err.message);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.status(500).json({ error: err.message });
   }
-}
+};
