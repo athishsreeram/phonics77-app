@@ -27,6 +27,8 @@ const activityGating = (() => {
     'story-time':        'story.html',
     'parent-dashboard':  'parent-dashboard.html',
     'progress-tracker':  'trace.html',
+    'alphabet-balloon':  'alphabet-ballon-pop.html',
+    'read-advanced':     'read2.html',
   };
 
   const FREE_ACTIVITIES = new Set([
