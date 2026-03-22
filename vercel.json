@@ -1,4 +1,5 @@
 {
+  "outputDirectory": ".",
   "rewrites": [
     { "source": "/api/create-subscription", "destination": "/api/create-subscription.js" },
     { "source": "/api/verify-subscription",  "destination": "/api/verify-subscription.js"  },
