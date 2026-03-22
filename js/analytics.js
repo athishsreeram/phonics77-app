@@ -1,85 +1,94 @@
-/* js/analytics.js – full behavior tracking + email capture + retention */
+/* js/analytics.js — sends all events to central Phonics API */
 'use strict';
 
 const analytics = (() => {
+  // ── CONFIG — replace with your deployed API URL ───────────────────────────
+  const API_BASE    = 'https://phonics-api.onrender.com'; // change after deploy
   const SESSION_KEY = 'ph_session';
-  const EVENTS_KEY  = 'ph_events';
   const PROFILE_KEY = 'ph_profile';
 
   function isPremium() { return localStorage.getItem('ph_premium') === 'true'; }
 
+  // ── Session — persists across page loads within same browser ──────────────
   function getSession() {
     let s = {};
-    try { s = JSON.parse(sessionStorage.getItem(SESSION_KEY)) || {}; } catch(e) {}
+    try { s = JSON.parse(localStorage.getItem(SESSION_KEY)) || {}; } catch(e) {}
     if (!s.id) {
-      s.id      = `s_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
-      s.start   = Date.now();
-      s.page    = window.location.pathname;
-      s.premium = isPremium();
-      s.ref     = document.referrer || 'direct';
-      s.ua      = navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop';
-      try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch(e) {}
+      s.id  = `s_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+      s.ua  = navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop';
+      s.ref = document.referrer || 'direct';
+      try { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch(e) {}
     }
     return s;
   }
 
+  // ── Core: send event to central API ──────────────────────────────────────
   function logEvent(type, data = {}) {
     const sess  = getSession();
-    const event = { type, ts: Date.now(), session: sess.id, url: window.location.pathname,
-                    premium: sess.premium, ua: sess.ua, ...data };
-    try {
-      const events = JSON.parse(localStorage.getItem(EVENTS_KEY) || '[]');
-      events.push(event);
-      if (events.length > 1000) events.splice(0, events.length - 1000);
-      localStorage.setItem(EVENTS_KEY, JSON.stringify(events));
-    } catch(e) {}
-    fetch('/api/log-events', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(event)
-    }).catch(() => {});
+    const event = {
+      type,
+      session:   sess.id,
+      url:       window.location.pathname,
+      ua:        sess.ua,
+      premium:   isPremium(),
+      ts:        Date.now(),
+      ...data,
+    };
+
+    // Fire-and-forget — never block the user
+    fetch(`${API_BASE}/api/events`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(event),
+      keepalive: true,
+    }).catch(() => {});  // silent fail — offline is fine
+
     return event;
   }
 
-  // ── Core trackers ─────────────────────────────────────────
-  function trackPageView() { logEvent('page_view', { title: document.title }); }
+  // ── Activity tracking ─────────────────────────────────────────────────────
+  function trackPageView()  { logEvent('page_view', { title: document.title }); }
 
   function trackActivityStart(id) {
     logEvent('activity_start', { activityId: id });
-    updateStreak();
+    _updateStreak();
     updateProfile({ lastActivity: id, lastSeen: Date.now() });
   }
 
   function trackActivityComplete(id, score, total) {
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
     logEvent('activity_complete', { activityId: id, score, total, pct });
+    // Also update localStorage progress for the progress widget
     const p = getProgress();
     if (!p[id]) p[id] = { attempts: 0, bestScore: 0, bestPct: 0 };
     p[id].attempts++;
     p[id].lastScore = score; p[id].lastPct = pct; p[id].lastTs = Date.now();
     if (pct > (p[id].bestPct || 0)) { p[id].bestScore = score; p[id].bestPct = pct; }
-    saveProgress(p);
+    _saveProgress(p);
     const done = getActivitiesCompleted();
     if (done === 3 && !isPremium()) _showUpgradeNudge('after_3_activities');
   }
 
-  function trackUpgradeClick(source) { logEvent('upgrade_click', { source }); }
-  function trackPaywallHit(id)       { logEvent('paywall_hit', { activityId: id }); }
+  function trackUpgradeClick(source) { logEvent('upgrade_click',  { source }); }
+  function trackPaywallHit(id)       { logEvent('paywall_hit',    { activityId: id }); }
   function trackOnboardingStep(step, data = {}) { logEvent('onboarding_step', { step, ...data }); }
+
   function trackSignup(childName, childAge, email) {
     logEvent('signup', { childName, childAge, hasEmail: !!email });
     updateProfile({ childName, childAge, signupTs: Date.now() });
-    if (email) _sendEmailToApi(email, childName);
+    if (email) captureEmail(email, childName, 'onboarding');
   }
 
-  // ── Email capture ─────────────────────────────────────────
-  function _sendEmailToApi(email, name) {
-    fetch('/api/capture-email', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, name, ts: Date.now(), source: 'onboarding',
-                             profile: getProfile() })
+  // ── Email capture — posts directly to API ────────────────────────────────
+  function captureEmail(email, name, source) {
+    if (!email || !email.includes('@')) return;
+    fetch(`${API_BASE}/api/emails`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, name, source, session_id: getSession().id }),
     }).catch(() => {});
     updateProfile({ email });
-    logEvent('email_captured', { source: 'onboarding' });
+    logEvent('email_captured', { source });
   }
 
   function showEmailCapture(source) {
@@ -94,21 +103,15 @@ const analytics = (() => {
     el.innerHTML = `
       <div style="display:flex;align-items:flex-start;gap:10px">
         <div style="flex:1">
-          <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#667eea;margin-bottom:4px">
-            📧 Get weekly progress reports!
-          </div>
-          <div style="font-size:.82rem;color:#666;font-weight:600;margin-bottom:12px">
-            Tips, milestones & learning updates — free.
-          </div>
+          <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#667eea;margin-bottom:4px">📧 Get weekly progress reports!</div>
+          <div style="font-size:.82rem;color:#666;font-weight:600;margin-bottom:12px">Tips, milestones & learning updates — free.</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <input id="_email-input" type="email" placeholder="parent@email.com"
               style="flex:1;min-width:160px;padding:10px 14px;border:2px solid #e5e7eb;
                      border-radius:10px;font-size:.9rem;outline:none;font-family:'Nunito',sans-serif;font-weight:700"/>
             <button onclick="analytics._submitEmail()"
               style="background:#667eea;color:white;border:none;border-radius:10px;
-                     padding:10px 16px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif">
-              Subscribe →
-            </button>
+                     padding:10px 16px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif">Subscribe →</button>
           </div>
         </div>
         <button onclick="document.getElementById('_email-capture').remove()"
@@ -122,17 +125,15 @@ const analytics = (() => {
     const input = document.getElementById('_email-input');
     const email = input?.value?.trim();
     if (!email || !email.includes('@')) { if(input) input.style.borderColor='#ef4444'; return; }
-    _sendEmailToApi(email, getProfile().childName || 'parent');
+    captureEmail(email, getProfile().childName || 'parent', 'email_bar');
     const el = document.getElementById('_email-capture');
     if (el) {
-      el.innerHTML = `<div style="text-align:center;font-family:'Fredoka One',cursive;font-size:1.1rem;color:#22c55e;padding:8px">
-        ✅ Subscribed! You'll get weekly progress reports.
-      </div>`;
-      setTimeout(() => el.remove(), 2500);
+      el.innerHTML = `<div style="text-align:center;font-family:'Fredoka One',cursive;font-size:1.1rem;color:#22c55e;padding:8px">✅ Subscribed!</div>`;
+      setTimeout(() => el.remove(), 2000);
     }
   }
 
-  // ── Upgrade nudge ─────────────────────────────────────────
+  // ── Upgrade nudge ─────────────────────────────────────────────────────────
   function _showUpgradeNudge(trigger) {
     if (isPremium() || document.getElementById('_upgrade-nudge')) return;
     const el = document.createElement('div');
@@ -143,26 +144,20 @@ const analytics = (() => {
       z-index:800;max-width:280px;animation:fadeIn .4s ease;`;
     el.innerHTML = `
       <button onclick="document.getElementById('_upgrade-nudge').remove()"
-        style="position:absolute;top:10px;right:12px;background:none;border:none;
-               color:rgba(255,255,255,.6);font-size:1rem;cursor:pointer">✕</button>
+        style="position:absolute;top:10px;right:12px;background:none;border:none;color:rgba(255,255,255,.6);font-size:1rem;cursor:pointer">✕</button>
       <div style="font-size:2rem;margin-bottom:8px">🌟</div>
       <div style="font-family:'Fredoka One',cursive;font-size:1.15rem;margin-bottom:6px">You're on a roll!</div>
-      <div style="font-size:.85rem;opacity:.9;margin-bottom:14px;line-height:1.5">
-        Unlock 16 more activities — first 7 days free!
-      </div>
+      <div style="font-size:.85rem;opacity:.9;margin-bottom:14px;line-height:1.5">Unlock 16 more activities — first 7 days free!</div>
       <button onclick="analytics.trackUpgradeClick('nudge_${trigger}');paymentManager.initiateSubscription();document.getElementById('_upgrade-nudge').remove();"
         style="background:white;color:#667eea;border:none;border-radius:10px;
-               padding:10px 18px;font-weight:800;cursor:pointer;width:100%;font-family:'Nunito',sans-serif">
-        🚀 Start Free Trial
-      </button>`;
+               padding:10px 18px;font-weight:800;cursor:pointer;width:100%;font-family:'Nunito',sans-serif">🚀 Start Free Trial</button>`;
     document.body.appendChild(el);
     logEvent('upgrade_nudge_shown', { trigger });
   }
 
-  // ── Streak ────────────────────────────────────────────────
-  function updateStreak() {
-    const today = new Date().toDateString();
-    const yest  = new Date(Date.now() - 864e5).toDateString();
+  // ── Streak (local only — also sent via event) ─────────────────────────────
+  function _updateStreak() {
+    const today = new Date().toDateString(), yest = new Date(Date.now()-864e5).toDateString();
     const d = JSON.parse(localStorage.getItem('ph_streak') || '{"last":"","count":0,"longest":0}');
     if (d.last === today) return;
     d.count   = d.last === yest ? d.count + 1 : 1;
@@ -174,34 +169,22 @@ const analytics = (() => {
   function getStreak() {
     const d = JSON.parse(localStorage.getItem('ph_streak') || '{"last":"","count":0}');
     const today = new Date().toDateString(), yest = new Date(Date.now()-864e5).toDateString();
-    return (d.last === today || d.last === yest) ? d.count : 0;
+    return (d.last===today||d.last===yest) ? d.count : 0;
   }
 
-  // ── Progress ──────────────────────────────────────────────
-  function getProgress()    { try { return JSON.parse(localStorage.getItem('ph_progress')||'{}'); } catch(e){ return {}; } }
-  function saveProgress(p)  { try { localStorage.setItem('ph_progress', JSON.stringify(p)); } catch(e){} }
+  // ── Local progress (mirror of DB for offline use) ─────────────────────────
+  function getProgress()    { try{ return JSON.parse(localStorage.getItem('ph_progress')||'{}'); }catch(e){ return {}; } }
+  function _saveProgress(p) { try{ localStorage.setItem('ph_progress', JSON.stringify(p)); }catch(e){} }
   function getActivityProgress(id) { return getProgress()[id] || null; }
-  function getTotalStars()  { return Object.values(getProgress()).reduce((s,a) => s+(a.bestScore||0), 0); }
-  function getActivitiesCompleted() { return Object.values(getProgress()).filter(a => (a.attempts||0) > 0).length; }
+  function getTotalStars()  { return Object.values(getProgress()).reduce((s,a)=>s+(a.bestScore||0),0); }
+  function getActivitiesCompleted() { return Object.values(getProgress()).filter(a=>(a.attempts||0)>0).length; }
 
-  // ── Profile ───────────────────────────────────────────────
-  function getProfile()     { try { return JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}'); } catch(e){ return {}; } }
-  function updateProfile(d) { try { localStorage.setItem(PROFILE_KEY, JSON.stringify({...getProfile(),...d})); } catch(e){} }
+  // ── Profile (local) ───────────────────────────────────────────────────────
+  function getProfile()     { try{ return JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}'); }catch(e){ return {}; } }
+  function updateProfile(d) { try{ localStorage.setItem(PROFILE_KEY, JSON.stringify({...getProfile(),...d})); }catch(e){} }
   function isNewUser()      { return !localStorage.getItem(PROFILE_KEY) && !localStorage.getItem('ph_progress'); }
 
-  // ── Funnel summary ────────────────────────────────────────
-  function getEvents() { try { return JSON.parse(localStorage.getItem(EVENTS_KEY)||'[]'); } catch(e){ return []; } }
-  function getFunnelSummary() {
-    const ev = getEvents(), c = t => ev.filter(e => e.type===t).length;
-    return { pageViews:c('page_view'), activityStarts:c('activity_start'),
-      activityCompletes:c('activity_complete'), paywallHits:c('paywall_hit'),
-      upgradeClicks:c('upgrade_click'), emailsCaptured:c('email_captured'),
-      onboardingCompleted:ev.some(e=>e.type==='onboarding_step'&&e.step==='completed'),
-      streak:getStreak(), totalStars:getTotalStars(),
-      activitiesCompleted:getActivitiesCompleted(), isPremium:isPremium(), profile:getProfile() };
-  }
-
-  // ── Auto-tracking ─────────────────────────────────────────
+  // ── Auto-tracking ─────────────────────────────────────────────────────────
   window._pageStart = Date.now();
   window.addEventListener('beforeunload', () => {
     const s = Math.round((Date.now()-window._pageStart)/1000);
@@ -211,7 +194,6 @@ const analytics = (() => {
     const locked = document.querySelectorAll('.activity-card.locked').length;
     if (locked > 0) logEvent('paywall_impression', { lockedCount: locked });
   }, 1500);
-  // Email capture after 45s on index for engaged non-premium users
   const onIndex = window.location.pathname === '/' || window.location.pathname.endsWith('index.html');
   if (onIndex) {
     setTimeout(() => {
@@ -225,10 +207,10 @@ const analytics = (() => {
   return {
     trackPageView, trackActivityStart, trackActivityComplete,
     trackUpgradeClick, trackPaywallHit, trackOnboardingStep,
-    trackSignup, showEmailCapture, _submitEmail,
+    trackSignup, captureEmail, showEmailCapture, _submitEmail,
     getStreak, getProgress, getActivityProgress,
     getTotalStars, getActivitiesCompleted,
-    getProfile, updateProfile, isNewUser,
-    getEvents, getFunnelSummary, logEvent, isPremium,
+    getProfile, updateProfile, isNewUser, isPremium,
+    getSession, logEvent,
   };
 })();
