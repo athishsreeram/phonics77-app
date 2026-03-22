@@ -35,10 +35,10 @@ const paymentManager = (() => {
 
   function redirectToStripe() {
     // Replace this URL with your real Stripe payment link
-    const stripeLink = 'https://buy.stripe.com/test_placeholder';
-    closeModal();
-    alert('Stripe payment link not configured yet.\n\nReplace the stripeLink in js/payment.js with your real Stripe checkout URL.');
-    // window.location.href = stripeLink;  // uncomment once you have a real link
+    const stripeLink = 'https://buy.stripe.com/test_cNi28ta2Rdi4g0736G0ZW00';
+    //closeModal();
+    //alert('Stripe payment link not configured yet.\n\nReplace the stripeLink in js/payment.js with your real Stripe checkout URL.');
+    window.location.href = stripeLink;  // uncomment once you have a real link
   }
 
   function isPremium() {
