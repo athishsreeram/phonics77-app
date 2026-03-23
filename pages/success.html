@@ -20,7 +20,7 @@ h1 { font-family:'Fredoka One',cursive;font-size:2.2rem;color:#667eea;margin-bot
   font-family:'Nunito',sans-serif;font-weight:800;font-size:1.1rem;
   cursor:pointer;text-decoration:none;margin-top:8px;transition:transform .2s,box-shadow .2s; }
 .go-btn:hover { transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,.4); }
-.status { font-size:.85rem;color:#22c55e;font-weight:700;margin-top:12px; }
+.status { font-size:.85rem;color:#22c55e;font-weight:700;margin-top:12px;min-height:20px; }
 </style>
 </head>
 <body>
@@ -36,45 +36,75 @@ h1 { font-family:'Fredoka One',cursive;font-size:2.2rem;color:#667eea;margin-bot
     <li>📴 Works offline</li>
   </ul>
   <a href="../index.html" class="go-btn" id="go-btn">🚀 Start Learning Now!</a>
-  <p class="status" id="status">✅ Premium saved to this browser</p>
+  <p class="status" id="status">Activating premium…</p>
 </div>
 
 <script src="../js/config.js"></script>
 <script src="../js/api.js"></script>
 <script>
-// Step 1: Set premium immediately in localStorage
-localStorage.setItem('ph_premium', 'true');
-localStorage.setItem('ph_premium_ts', Date.now().toString());
-
-// Step 2: Auto-redirect countdown
-let countdown = 4;
-const btn = document.getElementById('go-btn');
-(function tick() {
-  btn.textContent = `🚀 Start Learning! (${countdown}s)`;
-  if (countdown <= 0) { window.location.href = '../index.html'; return; }
-  countdown--;
-  setTimeout(tick, 1000);
-})();
-
-// Step 3: Verify with central Render API + register user
 (async () => {
+  const statusEl  = document.getElementById('status');
+  const btn       = document.getElementById('go-btn');
   const params    = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
-  if (!sessionId) return;
+
+  // Step 1: Set premium in localStorage immediately so UI unlocks now
+  localStorage.setItem('ph_premium',    'true');
+  localStorage.setItem('ph_premium_ts', Date.now().toString());
+  statusEl.textContent = '✅ Premium saved to this browser';
+
+  // Step 2: Start countdown
+  let countdown = 4;
+  const tick = () => {
+    btn.textContent = `🚀 Start Learning! (${countdown}s)`;
+    if (countdown <= 0) { window.location.href = '../index.html'; return; }
+    countdown--;
+    setTimeout(tick, 1000);
+  };
+  tick();
+
+  // Step 3: Verify with Render API — this writes to subscriptions + users tables
+  if (!sessionId) {
+    statusEl.textContent = '✅ Premium active';
+    return;
+  }
 
   try {
-    // Use PhonicsAPI to verify (routes to Render)
+    // verifySession calls GET /api/subscriptions/verify?session_id=...&email=...
+    // The backend:
+    //   1. Retrieves the Stripe session
+    //   2. Upserts users.status = 'active' or 'trialing'
+    //   3. Inserts row into subscriptions table
     const data = await PhonicsAPI.verifySession(sessionId);
-    if (data && data.active) {
-      localStorage.setItem('ph_premium_verified', 'true');
-      document.getElementById('status').textContent = '✅ Subscription verified by Stripe';
 
-      // Also log purchase_complete event
-      PhonicsAPI.logEvent('purchase_complete', { sessionId });
+    if (data && data.active) {
+      statusEl.textContent = '✅ Subscription verified & saved';
+
+      // Step 4: If Stripe returned the customer email, register/update user
+      const stripeEmail = data.customer?.email;
+      if (stripeEmail) {
+        localStorage.setItem('ph_email', stripeEmail);
+        // Upsert user with active status — also writes to email_leads
+        await PhonicsAPI.registerUser(stripeEmail, null, null);
+      }
+
+      // Step 5: Log purchase_complete event to events table
+      PhonicsAPI.logEvent('purchase_complete', {
+        data: {
+          session_id: sessionId,
+          status:     data.status,
+          email:      stripeEmail || localStorage.getItem('ph_email') || null,
+        },
+      });
+
+    } else {
+      statusEl.textContent = '⚠️ Payment pending — premium will activate shortly';
     }
+
   } catch(e) {
-    // API unavailable — localStorage grant is enough
+    // API unavailable — localStorage premium is enough to unlock
     console.warn('[success] API verify failed:', e.message);
+    statusEl.textContent = '✅ Premium active (offline mode)';
   }
 })();
 </script>

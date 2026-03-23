@@ -142,10 +142,22 @@ window.PhonicsAPI = (() => {
   }
 
   async function verifySession(sessionId) {
-    const data = await _get(`/api/subscriptions/verify?session_id=${sessionId}`);
+    // Pass email if known so backend can link session → users + subscriptions tables
+    const email = localStorage.getItem('ph_email') || '';
+    const params = new URLSearchParams({ session_id: sessionId });
+    if (email) params.set('email', email);
+
+    const data = await _get(`/api/subscriptions/verify?${params.toString()}`);
     if (data.ok && data.active) {
-      localStorage.setItem('ph_premium', 'true');
-      localStorage.setItem('ph_premium_ts', Date.now().toString());
+      localStorage.setItem('ph_premium',          'true');
+      localStorage.setItem('ph_premium_ts',        Date.now().toString());
+      localStorage.setItem('ph_premium_verified',  'true');
+      // Update cached user status
+      const stored = getStoredUser();
+      if (stored) {
+        stored.status = data.status || 'active';
+        localStorage.setItem('ph_user', JSON.stringify(stored));
+      }
     }
     return data;
   }
