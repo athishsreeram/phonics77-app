@@ -389,25 +389,31 @@ document.getElementById('btn-reset').addEventListener('click', () => {
 });
 
 
-// ── Sync user profile from Render API ─────────────────────────────────────
+// ── Sync user profile from Render API then render ────────────────────────
 (async () => {
-  if (window.PhonicsAPI) {
-    try {
+  try {
+    if (window.PhonicsAPI) {
       const user = await PhonicsAPI.getUser();
       if (user) {
-        // Sync premium status
+        // Sync premium status from server
         if (user.status === 'active' || user.sub_status === 'active' ||
             user.sub_status === 'trialing') {
           localStorage.setItem('ph_premium', 'true');
         }
-        // Sync child profile
-        if (user.child_name) analytics.updateProfile({ childName: user.child_name });
-        if (user.child_age)  analytics.updateProfile({ childAge:  user.child_age });
-        if (user.email)      analytics.updateProfile({ email: user.email });
+        // Merge API data into local profile so load() sees it immediately
+        analytics.updateProfile({
+          childName: user.child_name || analytics.getProfile().childName,
+          childAge:  user.child_age  || analytics.getProfile().childAge,
+          email:     user.email      || analytics.getProfile().email,
+        });
       }
-    } catch(e) { /* API unavailable — use local data */ }
+    }
+  } catch(e) {
+    console.warn('[dashboard] API sync failed, using local data:', e.message);
+  } finally {
+    // Always call load() — even if API fails, local data still renders
+    load();
   }
-  load();
 })();
 
 </script>

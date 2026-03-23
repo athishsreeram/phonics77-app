@@ -37,6 +37,9 @@ const analytics = (() => {
       ...data,
     };
 
+    // Mirror event to localStorage for parent-dashboard display
+    _appendEvent(event);
+
     // Use PhonicsAPI if loaded, else direct fetch
     if (window.PhonicsAPI && typeof window.PhonicsAPI.logEvent === 'function') {
       window.PhonicsAPI.logEvent(type, data);
@@ -202,6 +205,45 @@ const analytics = (() => {
   function updateProfile(d) { try{ localStorage.setItem(PROFILE_KEY, JSON.stringify({...getProfile(),...d})); }catch(e){} }
   function isNewUser()      { return !localStorage.getItem(PROFILE_KEY) && !localStorage.getItem('ph_progress'); }
 
+  // ── Events log (localStorage mirror for parent-dashboard) ─────────────────
+  // Events are stored locally so parent-dashboard can display them without an API call
+  function getEvents() {
+    try { return JSON.parse(localStorage.getItem('ph_events') || '[]'); } catch(e) { return []; }
+  }
+
+  function _appendEvent(event) {
+    try {
+      const events = getEvents();
+      events.push(event);
+      // Keep last 200 events max
+      if (events.length > 200) events.splice(0, events.length - 200);
+      localStorage.setItem('ph_events', JSON.stringify(events));
+    } catch(e) {}
+  }
+
+  // ── Funnel summary — aggregates localStorage data for parent-dashboard ─────
+  function getFunnelSummary() {
+    const events   = getEvents();
+    const progress = getProgress();
+    const profile  = getProfile();
+    const streak   = getStreak();
+
+    const summary = {
+      profile,
+      streak,
+      isPremium:           isPremium(),
+      totalStars:          getTotalStars(),
+      activitiesCompleted: getActivitiesCompleted(),
+      pageViews:           events.filter(e => e.type === 'page_view').length,
+      activityStarts:      events.filter(e => e.type === 'activity_start').length,
+      activityCompletes:   events.filter(e => e.type === 'activity_complete').length,
+      paywallHits:         events.filter(e => e.type === 'paywall_hit').length,
+      upgradeClicks:       events.filter(e => e.type === 'upgrade_click').length,
+    };
+
+    return summary;
+  }
+
   // ── Auto page-exit tracking ────────────────────────────────────────────────
   window._pageStart = Date.now();
   window.addEventListener('beforeunload', () => {
@@ -230,5 +272,6 @@ const analytics = (() => {
     getTotalStars, getActivitiesCompleted,
     getProfile, updateProfile, isNewUser, isPremium,
     getSession, logEvent,
+    getEvents, getFunnelSummary,
   };
 })();
