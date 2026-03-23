@@ -45,36 +45,18 @@ const paymentManager = (() => {
 
   async function redirectToStripe() {
     closeModal();
-    const origin  = window.location.origin;
-    const session = typeof analytics !== 'undefined' ? analytics.getSession().id : '';
+    const origin = window.location.origin;
 
-    // Use PhonicsAPI if available (preferred)
     if (window.PhonicsAPI) {
-      const data = await window.PhonicsAPI.startCheckout(
+      // api.js startCheckout handles redirect + fallback to Payment Link
+      await window.PhonicsAPI.startCheckout(
         `${origin}/pages/success.html?session_id={CHECKOUT_SESSION_ID}`,
         `${origin}/index.html`
       );
-      if (data && data.url) return; // PhonicsAPI already redirected
+      return;
     }
 
-    // Fallback: call API directly
-    try {
-      const res = await fetch(`${getApiBase()}/api/subscriptions/checkout`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          session_id:  session,
-          successUrl:  `${origin}/pages/success.html?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl:   `${origin}/index.html`,
-        }),
-      });
-      const data = await res.json();
-      if (data.url) { window.location.href = data.url; return; }
-    } catch(e) {
-      console.warn('API checkout failed, falling back to Payment Link:', e.message);
-    }
-
-    // Last resort: direct Payment Link
+    // api.js not loaded — go direct to Stripe Payment Link
     window.location.href = STRIPE_PAYMENT_LINK;
   }
 
