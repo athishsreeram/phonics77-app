@@ -341,14 +341,26 @@ function load() {
         </div>`).join('')
     : `<div style="text-align:center;padding:32px;color:#aaa;font-weight:700">No events yet</div>`;
 
-  // ── Profile tab ───────────────────────────────────────────
+  // ── Profile tab — merge API user data with local profile ────
+  const apiUser   = window._apiUser || {};
+  const childName = apiUser.child_name || profile.childName || '—';
+  const childAge  = apiUser.child_age  || profile.childAge  || '—';
+  const email     = apiUser.email      || profile.email      || '—';
+  const memberSince = apiUser.created_at
+    ? new Date(apiUser.created_at).toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' })
+    : '—';
+  const lastSeen = apiUser.last_seen
+    ? timeAgo(new Date(apiUser.last_seen).getTime())
+    : timeAgo(profile.lastSeen);
+
   const profileFields = [
-    ['Child name',    profile.childName || '—'],
-    ['Age',           profile.childAge  || '—'],
+    ['Email',         email],
+    ['Child name',    childName],
+    ['Child age',     childAge],
     ['Goals',         (profile.goals||[]).join(', ') || '—'],
-    ['First seen',    timeAgo(profile.signupTs || parseInt(localStorage.getItem('ph_premium_ts')||'0') || null)],
-    ['Last activity', timeAgo(profile.lastSeen)],
-    ['Streak',        `${streak} day${streak!==1?'s':''}`],
+    ['Member since',  memberSince],
+    ['Last seen',     lastSeen],
+    ['Day streak',    `${streak} day${streak!==1?'s':''}`],
     ['Device',        events[0]?.ua || '—'],
   ];
   document.getElementById('profile-card').innerHTML = profileFields.map(([k,v]) => `
@@ -357,13 +369,28 @@ function load() {
       <span class="profile-val">${v}</span>
     </div>`).join('');
 
+  // Subscription status — read from users table via _apiUser.status
+  const serverStatus = apiUser.status || apiUser.sub_status || null;
+  const isPremiumServer = serverStatus === 'active' || serverStatus === 'trialing';
   const premiumTs = localStorage.getItem('ph_premium_ts');
+  const statusLabel = serverStatus
+    ? serverStatus.charAt(0).toUpperCase() + serverStatus.slice(1)
+    : (premium ? 'Active' : 'Free');
+
+  const expiresAt = localStorage.getItem('ph_expires_at') || apiUser.expires_at || null;
+  const expiryStr = expiresAt
+    ? `Active until ${new Date(expiresAt).toLocaleDateString('en-CA', { year:'numeric', month:'long', day:'numeric' })}`
+    : (isPremiumServer ? statusLabel : 'Free tier — 3 activities available');
+
   document.getElementById('premium-status-text').textContent =
-    premium ? `Active since ${timeAgo(parseInt(premiumTs||'0'))}` : 'Free tier — 3 activities available';
+    (premium || isPremiumServer) ? expiryStr : 'Free tier — 3 activities available';
   document.getElementById('premium-badge').innerHTML =
-    premium ? `<span class="badge badge-green">⭐ Premium</span>` : `<span class="badge badge-gray">Free</span>`;
+    (premium || isPremiumServer)
+      ? `<span class="badge badge-green">⭐ ${statusLabel}</span>`
+      : `<span class="badge badge-gray">Free</span>`;
+
   const upgradeBtn = document.getElementById('btn-upgrade-dash');
-  if (!premium) {
+  if (!premium && !isPremiumServer) {
     upgradeBtn.style.display = 'block';
     upgradeBtn.addEventListener('click', () => {
       analytics.trackUpgradeClick('dashboard');
@@ -389,29 +416,52 @@ document.getElementById('btn-reset').addEventListener('click', () => {
 });
 
 
-// ── Sync user profile from Render API then render ────────────────────────
+// ── Bootstrap dashboard ─────────────────────────────────────────────────────
+// Single call: GET /api/users/me
+//   → reads users table (email, child_name, child_age, status, sub_status)
+//   → already deployed and working
 (async () => {
+  const email = localStorage.getItem('ph_email');
+
   try {
-    if (window.PhonicsAPI) {
+    if (email && window.PhonicsAPI) {
       const user = await PhonicsAPI.getUser();
+
       if (user) {
-        // Sync premium status from server
-        if (user.status === 'active' || user.sub_status === 'active' ||
-            user.sub_status === 'trialing') {
+        const isActive = user.status === 'active'   || user.status === 'trialing' ||
+                         user.sub_status === 'active' || user.sub_status === 'trialing';
+
+        // Sync premium flag
+        if (isActive) {
           localStorage.setItem('ph_premium', 'true');
         }
-        // Merge API data into local profile so load() sees it immediately
+        if (user.expires_at) {
+          localStorage.setItem('ph_expires_at', user.expires_at);
+        }
+
+        // Merge server data into local profile so load() renders real name/age
         analytics.updateProfile({
-          childName: user.child_name || analytics.getProfile().childName,
-          childAge:  user.child_age  || analytics.getProfile().childAge,
-          email:     user.email      || analytics.getProfile().email,
+          childName: user.child_name || analytics.getProfile().childName || '',
+          childAge:  user.child_age  || analytics.getProfile().childAge  || '',
+          email:     user.email      || email,
         });
+
+        // Expose for premium status section in load()
+        window._apiUser = {
+          email:      user.email,
+          child_name: user.child_name,
+          child_age:  user.child_age,
+          status:     user.status,
+          active:     isActive,
+          expires_at: user.expires_at || null,
+          sub_status: user.sub_status || null,
+        };
       }
     }
   } catch(e) {
-    console.warn('[dashboard] API sync failed, using local data:', e.message);
+    console.warn('[dashboard] user fetch failed, using local data:', e.message);
   } finally {
-    // Always call load() — even if API fails, local data still renders
+    // Always render — never leave user on "Loading your data..."
     load();
   }
 })();
