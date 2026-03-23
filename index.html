@@ -253,6 +253,13 @@ window.addEventListener('load', async () => {
     paymentManager.unlockPremiumCards();
   }
 
+      // React to background sync result
+    window.addEventListener('ph:subscription-sync', (e) => {
+      const { active } = e.detail || {};
+      if (active && !PhonicsAPI.isPremium()) paymentManager.unlockPremiumCards();
+      if (!active && localStorage.getItem('ph_premium') === 'true') window.location.reload();
+    });
+
   // 2. Render progress widget for returning users
   progressWidget.render();
 
