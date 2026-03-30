@@ -27,7 +27,7 @@ canvas { border:3px dashed #e5e7eb; border-radius:20px; cursor:crosshair; touch-
 </nav>
 <div class="page-header" style="background:linear-gradient(135deg,#d946ef,#9d174d)">
   <h1>📈 Alphabet Tracing</h1>
-  <p>Trace each letter with your finger!</p>
+  <p>Trace both uppercase and lowercase letters with your finger!</p>
 </div>
 <main>
 <div class="trace-card">
@@ -56,7 +56,15 @@ canvas { border:3px dashed #e5e7eb; border-radius:20px; cursor:crosshair; touch-
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-const LETTERS = PHONICS_DATA.alphabet;
+const UPPERCASE = PHONICS_DATA.alphabet;
+const LOWERCASE = PHONICS_DATA.alphabet.map(item => ({
+  l: item.l.toLowerCase(),
+  word: item.word,
+  emoji: item.emoji,
+  sound: item.sound,
+  vowel: item.vowel
+}));
+const LETTERS = [...UPPERCASE, ...LOWERCASE];
 const COLORS   = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
 let idx = 0, drawing = false;
 const canvas = document.getElementById('trace-canvas');
@@ -71,11 +79,12 @@ function getPos(e) {
 function render() {
   const d = LETTERS[idx];
   const hue = (idx * 14) % 360;
+  const letterType = idx < 26 ? 'Uppercase' : 'Lowercase';
   document.getElementById('letter-show').textContent  = d.l;
   document.getElementById('letter-show').style.color  = `hsl(${hue},70%,50%)`;
   document.getElementById('guide-letter').textContent = d.l;
   document.getElementById('guide-letter').style.color = `hsla(${hue},60%,60%,.3)`;
-  document.getElementById('info-row').textContent     = `Letter ${idx+1} of 26 · ${d.l} is for ${d.word} ${d.emoji}`;
+  document.getElementById('info-row').textContent     = `Letter ${idx+1} of 52 · ${letterType} ${d.l} is for ${d.word} ${d.emoji}`;
   clearCanvas();
 }
 
@@ -89,8 +98,8 @@ canvas.addEventListener('touchstart', e=>{ e.preventDefault(); drawing=true; con
 canvas.addEventListener('touchmove',  e=>{ e.preventDefault(); if(!drawing) return; const p=getPos(e); ctx.lineWidth=10; ctx.lineCap='round'; ctx.strokeStyle=COLORS[idx%COLORS.length]; ctx.lineTo(p.x,p.y); ctx.stroke(); }, {passive:false});
 canvas.addEventListener('touchend',   ()=>{ drawing=false; });
 
-document.getElementById('btn-prev').addEventListener('click',  ()=>{ idx=(idx-1+26)%26; render(); });
-document.getElementById('btn-next').addEventListener('click',  ()=>{ idx=(idx+1)%26; render(); });
+document.getElementById('btn-prev').addEventListener('click',  ()=>{ idx=(idx-1+52)%52; render(); });
+document.getElementById('btn-next').addEventListener('click',  ()=>{ idx=(idx+1)%52; render(); });
 document.getElementById('btn-speak').addEventListener('click', ()=>{ const d=LETTERS[idx]; AudioManager.speak(`${d.l}. ${d.sound}. ${d.word}`,{rate:.75}); });
 document.getElementById('btn-clear').addEventListener('click', clearCanvas);
 document.getElementById('btn-done').addEventListener('click',  ()=>{ AudioManager.playTone('star'); UI.showFeedback(true); UI.toast(`Great tracing of ${LETTERS[idx].l}! ⭐`); });
