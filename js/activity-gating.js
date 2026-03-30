@@ -12,7 +12,7 @@ const activityGating = (() => {
 
     /* PREMIUM */
     'digraph-practice':  'digraphs.html',
-    'vowel-blends':      'vowels.html',
+    'vowel-teams':       'vowels.html',
     'cvc-words':         'cvc.html',
     'sight-words':       'sight-words.html',
     'sentence-reading':  'read.html',
@@ -21,6 +21,9 @@ const activityGating = (() => {
     'r-controlled-vowels':'phonic-set2.html',
     'silent-e-words':    'magic-e.html',
     'vowel-digraphs':    'digraph_fill.html',
+    'diphthongs':        'diphthongs.html',
+    'vowel-variants':    'vowel-variants.html',
+    'syllables':         'syllables.html',
     'phonics-review':    'phkids.html',
     'assessment-level-1':'word-match.html',
     'assessment-level-2':'word-explore.html',

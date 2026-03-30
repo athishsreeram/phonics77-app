@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎵 Vowel Blends · Phonics Hub</title>
+<title>🎵 Vowel Teams · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
 .vowel-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:16px; margin:24px 0; }
@@ -25,12 +25,12 @@
 <nav class="top-nav">
   <div class="nav-left">
     <a href="index.html" class="nav-home-btn">🏠</a>
-    <span class="nav-title">Vowel Blends</span>
+    <span class="nav-title">Vowel Teams</span>
   </div>
 </nav>
 <div class="page-header" style="background:linear-gradient(135deg,#ec4899,#be185d)">
-  <h1>🎵 Vowels</h1>
-  <p>Short and long vowel sounds</p>
+  <h1>🎵 Vowel Teams</h1>
+  <p>Two vowels working together</p>
 </div>
 <main>
   <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-top:24px">Tap a card to hear the sound!</p>
@@ -38,6 +38,8 @@
   <div class="vowel-grid" id="short-grid"></div>
   <div class="section-lbl" style="color:#667eea">🔵 Long Vowels</div>
   <div class="vowel-grid" id="long-grid"></div>
+  <div class="section-lbl" style="color:#10b981">🟢 Vowel Teams</div>
+  <div class="vowel-grid" id="teams-grid"></div>
 </main>
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
@@ -67,13 +69,42 @@ PHONICS_DATA.vowels.forEach(v => {
     grid.appendChild(card);
   });
 });
+
+// Vowel team examples
+const vowelTeams = [
+  { letters:'ai', emoji:'🦕', sound:'ay' },
+  { letters:'ay', emoji:'☀️', sound:'ay' },
+  { letters:'ee', emoji:'👁️', sound:'ee' },
+  { letters:'ea', emoji:'🍃', sound:'ee' },
+  { letters:'oa', emoji:'🚣', sound:'oh' },
+  { letters:'ow', emoji:'🐚', sound:'oh' },
+];
+
+const teamsGrid = document.getElementById('teams-grid');
+vowelTeams.forEach(team => {
+  const card = document.createElement('div');
+  card.className = 'vowel-card';
+  card.style.borderColor = '#10b981';
+  card.innerHTML = `
+    <div class="vowel-big" style="color:#10b981">${team.letters}</div>
+    <div class="vowel-type" style="color:#10b981">/${team.sound}/</div>
+    <div style="font-size:2.5rem;margin:6px 0">${team.emoji}</div>
+    <div class="vowel-example">Vowel Team</div>`;
+  card.addEventListener('click', () => {
+    AudioManager.speak(`${team.letters}. ${team.sound}`, {rate:.8});
+    AudioManager.playTone('click');
+    card.style.animation = 'pop .3s ease';
+    setTimeout(()=>card.style.animation='',400);
+  });
+  teamsGrid.appendChild(card);
+});
 </script>
-<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("vowel-blends");
+<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("vowel-teams");
 window.addEventListener('beforeunload', function() {
   if(typeof analytics!=="undefined") {
     var s = typeof score!=="undefined" ? score : 0;
     var t = typeof TOTAL!=="undefined" ? TOTAL : 10;
-    analytics.trackActivityComplete("vowel-blends", s, t);
+    analytics.trackActivityComplete("vowel-teams", s, t);
   }
 });</script>
 </body>

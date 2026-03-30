@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎵 Syllables · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.syllable-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:540px; margin:28px auto; }
+.syllable-emoji { font-size:clamp(4rem,12vw,6rem); display:block; margin-bottom:12px; }
+.syllable-word { font-family:'Fredoka One',cursive; font-size:clamp(2.2rem,6vw,3rem); color:var(--clr-text); margin:16px 0; font-weight:900; letter-spacing:2px; }
+.syllable-breakdown {
+  display:inline-block; background:#f0fdf4; padding:12px 20px;
+  border-radius:12px; border:3px solid var(--clr-green);
+  font-family:'Fredoka One',cursive; font-size:1.4rem;
+  color:var(--clr-primary); margin:16px 0; font-weight:800;
+  letter-spacing:4px;
+}
+.syllable-sep { color:#16a34a; font-weight:900; }
+.quiz-q { font-size:1rem; font-weight:800; color:var(--clr-text); margin:20px 0; }
+.quiz-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:380px; margin:0 auto 20px; }
+.quiz-btn {
+  background:#f3f4f6; border:3px solid #e5e7eb; border-radius:14px;
+  padding:16px 12px; font-size:.95rem; cursor:pointer; transition:all .2s;
+  font-weight:700; line-height:1.4;
+}
+.quiz-btn:hover { transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+.quiz-btn.selected { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
+.quiz-btn.correct { background:#dcfce7; border-color:var(--clr-green); color:#16a34a; }
+.quiz-btn.wrong { background:#fee2e2; border-color:#dc2626; color:#be123c; }
+.label-badge { display:inline-block; background:#fef3c7; color:#92400e; border-radius:8px; padding:6px 12px; font-size:.85rem; font-weight:800; margin:8px 0; }
+.progress-info { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); margin:12px 0; }
+.score-display { font-family:'Fredoka One',cursive; font-size:1.6rem; color:var(--clr-primary); margin-top:12px; }
+.mode-info { font-size:.9rem; color:var(--clr-text-soft); font-weight:700; margin-bottom:12px; }
+.btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.completion-screen { text-align:center; }
+.completion-emoji { font-size:5rem; margin:20px 0; }
+.completion-text { font-family:'Fredoka One',cursive; font-size:2rem; color:var(--clr-primary); margin:16px 0; }
+.completion-score { font-size:1.8rem; font-weight:800; margin:20px 0; }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Syllables</span>
+  </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">
+  <h1>🎵 Syllables</h1>
+  <p>Break words into beats!</p>
+</div>
+<main>
+<div class="syllable-card" id="main-card">
+  <div class="progress-info" id="progress-info">Question 1 of 10</div>
+  <div class="progress-wrap">
+    <div class="progress-bar" id="prog-bar" style="width:10%"></div>
+  </div>
+  <span class="syllable-emoji" id="emoji">🐱</span>
+  <div class="syllable-word" id="word">cat</div>
+  <div class="syllable-breakdown" id="breakdown">cat</div>
+  <div class="label-badge" id="syllable-count">1 syllable</div>
+  <div class="mode-info" id="mode-info">Select the syllable type:</div>
+  <div class="quiz-q">What kind of syllable(s) is in this word?</div>
+  <button class="btn btn-primary btn-lg" id="btn-speak" style="margin:12px 0 16px">🔊 Hear Word</button>
+  <div class="quiz-options" id="choices"></div>
+  <div class="score-display">⭐ <span id="score-txt">0</span>/10</div>
+</div>
+</main>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const SYLLABLES = PHONICS_DATA.syllables;
+const TOTAL_ROUNDS = 10;
+const QUESTIONS = UI.shuffle(SYLLABLES).slice(0, TOTAL_ROUNDS);
+
+let currentQ = 0;
+let score = 0;
+let answered = false;
+
+// Syllable type labels
+const TYPE_MAP = {
+  'closed': '🔴 Closed (C-V-C)',
+  'open': '🟠 Open (C-V)',
+  'silent-e': '🟡 Silent-E (C-V-C-E)',
+  'vowel-team': '🟢 Vowel Team (V-V)',
+};
+
+// Get available syllable types from current questions
+function getAvailableTypes() {
+  const types = [...new Set(QUESTIONS.map(q => q.type))];
+  return types;
+}
+
+function loadQuestion() {
+  if (currentQ >= TOTAL_ROUNDS) { showCompletion(); return; }
+  answered = false;
+  const q = QUESTIONS[currentQ];
+  
+  document.getElementById('emoji').textContent = q.emoji;
+  document.getElementById('word').textContent = q.word;
+  document.getElementById('breakdown').innerHTML = 
+    q.breakdown.split('·').map(s => `<span>${s}</span>`).join(
+      '<span class="syllable-sep">·</span>'
+    );
+  document.getElementById('syllable-count').textContent = 
+    `${q.syllables} ${q.syllables === 1 ? 'syllable' : 'syllables'} · ${q.type}`;
+  document.getElementById('progress-info').textContent = `Question ${currentQ + 1} of ${TOTAL_ROUNDS}`;
+  document.getElementById('score-txt').textContent = score;
+  UI.updateProgress(document.getElementById('prog-bar'), currentQ + 1, TOTAL_ROUNDS);
+  
+  // Build answer choices from available types
+  const availableTypes = getAvailableTypes();
+  const choices = [q.type];
+  
+  // Add incorrect options
+  const others = availableTypes.filter(t => t !== q.type);
+  while (choices.length < 3 && others.length > 0) {
+    const idx = Math.floor(Math.random() * others.length);
+    choices.push(others.splice(idx, 1)[0]);
+  }
+  
+  const shuffledChoices = UI.shuffle(choices);
+  
+  const choicesDiv = document.getElementById('choices');
+  choicesDiv.innerHTML = '';
+  
+  shuffledChoices.forEach(type => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-btn';
+    btn.textContent = TYPE_MAP[type];
+    btn.addEventListener('click', () => handleAnswer(btn, type === q.type));
+    choicesDiv.appendChild(btn);
+  });
+}
+
+function handleAnswer(btn, isCorrect) {
+  if (answered) return;
+  answered = true;
+  
+  if (isCorrect) {
+    btn.classList.add('correct');
+    score++;
+    document.getElementById('score-txt').textContent = score;
+    setTimeout(() => {
+      currentQ++;
+      loadQuestion();
+    }, 800);
+  } else {
+    btn.classList.add('wrong');
+    const q = QUESTIONS[currentQ];
+    document.querySelectorAll('.quiz-btn').forEach(b => {
+      if (b.textContent === TYPE_MAP[q.type]) b.classList.add('correct');
+    });
+    setTimeout(() => {
+      currentQ++;
+      loadQuestion();
+    }, 1200);
+  }
+}
+
+function showCompletion() {
+  const pct = Math.round((score / TOTAL_ROUNDS) * 100);
+  const mainCard = document.getElementById('main-card');
+  mainCard.innerHTML = `
+    <div class="completion-screen">
+      <div class="completion-emoji">${pct >= 75 ? '🎉' : pct >= 50 ? '👍' : '💪'}</div>
+      <div class="completion-text">Fantastic!</div>
+      <div class="completion-score">${score} / ${TOTAL_ROUNDS}</div>
+      <p style="font-size:1.1rem;color:var(--clr-text-soft);margin:16px 0">${pct}% mastered!</p>
+      <p style="font-size:.95rem;color:var(--clr-text-soft)">You're breaking syllables like a pro!</p>
+      <div class="btn-row" style="margin-top:24px">
+        <button class="btn btn-primary btn-lg" onclick="location.href='index.html'">🏠 Back Home</button>
+        <button class="btn btn-secondary" onclick="location.reload()">🔄 Try Again</button>
+      </div>
+    </div>
+  `;
+}
+
+document.getElementById('btn-speak').addEventListener('click', () => {
+  const word = QUESTIONS[currentQ].word;
+  AudioManager.speak(word, {rate: 0.85});
+});
+
+// Start activity
+loadQuestion();
+</script>
+<script>
+if(typeof analytics!=="undefined") analytics.trackActivityStart("syllables");
+window.addEventListener('beforeunload', function() {
+  if(typeof analytics!=="undefined") {
+    analytics.trackActivityComplete("syllables", typeof score !== "undefined" ? score : 0, 10);
+  }
+});
+</script>
+</body>
+</html>

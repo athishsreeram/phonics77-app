@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 Vowel Variants · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.variant-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:540px; margin:28px auto; }
+.variant-emoji { font-size:clamp(4rem,12vw,6rem); display:block; margin-bottom:12px; }
+.variant-word { font-family:'Fredoka One',cursive; font-size:clamp(2.2rem,6vw,3rem); color:var(--clr-text); margin:16px 0; font-weight:900; }
+.variant-letters { font-size:1.2rem; font-weight:800; color:var(--clr-primary); background:#f9fafb; padding:8px 16px; border-radius:12px; display:inline-block; margin-bottom:16px; }
+.quiz-q { font-size:1rem; font-weight:800; color:var(--clr-text); margin:16px 0 20px; }
+.sound-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:380px; margin:0 auto 20px; }
+.sound-btn {
+  background:#f3f4f6; border:3px solid #e5e7eb; border-radius:14px;
+  padding:20px 12px; font-size:.95rem; cursor:pointer; transition:all .2s;
+  font-weight:700; line-height:1.4;
+}
+.sound-btn:hover { transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+.sound-btn.selected { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
+.sound-btn.correct { background:#dcfce7; border-color:var(--clr-green); color:#16a34a; }
+.sound-btn.wrong { background:#fee2e2; border-color:#dc2626; color:#be123c; }
+.sound-phonetic { font-family:monospace; font-size:1.1rem; font-weight:700; }
+.progress-info { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); margin:12px 0; }
+.score-display { font-family:'Fredoka One',cursive; font-size:1.6rem; color:var(--clr-primary); margin-top:12px; }
+.minimal-pairs { background:#f0fdf4; border-left:4px solid var(--clr-green); padding:12px 16px; border-radius:8px; margin:16px 0; font-size:.9rem; }
+.minimal-label { font-weight:800; color:var(--clr-primary); margin-bottom:4px; }
+.minimal-words { color:var(--clr-text-soft); font-weight:700; }
+.btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.completion-screen { text-align:center; }
+.completion-emoji { font-size:5rem; margin:20px 0; }
+.completion-text { font-family:'Fredoka One',cursive; font-size:2rem; color:var(--clr-primary); margin:16px 0; }
+.completion-score { font-size:1.8rem; font-weight:800; margin:20px 0; }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Vowel Variants</span>
+  </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">
+  <h1>🎨 Vowel Variants</h1>
+  <p>Same letters, different sounds!</p>
+</div>
+<main>
+<div class="variant-card" id="main-card">
+  <div class="progress-info" id="progress-info">Question 1 of 8</div>
+  <div class="progress-wrap">
+    <div class="progress-bar" id="prog-bar" style="width:12.5%"></div>
+  </div>
+  <span class="variant-emoji" id="emoji">🍞</span>
+  <div class="variant-word" id="word">bread</div>
+  <div class="variant-letters" id="letters">ea</div>
+  <div class="quiz-q">What sound does "<span id="letter-combo">ea</span>" make in this word?</div>
+  <button class="btn btn-primary btn-lg" id="btn-speak" style="margin:8px 0 16px">🔊 Hear Word</button>
+  <div class="sound-options" id="choices"></div>
+  <div class="minimal-pairs" id="minimal-info" style="display:none">
+    <div class="minimal-label">Minimal Pairs with <span id="pair-letters">ea</span>:</div>
+    <div class="minimal-words" id="pair-words"></div>
+  </div>
+  <div class="score-display">⭐ <span id="score-txt">0</span>/8</div>
+</div>
+</main>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+const VARIANTS = PHONICS_DATA.vowelVariants;
+const TOTAL_ROUNDS = 8;
+const QUESTIONS = UI.shuffle(VARIANTS).slice(0, TOTAL_ROUNDS);
+
+let currentQ = 0;
+let score = 0;
+let answered = false;
+
+// Map sounds to phonetic descriptions
+const SOUND_MAP = {
+  'eh': 'Short E sound (/ĕ/)',
+  'ay': 'Long A sound (/ā/)',
+  'uh': 'Short OO sound (/ŏŏ/)',
+  'oo': 'Long OO sound (/ōō/)',
+};
+
+function loadQuestion() {
+  if (currentQ >= TOTAL_ROUNDS) { showCompletion(); return; }
+  answered = false;
+  const q = QUESTIONS[currentQ];
+  
+  document.getElementById('emoji').textContent = q.emoji;
+  document.getElementById('word').textContent = q.word;
+  document.getElementById('letters').textContent = q.letters;
+  document.getElementById('letter-combo').textContent = q.letters;
+  document.getElementById('progress-info').textContent = `Question ${currentQ + 1} of ${TOTAL_ROUNDS}`;
+  document.getElementById('score-txt').textContent = score;
+  UI.updateProgress(document.getElementById('prog-bar'), currentQ + 1, TOTAL_ROUNDS);
+  
+  // Build answer choices
+  const choices = [
+    { sound: q.sound1, label: SOUND_MAP[q.sound1], correct: q.sound1 === q.primary },
+    { sound: q.sound2, label: SOUND_MAP[q.sound2], correct: q.sound2 === q.primary },
+  ];
+  
+  const choicesDiv = document.getElementById('choices');
+  choicesDiv.innerHTML = '';
+  
+  choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'sound-btn';
+    btn.innerHTML = `<div class="sound-phonetic">${choice.sound}</div><div>${choice.label}</div>`;
+    btn.addEventListener('click', () => handleAnswer(btn, choice.correct, choice.sound));
+    choicesDiv.appendChild(btn);
+  });
+  
+  // Show minimal pairs info
+  document.getElementById('pair-letters').textContent = q.letters;
+  const otherExample = VARIANTS.find(v => v.letters === q.letters && v.word !== q.word);
+  if (otherExample) {
+    document.getElementById('pair-words').textContent = `${q.word} vs ${otherExample.word}`;
+    document.getElementById('minimal-info').style.display = 'block';
+  } else {
+    document.getElementById('minimal-info').style.display = 'none';
+  }
+}
+
+function handleAnswer(btn, isCorrect, selectedSound) {
+  if (answered) return;
+  answered = true;
+  
+  if (isCorrect) {
+    btn.classList.add('correct');
+    score++;
+    document.getElementById('score-txt').textContent = score;
+    setTimeout(() => {
+      currentQ++;
+      loadQuestion();
+    }, 800);
+  } else {
+    btn.classList.add('wrong');
+    const q = QUESTIONS[currentQ];
+    const correctSound = q.primary;
+    document.querySelectorAll('.sound-btn').forEach(b => {
+      if (b.textContent.includes(correctSound)) b.classList.add('correct');
+    });
+    setTimeout(() => {
+      currentQ++;
+      loadQuestion();
+    }, 1200);
+  }
+}
+
+function showCompletion() {
+  const pct = Math.round((score / TOTAL_ROUNDS) * 100);
+  const mainCard = document.getElementById('main-card');
+  mainCard.innerHTML = `
+    <div class="completion-screen">
+      <div class="completion-emoji">${pct >= 75 ? '🎉' : pct >= 50 ? '👍' : '💪'}</div>
+      <div class="completion-text">Great Work!</div>
+      <div class="completion-score">${score} / ${TOTAL_ROUNDS}</div>
+      <p style="font-size:1.1rem;color:var(--clr-text-soft);margin:16px 0">${pct}% correct!</p>
+      <p style="font-size:.95rem;color:var(--clr-text-soft)">You're mastering vowel variations!</p>
+      <div class="btn-row" style="margin-top:24px">
+        <button class="btn btn-primary btn-lg" onclick="location.href='index.html'">🏠 Back Home</button>
+        <button class="btn btn-secondary" onclick="location.reload()">🔄 Try Again</button>
+      </div>
+    </div>
+  `;
+}
+
+document.getElementById('btn-speak').addEventListener('click', () => {
+  const word = QUESTIONS[currentQ].word;
+  AudioManager.speak(word, {rate: 0.8});
+});
+
+// Start activity
+loadQuestion();
+</script>
+<script>
+if(typeof analytics!=="undefined") analytics.trackActivityStart("vowel-variants");
+window.addEventListener('beforeunload', function() {
+  if(typeof analytics!=="undefined") {
+    analytics.trackActivityComplete("vowel-variants", typeof score !== "undefined" ? score : 0, 8);
+  }
+});
+</script>
+</body>
+</html>

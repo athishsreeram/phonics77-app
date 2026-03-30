@@ -15,6 +15,10 @@
 .choice.correct { background:#dcfce7; border-color:var(--clr-green); }
 .choice.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
 .score-info { font-weight:700; color:var(--clr-text-soft); margin-top:16px; }
+.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:20px; }
+.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 14px; font-weight:700; font-size:.9rem; cursor:pointer; transition:all .2s; }
+.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
+.multi-sound-badge { display:inline-block; background:#fef3c7; color:#92400e; border-radius:6px; padding:4px 10px; font-size:.8rem; font-weight:800; margin-top:8px; }
 </style>
 </head>
 <body>
@@ -30,9 +34,14 @@
 </div>
 <main>
 <div class="fill-card" id="fill-card">
+  <div class="mode-toggle" id="mode-toggle">
+    <button class="mode-btn active" id="mode-basic">🎯 Basic</button>
+    <button class="mode-btn" id="mode-mixed">🎲 Mixed</button>
+  </div>
   <p class="fill-prompt" id="fill-prompt">Which digraph completes the word?</p>
   <div class="blank-word" id="blank-word">__ark</div>
   <div style="font-size:3rem;margin:12px 0" id="fill-emoji">🦈</div>
+  <div id="multi-info" style="display:none"></div>
   <div class="choices" id="choices"></div>
   <div class="score-info">Score: <span id="fscore">0</span> / <span id="ftotal">0</span></div>
 </div>
@@ -44,21 +53,31 @@
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-const DG = PHONICS_DATA.digraphs;
-let fscore=0, ftotal=0, answered=false, correct_dg=null;
+const VD = PHONICS_DATA.vowelDigraphs;
+let fscore=0, ftotal=0, answered=false, correct_dg=null, mixedMode=false;
 
 function loadQ() {
   answered = false;
-  const idx = Math.floor(Math.random() * DG.length);
-  correct_dg = DG[idx];
+  const idx = Math.floor(Math.random() * VD.length);
+  correct_dg = VD[idx];
   const word = correct_dg.word.toLowerCase();
   const blank = word.replace(correct_dg.pair.toLowerCase(), '__');
   document.getElementById('blank-word').textContent = blank;
   document.getElementById('fill-emoji').textContent = correct_dg.emoji;
   document.getElementById('fill-prompt').textContent = `Which digraph completes: "${blank}"?`;
+  
+  // Show multi-sound indicator in mixed mode
+  const multiInfo = document.getElementById('multi-info');
+  if (mixedMode && correct_dg.sounds && correct_dg.sounds.length > 1) {
+    multiInfo.innerHTML = `<div class="multi-sound-badge">This digraph has multiple sounds! 🔊</div>`;
+    multiInfo.style.display = 'block';
+  } else {
+    multiInfo.style.display = 'none';
+  }
+  
   AudioManager.speak(correct_dg.word, {rate:.75});
 
-  const pool = UI.shuffle(DG.filter(d=>d.pair!==correct_dg.pair)).slice(0,3);
+  const pool = UI.shuffle(VD.filter(d=>d.pair!==correct_dg.pair)).slice(0,3);
   const opts = UI.shuffle([correct_dg, ...pool]);
   const ch   = document.getElementById('choices');
   ch.innerHTML='';
@@ -79,13 +98,35 @@ function loadQ() {
     ch.appendChild(btn);
   });
 }
+
+// Mode toggle
+document.getElementById('mode-basic').addEventListener('click', () => {
+  mixedMode = false;
+  document.getElementById('mode-basic').classList.add('active');
+  document.getElementById('mode-mixed').classList.remove('active');
+  fscore = 0; ftotal = 0;
+  document.getElementById('fscore').textContent = '0';
+  document.getElementById('ftotal').textContent = '0';
+  loadQ();
+});
+
+document.getElementById('mode-mixed').addEventListener('click', () => {
+  mixedMode = true;
+  document.getElementById('mode-mixed').classList.add('active');
+  document.getElementById('mode-basic').classList.remove('active');
+  fscore = 0; ftotal = 0;
+  document.getElementById('fscore').textContent = '0';
+  document.getElementById('ftotal').textContent = '0';
+  loadQ();
+});
+
 loadQ();
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("vowel-digraphs");
 window.addEventListener('beforeunload', function() {
   if(typeof analytics!=="undefined") {
-    var s = typeof score!=="undefined" ? score : 0;
-    var t = typeof total!=="undefined" ? total : 10;
+    var s = typeof fscore!=="undefined" ? fscore : 0;
+    var t = typeof ftotal!=="undefined" ? ftotal : 10;
     analytics.trackActivityComplete("vowel-digraphs", s, t);
   }
 });</script>
