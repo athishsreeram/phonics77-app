@@ -36,7 +36,7 @@ const progressWidget = (() => {
 
     const ACTIVITY_LABELS = {
       'sound-matching':'Sound Matching','alphabet':'Alphabet A–Z','blending-intro':'Blending',
-      'digraph-practice':'Digraphs','vowel-blends':'Vowels','cvc-words':'CVC Words',
+      'digraph-practice':'Digraphs','vowel-teams':'Vowels','cvc-words':'CVC Words',
       'sight-words':'Sight Words','sentence-reading':'Sentences','word-families':'Word Families',
       'consonant-blends':'Blends','phonics-review':'Review','word-match':'Word Match',
     };
@@ -123,7 +123,7 @@ const progressWidget = (() => {
   function getActivityEmoji(id) {
     const map = {
       'sound-matching':'🔊','alphabet':'🔤','blending-intro':'🔤',
-      'digraph-practice':'📖','vowel-blends':'🎵','cvc-words':'📝',
+      'digraph-practice':'📖','vowel-teams':'🎵','cvc-words':'📝',
       'sight-words':'⭐','sentence-reading':'📚','word-families':'👨‍👩‍👧‍👦',
       'consonant-blends':'🔗','phonics-review':'🔄','word-match':'📊',
     };
