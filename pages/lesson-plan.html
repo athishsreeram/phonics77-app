@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weekly Lesson Plan · Phonics Hub</title>
+<link rel="stylesheet" href="/css/shared.css">
+<style>
+body{font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:20px;color:#111}
+.header{display:flex;justify-content:space-between;align-items:center}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
+.day-card{background:white;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.day-title{font-weight:800;margin-bottom:8px}
+.slot{display:flex;justify-content:space-between;padding:8px 0;border-top:1px dashed #f3f4f6}
+.slot:first-of-type{border-top:0}
+.print-only{display:none}
+@media print{body{margin:0} .no-print{display:none} .print-only{display:block} .day-card{page-break-inside:avoid}}
+.btn{padding:10px 12px;border-radius:10px;border:none;font-weight:800}
+.btn-primary{background:#667eea;color:white}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>Weekly Phonics Plan</h1>
+    <div id="plan-sub" style="color:#666">Personalised for your child</div>
+  </div>
+  <div class="no-print">
+    <button class="btn btn-primary" id="print-btn">Print This Plan</button>
+    <a href="/parent-dashboard.html" class="btn" style="margin-left:8px">Back</a>
+  </div>
+</div>
+
+<div style="margin-top:12px;color:#444;font-weight:700">Mon – Fri schedule (5 days)</div>
+<div class="plan-grid" id="plan-grid"></div>
+
+<script>
+(function(){
+  const profile = (window.analytics && analytics.getProfile && analytics.getProfile()) || {};
+  const name = profile.childName || 'Your child';
+  document.getElementById('plan-sub').textContent = `${name} · Generated ${new Date().toLocaleDateString()}`;
+
+  // Determine current stage
+  const cm = window.CurriculumManager;
+  const stageIndex = cm ? cm.getCurrentStage() : 0;
+  const stage = cm ? cm.getStages()[stageIndex] : { name: 'Stage 1' };
+
+  const PLAN = [];
+  const days = ['Mon','Tue','Wed','Thu','Fri'];
+  for (let i=0;i<5;i++) {
+    PLAN.push({
+      day: days[i],
+      warmup: 'Letter sounds warm-up (5 min)',
+      main: `${stage.name} activity — ${stage.activities && stage.activities[i % (stage.activities.length||1)]}`,
+      read: 'Reading aloud / story (5 min)'
+    });
+  }
+
+  const grid = document.getElementById('plan-grid');
+  grid.innerHTML = PLAN.map(p => `
+    <div class="day-card">
+      <div class="day-title">${p.day}</div>
+      <div class="slot"><div>Warm-up</div><div>${p.warmup}</div></div>
+      <div class="slot"><div>Main activity</div><div>${p.main}</div></div>
+      <div class="slot"><div>Reading</div><div>${p.read}</div></div>
+    </div>
+  `).join('');
+
+  document.getElementById('print-btn').addEventListener('click', () => window.print());
+})();
+</script>
+</body>
+</html>

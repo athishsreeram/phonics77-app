@@ -89,6 +89,12 @@ function endGame() {
     </div>`;
   UI.setScore('sight-words', {stars: known, total: WORDS.length});
   if(typeof analytics!=='undefined') analytics.trackActivityComplete('sight-words', known, WORDS.length);
+  try {
+    if (window.CurriculumManager) {
+      const first = CurriculumManager.markActivityComplete('sight-words');
+      if (first && window.analytics && analytics.showEmailCapture) analytics.showEmailCapture('first_win');
+    }
+  } catch (e) { console.warn('Curriculum mark failed', e); }
 }
 
 loadWord();

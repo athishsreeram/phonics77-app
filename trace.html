@@ -62,6 +62,7 @@ const LOWERCASE = PHONICS_DATA.alphabet.map(item => ({
   word: item.word,
   emoji: item.emoji,
   sound: item.sound,
+  phoneme: item.phoneme,
   vowel: item.vowel
 }));
 const LETTERS = [...UPPERCASE, ...LOWERCASE];
@@ -100,9 +101,26 @@ canvas.addEventListener('touchend',   ()=>{ drawing=false; });
 
 document.getElementById('btn-prev').addEventListener('click',  ()=>{ idx=(idx-1+52)%52; render(); });
 document.getElementById('btn-next').addEventListener('click',  ()=>{ idx=(idx+1)%52; render(); });
-document.getElementById('btn-speak').addEventListener('click', ()=>{ const d=LETTERS[idx]; AudioManager.speak(`${d.l}. ${d.sound}. ${d.word}`,{rate:.75}); });
+document.getElementById('btn-speak').addEventListener('click', ()=>{
+  const d = LETTERS[idx];
+  // If we have a phoneme, speak letter then phoneme; otherwise use existing sound
+  if (d.phoneme) {
+    AudioManager.speak(d.l, { rate: .8, onEnd: () => AudioManager.speakPhoneme(d.l) });
+  } else {
+    AudioManager.speak(`${d.l}. ${d.sound}. ${d.word}`, { rate: .75 });
+  }
+});
 document.getElementById('btn-clear').addEventListener('click', clearCanvas);
 document.getElementById('btn-done').addEventListener('click',  ()=>{ AudioManager.playTone('star'); UI.showFeedback(true); UI.toast(`Great tracing of ${LETTERS[idx].l}! ⭐`); });
+
+document.getElementById('btn-done').addEventListener('click', () => {
+  try {
+    if (window.CurriculumManager) {
+      const first = CurriculumManager.markActivityComplete('alphabet-tracing');
+      if (first && window.analytics && analytics.showEmailCapture) analytics.showEmailCapture('first_win');
+    }
+  } catch (e) { console.warn('Curriculum mark failed', e); }
+});
 
 render();
 </script>

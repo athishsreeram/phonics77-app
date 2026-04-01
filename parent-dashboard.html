@@ -93,6 +93,19 @@
   <!-- PROGRESS TAB -->
   <div class="tab-content active" id="tab-progress">
     <div class="kpi-grid" id="kpi-grid"></div>
+      <div style="margin:12px 0">
+        <div style="background:white;border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:220px">
+            <div style="font-weight:800">This Week</div>
+            <div id="week-stage" style="color:#666;margin-top:6px">Loading stage…</div>
+            <div id="week-activities" style="margin-top:8px;font-weight:700"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+            <a class="btn btn-secondary" href="pages/lesson-plan.html">Download lesson plan</a>
+            <div id="week-focus" style="font-size:.9rem;color:#666">Recommended focus: —</div>
+          </div>
+        </div>
+      </div>
     <div class="section-title">🔥 Streak Calendar <span id="streak-badge"></span></div>
     <div style="background:white;border-radius:18px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:8px">
       <div class="calendar-grid" id="streak-calendar"></div>
@@ -148,6 +161,7 @@
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/analytics.js"></script>
+<script src="js/curriculum.js"></script>
 <script src="js/payment.js"></script>
 <script src="js/activity-gating.js"></script>
 
@@ -397,6 +411,24 @@ function load() {
       paymentManager.initiateSubscription();
     });
   }
+
+  // ── This Week summary ─────────────────────────────────────
+  try {
+    const stages = CurriculumManager ? CurriculumManager.getStages() : [];
+    const currentStageIndex = CurriculumManager ? CurriculumManager.getCurrentStage() : 0;
+    const currentStage = stages[currentStageIndex] || {};
+    document.getElementById('week-stage').textContent = `${currentStage.name || '—'} · ${currentStage.description || ''}`;
+
+    // Activities completed this week (activity_complete events)
+    const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    const completedThisWeek = events.filter(e => e.type === 'activity_complete' && (e.ts >= oneWeekAgo)).length;
+    document.getElementById('week-activities').textContent = `${completedThisWeek} activities completed this week`;
+
+    // Blending accuracy trend placeholder or compute if data exists
+    const blendEvents = events.filter(e => e.activityId === 'cvc-words' && e.pct != null && (e.ts >= oneWeekAgo));
+    const blendingTrend = blendEvents.length ? Math.round(blendEvents.reduce((s,e)=>s+e.pct,0)/blendEvents.length) + '%' : 'No data yet';
+    document.getElementById('week-focus').textContent = `Recommended focus: ${blendingTrend === 'No data yet' ? 'CVC blending practice' : (blendingTrend)}`;
+  } catch (e) { console.warn('Week summary failed', e); }
 }
 
 function streakLabel(n) {

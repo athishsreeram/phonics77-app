@@ -137,7 +137,12 @@ function endGame() {
     </div>`;
   UI.setScore('blending-intro', { stars: score, total: WORDS.length });
   if(typeof analytics !== 'undefined') analytics.trackActivityComplete('blending-intro', score, WORDS.length);
-  if(typeof analytics!=='undefined') analytics.trackActivityComplete('blending-intro', score, WORDS.length);
+  try {
+    if (window.CurriculumManager) {
+      const first = CurriculumManager.markActivityComplete('cvc-words');
+      if (first && window.analytics && analytics.showEmailCapture) analytics.showEmailCapture('first_win');
+    }
+  } catch (e) { console.warn('Curriculum mark failed', e); }
 }
 
 loadWord();

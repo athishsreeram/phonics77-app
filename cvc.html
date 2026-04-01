@@ -97,6 +97,7 @@ window.addEventListener('beforeunload', function() {
     var s = typeof score!=="undefined" ? score : 0;
     var t = typeof ROUNDS!=="undefined" ? ROUNDS : 10;
     analytics.trackActivityComplete("cvc-words", s, t);
+    try { if (window.CurriculumManager) CurriculumManager.markActivityComplete('cvc-words'); } catch(e){}
   }
 });</script>
 </body>

@@ -105,6 +105,7 @@ window.addEventListener('beforeunload', function() {
     var s = typeof score!=="undefined" ? score : 0;
     var t = typeof TOTAL!=="undefined" ? TOTAL : 10;
     analytics.trackActivityComplete("vowel-teams", s, t);
+    try { if (window.CurriculumManager) CurriculumManager.markActivityComplete('vowel-teams'); } catch(e){}
   }
 });</script>
 </body>

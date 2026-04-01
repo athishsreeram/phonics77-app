@@ -194,6 +194,7 @@ if(typeof analytics!=="undefined") analytics.trackActivityStart("syllables");
 window.addEventListener('beforeunload', function() {
   if(typeof analytics!=="undefined") {
     analytics.trackActivityComplete("syllables", typeof score !== "undefined" ? score : 0, 10);
+    try { if (window.CurriculumManager) CurriculumManager.markActivityComplete('syllables'); } catch(e){}
   }
 });
 </script>

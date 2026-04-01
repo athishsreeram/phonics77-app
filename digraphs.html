@@ -136,6 +136,7 @@ window.addEventListener('beforeunload', function() {
     var s = typeof qs!=="undefined" ? qs : 0;
     var t = typeof qt!=="undefined" ? qt : 10;
     analytics.trackActivityComplete("digraph-practice", s, t);
+    try { if (window.CurriculumManager) CurriculumManager.markActivityComplete('digraph-practice'); } catch(e){}
   }
 });</script>
 </body>

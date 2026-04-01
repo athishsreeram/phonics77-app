@@ -101,11 +101,14 @@ function loadRound() {
     grid.appendChild(btn);
   });
 
-  AudioManager.speak(currentLetter.sound, { rate: 0.7 });
+  if (currentLetter.phoneme) AudioManager.speakPhoneme(currentLetter.l);
+  else AudioManager.speak(currentLetter.sound, { rate: 0.7 });
 }
 
 document.getElementById('play-btn').addEventListener('click', () => {
-  if (currentLetter) AudioManager.speak(currentLetter.sound, { rate: 0.7 });
+  if (!currentLetter) return;
+  if (currentLetter.phoneme) AudioManager.speakPhoneme(currentLetter.l);
+  else AudioManager.speak(currentLetter.sound, { rate: 0.7 });
 });
 
 function answer(correct, btn) {
@@ -146,7 +149,12 @@ function endGame() {
     </div>`;
   UI.setScore('sound-matching', { stars: score, total: TOTAL_ROUNDS });
   if(typeof analytics !== 'undefined') analytics.trackActivityComplete('sound-matching', score, TOTAL_ROUNDS);
-    if(typeof analytics!=='undefined') analytics.trackActivityComplete('sound-matching', score, TOTAL_ROUNDS);
+  try {
+    if (window.CurriculumManager) {
+      const first = CurriculumManager.markActivityComplete('sound-matching');
+      if (first && window.analytics && analytics.showEmailCapture) analytics.showEmailCapture('first_win');
+    }
+  } catch (e) { console.warn('Curriculum mark failed', e); }
 }
 
 loadRound();

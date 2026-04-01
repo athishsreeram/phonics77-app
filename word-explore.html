@@ -50,10 +50,13 @@ const row = document.getElementById('builder-row');
 LETTERS.forEach(l => {
   const btn = document.createElement('button');
   btn.className = 'letter-btn'; btn.textContent = l;
-  btn.addEventListener('click', () => {
+    btn.addEventListener('click', () => {
     built.push(l);
     render();
-    AudioManager.speak(l, {rate:.7});
+    // Use phoneme playback for consonants when available, otherwise speak letter name
+    const entry = (window.PHONICS_DATA && window.PHONICS_DATA.alphabet || []).find(e => e.l === l);
+    if (entry && entry.phoneme) AudioManager.speakPhoneme(l);
+    else AudioManager.speak(l, { rate: .7 });
   });
   row.appendChild(btn);
 });
@@ -76,6 +79,7 @@ window.addEventListener('beforeunload', function() {
     var s = typeof score!=="undefined" ? score : 0;
     var t = typeof total!=="undefined" ? total : (typeof ROUNDS!=="undefined" ? ROUNDS : 10);
     analytics.trackActivityComplete("word-explorer", s, t);
+    try { if (window.CurriculumManager) CurriculumManager.markActivityComplete('word-explorer'); } catch(e){}
   }
 });</script>
 </body>

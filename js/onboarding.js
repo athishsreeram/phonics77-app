@@ -1,326 +1,133 @@
-/* js/onboarding.js – multi-step onboarding for new users */
+/* js/onboarding.js — simplified, niche-first onboarding
+   Flow:
+   1) Welcome: niche headline
+   2) Pain point: 3-option selector -> routes to appropriate curriculum stage
+   3) Child info: collect name + age only
+   Immediately launches first activity after setup.
+   Email capture is delayed until after first activity completion.
+*/
 'use strict';
 
 const onboarding = (() => {
+  const STORAGE_KEY = 'ph_onboarded';
+  let opts = { childName: null, childAge: null, painPoint: null };
 
-  const STEPS = [
-    'welcome',    // Step 0: Welcome screen
-    'child-info', // Step 1: Child name + age
-    'goal',       // Step 2: What do you want to learn?
-    'tour',       // Step 3: Quick app tour
-    'ready',      // Step 4: All set!
-  ];
+  function shouldShow() { return !localStorage.getItem(STORAGE_KEY); }
 
-  let currentStep = 0;
-  let answers = {};
+  function markDone() { localStorage.setItem(STORAGE_KEY, 'true'); }
 
-  function shouldShow() {
-    return !localStorage.getItem('ph_onboarded');
+  function start() { if (!shouldShow()) return; renderWelcome(); }
+
+  function renderWelcome() {
+    const existing = document.getElementById('_onboarding'); if (existing) existing.remove();
+    const el = document.createElement('div'); el.id = '_onboarding';
+    el.style.cssText = 'position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;';
+    el.innerHTML = `
+      <div style="background:white;border-radius:20px;padding:28px 22px;max-width:520px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+        <div style="font-size:4rem;margin-bottom:10px">📚</div>
+        <h2 style="font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:8px">Does your child know their letters but struggle to read words?</h2>
+        <p style="color:#666;margin-bottom:18px">Phonics Hub gets a 5–6 year old from letters to their first words — 15 minutes a day.</p>
+        <button id="ob-start" class="btn btn-primary" style="margin-top:6px">Get Started — No Email</button>
+        <div style="margin-top:12px"><button id="ob-skip" class="btn btn-secondary">Skip</button></div>
+      </div>`;
+    document.body.appendChild(el);
+    document.getElementById('ob-start').addEventListener('click', () => { renderPainPoint(); });
+    document.getElementById('ob-skip').addEventListener('click', () => { markDone(); document.getElementById('_onboarding')?.remove(); });
   }
 
-  function markDone() {
-    localStorage.setItem('ph_onboarded', 'true');
-    localStorage.setItem('ph_onboarded_ts', Date.now().toString());
-  }
-
-  function start() {
-    if (!shouldShow()) return;
-    render(0);
-  }
-
-  function render(step) {
-    currentStep = step;
-    const existing = document.getElementById('_onboarding');
-    if (existing) existing.remove();
-
-    const overlay = document.createElement('div');
-    overlay.id = '_onboarding';
-    overlay.style.cssText = `
-      position:fixed;inset:0;z-index:1000;
-      background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
-      display:flex;align-items:center;justify-content:center;padding:20px;
-      animation:fadeIn .3s ease;
-    `;
-
-    const content = getStepContent(step);
-    overlay.innerHTML = `
-      <div style="
-        background:white;border-radius:28px;padding:40px 32px;
-        max-width:480px;width:100%;text-align:center;
-        box-shadow:0 24px 80px rgba(0,0,0,.25);
-        animation:fadeIn .35s ease;
-        position:relative;
-      ">
-        <div style="display:flex;gap:6px;justify-content:center;margin-bottom:28px">
-          ${STEPS.map((_,i) => `
-            <div style="
-              height:6px;border-radius:3px;flex:1;max-width:48px;
-              background:${i<=step?'#667eea':'#e5e7eb'};
-              transition:background .3s;
-            "></div>`).join('')}
+  function renderPainPoint() {
+    const host = document.getElementById('_onboarding'); if (!host) return; host.innerHTML = '';
+    host.innerHTML = `
+      <div style="background:white;border-radius:20px;padding:28px 22px;max-width:520px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+        <div style="font-size:3rem;margin-bottom:8px">🎯</div>
+        <h3 style="font-family:'Fredoka One',cursive;margin-bottom:8px">Which best describes your child?</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+          <button id="pp-1" class="btn btn-secondary">Just starting</button>
+          <button id="pp-2" class="btn btn-primary">Knows letters, can't blend</button>
+          <button id="pp-3" class="btn btn-secondary">Already blending, wants more</button>
         </div>
-        ${content}
+      </div>`;
+    document.getElementById('pp-1').addEventListener('click', () => { opts.painPoint = 'starting'; renderChildInfo(0); });
+    document.getElementById('pp-2').addEventListener('click', () => { opts.painPoint = 'knows_letters_cant_blend'; renderChildInfo(1); });
+    document.getElementById('pp-3').addEventListener('click', () => { opts.painPoint = 'already_blending'; renderChildInfo(2); });
+  }
+
+  function renderChildInfo(routeHint) {
+    const host = document.getElementById('_onboarding'); if (!host) return; host.innerHTML = '';
+    host.innerHTML = `
+      <div style="background:white;border-radius:20px;padding:22px;max-width:520px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+        <div style="font-size:3rem;margin-bottom:8px">👶</div>
+        <h3 style="font-family:'Fredoka One',cursive;margin-bottom:6px">Tell us your child's first name</h3>
+        <input id="ob-name" type="text" placeholder="e.g. Ava" style="width:100%;padding:12px 14px;border-radius:10px;border:2px solid #eee;font-size:1rem;margin-bottom:12px" />
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:8px">
+          <button class="age-btn" data-age="4">4</button>
+          <button class="age-btn" data-age="5">5</button>
+          <button class="age-btn" data-age="6">6</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button id="ob-done" class="btn btn-primary">Start Activity</button>
+          <button id="ob-back" class="btn btn-secondary">← Back</button>
+        </div>
       </div>`;
 
-    document.body.appendChild(overlay);
-    analytics.trackOnboardingStep(STEPS[step]);
-  }
+    document.querySelectorAll('.age-btn').forEach(b => b.addEventListener('click', (e) => {
+      document.querySelectorAll('.age-btn').forEach(x => x.style.background='white');
+      e.currentTarget.style.background = '#667eea';
+      opts.childAge = e.currentTarget.dataset.age;
+    }));
 
-  function getStepContent(step) {
-    switch(step) {
-      case 0: return `
-        <div style="font-size:4.5rem;margin-bottom:16px">📚</div>
-        <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;color:#667eea;margin-bottom:10px">
-          Welcome to Phonics Hub!
-        </h2>
-        <p style="color:#666;font-size:1rem;line-height:1.6;margin-bottom:28px">
-          Fun, interactive phonics learning for kids ages 3–7.<br>
-          Let's set things up in <strong>30 seconds</strong>. 🚀
-        </p>
-        <button onclick="onboarding.next()" style="${btnStyle('#667eea')}">
-          Let's Go! →
-        </button>
-        <button onclick="onboarding.skip()" style="${linkStyle()}">Skip setup</button>`;
-
-      case 1: return `
-        <div style="font-size:3.5rem;margin-bottom:12px">👶</div>
-        <h2 style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#667eea;margin-bottom:8px">
-          Tell us about your child
-        </h2>
-        <p style="color:#666;font-size:.9rem;margin-bottom:24px">We'll personalise their experience!</p>
-        <div style="text-align:left;display:flex;flex-direction:column;gap:14px;margin-bottom:24px">
-          <div>
-            <label style="font-weight:800;font-size:.85rem;color:#444;display:block;margin-bottom:6px">
-              Child's first name
-            </label>
-            <input id="ob-name" type="text" placeholder="e.g. Emma" maxlength="20"
-              style="${inputStyle()}" />
-          </div>
-          <div>
-            <label style="font-weight:800;font-size:.85rem;color:#444;display:block;margin-bottom:6px">
-              Your email
-            </label>
-            <input id="ob-email" type="email" placeholder="parent@email.com" required
-              style="${inputStyle()}" />
-          </div>
-          <div>
-            <label style="font-weight:800;font-size:.85rem;color:#444;display:block;margin-bottom:8px">
-              Child's age
-            </label>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-              ${['2–3','4','5','6–7'].map(age => `
-                <button onclick="onboarding.selectAge('${age}',this)"
-                  style="${ageStyle()}" data-age="${age}">${age}</button>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-        <button onclick="onboarding.saveChildInfo()" style="${btnStyle('#667eea')}">
-          Continue →
-        </button>
-        <button onclick="onboarding.prev()" style="${linkStyle()}">← Back</button>`;
-
-      case 2: return `
-        <div style="font-size:3.5rem;margin-bottom:12px">🎯</div>
-        <h2 style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#667eea;margin-bottom:8px">
-          What's your main goal?
-        </h2>
-        <p style="color:#666;font-size:.9rem;margin-bottom:20px">Pick all that apply</p>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;text-align:left">
-          ${[
-            ['🔤','Learn letter sounds','letter-sounds'],
-            ['📖','Start reading words','reading'],
-            ['🎵','Practice blending','blending'],
-            ['⭐','Master sight words','sight-words'],
-            ['🎮','Make learning fun','fun'],
-          ].map(([emoji,label,id]) => `
-            <label style="
-              display:flex;align-items:center;gap:12px;
-              background:#f9fafb;border:2px solid #e5e7eb;border-radius:14px;
-              padding:14px 16px;cursor:pointer;font-weight:700;font-size:.95rem;
-              transition:all .15s;
-            " onclick="this.style.borderColor=this.querySelector('input').checked?'#e5e7eb':'#667eea';
-                       this.style.background=this.querySelector('input').checked?'#f9fafb':'#eef2ff'">
-              <input type="checkbox" value="${id}" style="width:18px;height:18px;accent-color:#667eea" />
-              <span style="font-size:1.3rem">${emoji}</span>
-              ${label}
-            </label>`).join('')}
-        </div>
-        <button onclick="onboarding.saveGoals()" style="${btnStyle('#667eea')}">
-          Continue →
-        </button>
-        <button onclick="onboarding.prev()" style="${linkStyle()}">← Back</button>`;
-
-      case 3: return `
-        <div style="font-size:3.5rem;margin-bottom:12px">🗺️</div>
-        <h2 style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#667eea;margin-bottom:8px">
-          Here's how it works
-        </h2>
-        <div style="display:flex;flex-direction:column;gap:12px;margin:20px 0;text-align:left">
-          ${[
-            ['🆓','3 free activities — no signup needed'],
-            ['🔒','16+ premium activities — $9.99/mo'],
-            ['🔊','Tap any word or letter to hear it'],
-            ['⭐','Earn stars as you complete activities'],
-            ['📊','Track progress in Parent Dashboard'],
-          ].map(([icon,text]) => `
-            <div style="
-              display:flex;align-items:center;gap:12px;
-              background:#f9fafb;border-radius:14px;padding:14px 16px;
-              font-weight:700;font-size:.92rem;
-            ">
-              <span style="font-size:1.4rem">${icon}</span>${text}
-            </div>`).join('')}
-        </div>
-        <button onclick="onboarding.next()" style="${btnStyle('#667eea')}">
-          Got it! →
-        </button>
-        <button onclick="onboarding.prev()" style="${linkStyle()}">← Back</button>`;
-
-      case 4: {
-        const name = answers.childName ? `${answers.childName}` : 'your little one';
-        return `
-        <div style="font-size:4.5rem;margin-bottom:16px;animation:pop .4s ease">🎉</div>
-        <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;color:#667eea;margin-bottom:10px">
-          All set for ${name}!
-        </h2>
-        <p style="color:#666;font-size:.95rem;line-height:1.6;margin-bottom:24px">
-          Start with the <strong>3 free activities</strong> below.<br>
-          Upgrade anytime to unlock everything!
-        </p>
-        <div style="display:flex;gap:10px;flex-direction:column">
-          <button onclick="onboarding.finish()" style="${btnStyle('#667eea')}">
-            🚀 Start Learning!
-          </button>
-          <button onclick="onboarding.finishAndUpgrade()" style="${btnStyle('#22c55e')}">
-            ⭐ Start Free Trial + Unlock All
-          </button>
-        </div>`;
-      }
-    }
-  }
-
-  function btnStyle(bg) {
-    return `
-      display:block;width:100%;padding:14px 20px;border-radius:14px;border:none;
-      background:${bg};color:white;font-family:'Nunito',sans-serif;
-      font-weight:800;font-size:1rem;cursor:pointer;
-      transition:transform .15s,box-shadow .15s;margin-bottom:8px;
-    `;
-  }
-  function linkStyle() {
-    return `
-      background:none;border:none;color:#aaa;font-size:.875rem;
-      cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;
-      display:block;width:100%;padding:8px;margin-top:4px;
-    `;
-  }
-  function inputStyle() {
-    return `
-      width:100%;padding:12px 16px;border:2px solid #e5e7eb;border-radius:12px;
-      font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;
-      outline:none;transition:border-color .2s;
-    `;
-  }
-  function ageStyle() {
-    return `
-      padding:10px 6px;border-radius:12px;border:2px solid #e5e7eb;
-      background:#f9fafb;font-family:'Nunito',sans-serif;font-weight:800;
-      font-size:.9rem;cursor:pointer;transition:all .15s;
-    `;
-  }
-
-  function selectAge(age, el) {
-    document.querySelectorAll('[data-age]').forEach(b => {
-      b.style.background = '#f9fafb';
-      b.style.borderColor = '#e5e7eb';
-      b.style.color = '#333';
+    document.getElementById('ob-back').addEventListener('click', () => renderPainPoint());
+    document.getElementById('ob-done').addEventListener('click', () => {
+      const name = document.getElementById('ob-name').value.trim(); if (name) opts.childName = name;
+      // Save profile locally and to analytics (no email yet)
+      analytics.updateProfile({ childName: opts.childName, childAge: opts.childAge });
+      markDone();
+      document.getElementById('_onboarding')?.remove();
+      // Route to appropriate curriculum stage and launch first activity
+      routeToFirstActivity(routeHint);
     });
-    el.style.background = '#667eea';
-    el.style.borderColor = '#667eea';
-    el.style.color = 'white';
-    answers.childAge = age;
   }
 
-  function saveChildInfo() {
-    const name  = document.getElementById('ob-name')?.value?.trim();
-    const email = document.getElementById('ob-email')?.value?.trim();
+  function routeToFirstActivity(routeHint) {
+    // Map routeHint to stage index (0=starting,1=knows letters can't blend,2=already blending)
+    let stageIndex = 0;
+    if (routeHint === 0) stageIndex = 0;
+    else if (routeHint === 1) stageIndex = 1;
+    else stageIndex = 2;
 
-    // Email is mandatory — show inline error and block progression
-    if (!email || !email.includes('@')) {
-      const input = document.getElementById('ob-email');
-      if (input) {
-        input.style.borderColor = '#ef4444';
-        input.placeholder = 'Please enter a valid email';
-        input.focus();
-      }
-      return;
-    }
+    const stages = CurriculumManager.getStages();
+    const stage = stages[Math.min(stageIndex, stages.length - 1)];
+    // Open the first activity in that stage
+    const firstActivity = stage.activities && stage.activities[0];
+    const url = activityIdToUrl(firstActivity);
+    if (url) location.href = url;
+  }
 
-    if (name)  answers.childName = name;
-    answers.email = email;
+  function activityIdToUrl(id) {
+    const map = {
+      'letter-recognition': 'alphabet.html',
+      'sound-matching': 'listen-choose.html',
+      'cvc-words': 'cvc.html',
+      'alphabet-tracing': 'trace.html',
+      'digraph-practice': 'digraphs.html',
+      'sight-words': 'sight-words.html',
+      'word-families': 'rhyme.html',
+      'story-time': 'story.html',
+      'sentence-reading': 'read.html',
+      'consonant-blends': 'consonant-blend.html'
+    };
+    return map[id] || null;
+  }
 
-    // Track signup event + update local profile
-    analytics.trackSignup(
-      answers.childName || 'anonymous',
-      answers.childAge  || 'unknown',
-      answers.email     || null
-    );
-    analytics.updateProfile({
-      childName: answers.childName,
-      childAge:  answers.childAge,
-      email:     answers.email || undefined,
-    });
-
-    // Single API call on onboarding — POST /api/users/register
-    // Backend handles writing to both email_leads + users tables
+  // Called by email capture modal (shown after first activity completion).
+  // When email is given, register via PhonicsAPI.registerUser.
+  function registerWithEmail(email) {
+    const profile = analytics.getProfile() || {};
+    analytics.updateProfile({ email });
     if (window.PhonicsAPI) {
-      window.PhonicsAPI.registerUser(
-        answers.email,
-        answers.childName || null,
-        answers.childAge  || null
-      ).catch(() => {});
+      window.PhonicsAPI.registerUser(email, profile.childName || null, profile.childAge || null).catch(()=>{});
     }
-
-    next();
   }
 
-  function saveGoals() {
-    const checked = [...document.querySelectorAll('#_onboarding input[type=checkbox]:checked')].map(i => i.value);
-    answers.goals = checked;
-    analytics.updateProfile({ goals: checked });
-    analytics.logEvent('goals_selected', { goals: checked });
-    next();
-  }
-
-  function next()   { render(Math.min(currentStep + 1, STEPS.length - 1)); }
-  function prev()   { render(Math.max(currentStep - 1, 0)); }
-
-  function finish() {
-    markDone();
-    document.getElementById('_onboarding')?.remove();
-    // Personalise greeting if we have a name
-    const profile = analytics.getProfile();
-    if (profile.childName) {
-      const hero = document.querySelector('.hero h1');
-      if (hero) hero.textContent = `Ready to learn, ${profile.childName}? 🌟`;
-    }
-    analytics.trackOnboardingStep('completed');
-  }
-
-  function finishAndUpgrade() {
-    markDone();
-    document.getElementById('_onboarding')?.remove();
-    analytics.trackOnboardingStep('completed_upgrade');
-    analytics.trackUpgradeClick('onboarding');
-    paymentManager.initiateSubscription();
-  }
-
-  function skip() {
-    markDone();
-    document.getElementById('_onboarding')?.remove();
-    analytics.trackOnboardingStep('skipped');
-  }
-
-  return { start, next, prev, finish, finishAndUpgrade, skip, selectAge, saveChildInfo, saveGoals, shouldShow };
+  return { start, shouldShow, registerWithEmail };
 })();

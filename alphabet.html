@@ -199,7 +199,15 @@ function openDetail(data) {
   btn.style.background = mastered.has(data.l) ? 'var(--clr-green)' : '';
   document.getElementById('letter-detail').classList.add('open');
   document.getElementById('detail-backdrop').classList.add('open');
-  AudioManager.speak(`${data.l}. ${data.sound}. ${data.word}`);
+  // Speak: letter name, then the phoneme (pure consonant) if available, then the example word.
+  AudioManager.speak(data.l, { rate: .8, onEnd: () => {
+    if (data.phoneme) {
+      AudioManager.speakPhoneme(data.l);
+      setTimeout(() => AudioManager.speak(data.word, { rate: .85 }), 420);
+    } else {
+      AudioManager.speak(data.sound || data.word, { rate: .8 });
+    }
+  }});
   AudioManager.playTone('click');
 }
 
@@ -212,7 +220,10 @@ function closeDetail() {
 document.getElementById('detail-close').addEventListener('click', closeDetail);
 document.getElementById('detail-backdrop').addEventListener('click', closeDetail);
 document.getElementById('detail-speak-name').addEventListener('click', () => { if(currentLetter) AudioManager.speak(currentLetter.l, {rate:.7}); });
-document.getElementById('detail-speak-sound').addEventListener('click', () => { if(currentLetter) AudioManager.speak(currentLetter.sound, {rate:.7}); });
+document.getElementById('detail-speak-sound').addEventListener('click', () => { if(currentLetter) {
+  if (currentLetter.phoneme) AudioManager.speakPhoneme(currentLetter.l);
+  else AudioManager.speak(currentLetter.sound, { rate: .7 });
+}});
 document.getElementById('detail-mastered-btn').addEventListener('click', () => {
   if (!currentLetter) return;
   if (mastered.has(currentLetter.l)) { mastered.delete(currentLetter.l); }
@@ -244,9 +255,10 @@ function nextQuestion() {
   quizAnswer = LETTERS[idx];
   const pool = UI.shuffle(LETTERS.filter(l => l.l !== quizAnswer.l)).slice(0, 3);
   const choices = UI.shuffle([quizAnswer, ...pool]);
-  document.getElementById('quiz-prompt').textContent = `Which letter makes the "${quizAnswer.sound}" sound?`;
-  document.getElementById('quiz-play-btn').onclick = () => AudioManager.speak(quizAnswer.sound, {rate:.7});
-  AudioManager.speak(quizAnswer.sound, {rate:.7});
+  const qSound = quizAnswer.phoneme || quizAnswer.sound || quizAnswer.l;
+  document.getElementById('quiz-prompt').textContent = `Which letter makes the "${qSound}" sound?`;
+  document.getElementById('quiz-play-btn').onclick = () => { if (quizAnswer.phoneme) AudioManager.speakPhoneme(quizAnswer.l); else AudioManager.speak(quizAnswer.sound, {rate:.7}); };
+  if (quizAnswer.phoneme) AudioManager.speakPhoneme(quizAnswer.l); else AudioManager.speak(quizAnswer.sound, {rate:.7});
   const choicesEl = document.getElementById('quiz-choices');
   choicesEl.innerHTML = '';
   choices.forEach(ch => {

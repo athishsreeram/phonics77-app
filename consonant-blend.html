@@ -65,6 +65,7 @@ window.addEventListener('beforeunload', function() {
     var s = typeof score!=="undefined" ? score : 0;
     var t = typeof ROUNDS!=="undefined" ? ROUNDS : 10;
     analytics.trackActivityComplete("consonant-blends", s, t);
+    try { if (window.CurriculumManager) CurriculumManager.markActivityComplete('consonant-blends'); } catch(e){}
   }
 });</script>
 </body>
