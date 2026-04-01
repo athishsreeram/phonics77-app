@@ -72,177 +72,99 @@
     <p style="margin-top:12px;font-size:.85rem;opacity:.85">Start free with 3 activities · Unlock 16+ premium activities · Cancel anytime</p>
   </div>
 
-  <!-- FREE Activities -->
-  <div class="section-header">🆓 Free Activities</div>
-  <div class="activities-grid" id="free-activities">
+  <!-- Curriculum Learning Path -->
+  <div class="section-header">🎯 Learning Path</div>
+  <div id="curriculum-root"></div>
 
-    <div class="activity-card" data-activity-id="sound-matching">
-      <h3>🔊 Sound Matching</h3>
-      <p>Listen to a letter sound and choose the matching letter.</p>
-      <a class="play-btn" href="listen-choose.html">▶️ Play Free</a>
-    </div>
+  <script>
+  // Render curriculum after page scripts load to ensure CurriculumManager is available.
+  (function initCurriculumRender(){
+    function renderCurriculum(){
+      const root = document.getElementById('curriculum-root');
+      if (!root) return;
+      const mgr = window.CurriculumManager;
+      if (!mgr) {
+        root.innerHTML = '<p>Error loading curriculum.</p>';
+        return;
+      }
+      const stages = mgr.STAGES || [];
+      const container = document.createElement('div');
+      container.className = 'curriculum-container';
 
-    <div class="activity-card" data-activity-id="letter-recognition">
-      <h3>🔤 Letter Recognition</h3>
-      <p>Explore all 26 letters — name, sound, and example word.</p>
-      <a class="play-btn" href="alphabet.html">▶️ Play Free</a>
-    </div>
+      stages.forEach((s, idx) => {
+        const unlocked = mgr.isStageUnlocked(idx);
+        const prog = mgr.getStageProgress(idx);
 
-    <div class="activity-card" data-activity-id="blending-intro">
-      <h3>🔤 Blending Intro</h3>
-      <p>Introduction to blending consonants and vowels into words.</p>
-      <a class="play-btn" href="phonic-set1.html">▶️ Play Free</a>
-    </div>
+        const card = document.createElement('div');
+        card.className = 'stage-card' + (unlocked ? '' : ' locked');
+        card.dataset.stageIndex = idx;
 
-  </div>
+        const head = document.createElement('div');
+        head.className = 'stage-head';
+        head.innerHTML = `
+          <div>
+            <h2 style="margin:0">${idx+1}. ${s.name}</h2>
+            <div style="opacity:.85; margin-top:6px">${s.description}</div>
+          </div>
+          <div class="stage-controls" style="margin-top:10px; display:flex; gap:10px; align-items:center; justify-content:center">
+            <div class="stage-progress">${prog.completed}/${prog.total}</div>
+            <button class="expand-btn">Open</button>
+          </div>
+        `;
 
-  <!-- TIER 2: CORE PHONICS SKILLS -->
-  <div class="section-header">⭐ Tier 2: Core Phonics Skills</div>
+        const activitiesWrap = document.createElement('div');
+        activitiesWrap.className = 'stage-activities';
+        activitiesWrap.style.display = 'none';
+        s.activities.forEach(aid => {
+          const act = document.createElement('div');
+          act.className = 'activity-card' + (unlocked ? '' : ' locked');
+          act.dataset.activityId = aid;
+          const pretty = aid.replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+          const href = (window.activityGating && window.activityGating.ACTIVITY_MAP && window.activityGating.ACTIVITY_MAP[aid]) ? window.activityGating.ACTIVITY_MAP[aid] : '#';
+          const anchorHtml = unlocked ?
+            `<a class="play-btn" data-play="true" href="${href}">▶️ Play</a>` :
+            `<a class="play-btn" href="${href}">🔒 Locked</a>`;
+          act.innerHTML = `<h3>${pretty}</h3><p></p>` + anchorHtml;
+          activitiesWrap.appendChild(act);
+        });
 
-  <!-- Vowels & Vowel Patterns -->
-  <div style="margin-bottom:28px">
-    <div style="font-size:1.1rem;font-weight:800;color:#667eea;margin:20px 0 16px 0;display:flex;align-items:center;gap:8px">
-      🎵 Vowels & Vowel Patterns
-    </div>
-    <div class="activities-grid">
+        head.querySelector('.expand-btn').addEventListener('click', () => {
+          const open = activitiesWrap.style.display !== 'none';
+          activitiesWrap.style.display = open ? 'none' : 'block';
+        });
 
-      <div class="activity-card locked" data-activity-id="vowel-teams">
-        <span class="lock-badge">🔒</span>
-        <h3>🎵 Vowel Teams</h3>
-        <p>Two vowels working together! Learn vowel pair combinations.</p>
-        <a class="play-btn" href="vowels.html">🔒 Unlock Premium</a>
-      </div>
+        card.appendChild(head);
+        card.appendChild(activitiesWrap);
+        container.appendChild(card);
+      });
 
-      <div class="activity-card locked" data-activity-id="vowel-digraphs">
-        <span class="lock-badge">🔒</span>
-        <h3>🔊 Vowel Digraphs</h3>
-        <p>Fill-in-the-blank practice for vowel pair combinations.</p>
-        <a class="play-btn" href="digraph_fill.html">🔒 Unlock Premium</a>
-      </div>
+      root.appendChild(container);
 
-      <div class="activity-card locked" data-activity-id="diphthongs">
-        <span class="lock-badge">🔒</span>
-        <h3>🎯 Diphthongs</h3>
-        <p>Master oi/oy and ou/ow sounds with interactive practice.</p>
-        <a class="play-btn" href="diphthongs.html">🔒 Unlock Premium</a>
-      </div>
+      // Initialize gating on the newly-created activity cards (if gating is available)
+      if (window.activityGating && typeof window.activityGating.initializeActivityGating === 'function') {
+        setTimeout(() => activityGating.initializeActivityGating(), 50);
+      }
 
-      <div class="activity-card locked" data-activity-id="vowel-variants">
-        <span class="lock-badge">🔒</span>
-        <h3>♻️ Vowel Variants</h3>
-        <p>Learn how same letters make different sounds (ea, oo).</p>
-        <a class="play-btn" href="vowel-variants.html">🔒 Unlock Premium</a>
-      </div>
+      // Update UI when a stage unlocks
+      window.addEventListener('ph:stage-unlocked', (e) => {
+        const idx = e.detail && e.detail.stageIndex;
+        const card = container.querySelector(`.stage-card[data-stage-index="${idx}"]`);
+        if (card) card.classList.remove('locked');
+        setTimeout(() => activityGating.initializeActivityGating(), 200);
+      });
+    }
 
-      <div class="activity-card locked" data-activity-id="r-controlled-vowels">
-        <span class="lock-badge">🔒</span>
-        <h3>🎯 R-Controlled Vowels</h3>
-        <p>Master AR, ER, IR, OR, UR sounds with practice activities.</p>
-        <a class="play-btn" href="phonic-set2.html">🔒 Unlock Premium</a>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Consonant Patterns -->
-  <div style="margin-bottom:28px">
-    <div style="font-size:1.1rem;font-weight:800;color:#667eea;margin:20px 0 16px 0;display:flex;align-items:center;gap:8px">
-      🔤 Consonant Patterns
-    </div>
-    <div class="activities-grid">
-
-      <div class="activity-card locked" data-activity-id="digraph-practice">
-        <span class="lock-badge">🔒</span>
-        <h3>📖 Digraph Practice</h3>
-        <p>Learn common digraphs: SH, CH, TH, WH, PH and more.</p>
-        <a class="play-btn" href="digraphs.html">🔒 Unlock Premium</a>
-      </div>
-
-      <div class="activity-card locked" data-activity-id="consonant-blends">
-        <span class="lock-badge">🔒</span>
-        <h3>🔗 Consonant Blends</h3>
-        <p>Learn blends like bl, br, cl, cr, dr, fl, fr, gr and more.</p>
-        <a class="play-btn" href="consonant-blend.html">🔒 Unlock Premium</a>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Word Building & Recognition -->
-  <div style="margin-bottom:28px">
-    <div style="font-size:1.1rem;font-weight:800;color:#667eea;margin:20px 0 16px 0;display:flex;align-items:center;gap:8px">
-      📝 Word Building & Recognition
-    </div>
-    <div class="activities-grid">
-
-      <div class="activity-card locked" data-activity-id="cvc-words">
-        <span class="lock-badge">🔒</span>
-        <h3>📝 CVC Words</h3>
-        <p>Consonant-Vowel-Consonant word building and reading.</p>
-        <a class="play-btn" href="cvc.html">🔒 Unlock Premium</a>
-      </div>
-
-      <div class="activity-card locked" data-activity-id="sight-words">
-        <span class="lock-badge">🔒</span>
-        <h3>⭐ Sight Words</h3>
-        <p>Common high-frequency words every reader needs to know.</p>
-        <a class="play-btn" href="sight-words.html">🔒 Unlock Premium</a>
-      </div>
-
-      <div class="activity-card locked" data-activity-id="word-families">
-        <span class="lock-badge">🔒</span>
-        <h3>👨‍👩‍👧‍👦 Word Families</h3>
-        <p>Explore rhyme families: -at, -an, -in, -og and more.</p>
-        <a class="play-btn" href="rhyme.html">🔒 Unlock Premium</a>
-      </div>
-
-      <div class="activity-card locked" data-activity-id="silent-e-words">
-        <span class="lock-badge">🔒</span>
-        <h3>🤫 Silent E Words</h3>
-        <p>Discover how Magic E changes the vowel sound in a word.</p>
-        <a class="play-btn" href="magic-e.html">🔒 Unlock Premium</a>
-      </div>
-
-      <div class="activity-card locked" data-activity-id="syllables">
-        <span class="lock-badge">🔒</span>
-        <h3>🎵 Syllables</h3>
-        <p>Break words into syllables and learn syllable types.</p>
-        <a class="play-btn" href="syllables.html">🔒 Unlock Premium</a>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Reading & Comprehension -->
-  <div style="margin-bottom:28px">
-    <div style="font-size:1.1rem;font-weight:800;color:#667eea;margin:20px 0 16px 0;display:flex;align-items:center;gap:8px">
-      📚 Reading & Comprehension
-    </div>
-    <div class="activities-grid">
-
-      <div class="activity-card locked" data-activity-id="sentence-reading">
-        <span class="lock-badge">🔒</span>
-        <h3>📚 Sentence Reading</h3>
-        <p>Read simple sentences built from known phonics patterns.</p>
-        <a class="play-btn" href="read.html">🔒 Unlock Premium</a>
-      </div>
-
-      <div class="activity-card locked" data-activity-id="read-advanced">
-        <span class="lock-badge">🔒</span>
-        <h3>📚 Reading Level 2</h3>
-        <p>More complex sentences for growing readers.</p>
-        <a class="play-btn" href="read2.html">🔒 Unlock Premium</a>
-      </div>
-
-      <div class="activity-card locked" data-activity-id="story-time">
-        <span class="lock-badge">🔒</span>
-        <h3>📖 Story Time</h3>
-        <p>Read engaging illustrated stories with phonics words.</p>
-        <a class="play-btn" href="story.html">🔒 Unlock Premium</a>
-      </div>
-
-    </div>
-  </div>
+    // If CurriculumManager already exists, render immediately, otherwise wait for window load
+    if (window.CurriculumManager) {
+      renderCurriculum();
+    } else {
+      window.addEventListener('load', () => {
+        if (window.CurriculumManager) renderCurriculum();
+        else setTimeout(() => { if (window.CurriculumManager) renderCurriculum(); }, 200);
+      });
+    }
+  })();
+  </script>
 
   <!-- TIER 3: ENGAGEMENT & ASSESSMENT -->
   <div class="section-header">🏆 Tier 3: Engagement & Assessment</div>
@@ -305,6 +227,7 @@
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/payment.js"></script>
+<script src="js/curriculum.js"></script>
 <script src="js/activity-gating.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/onboarding.js"></script>

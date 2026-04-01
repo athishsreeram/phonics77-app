@@ -92,6 +92,10 @@ window.addEventListener('beforeunload', function() {
     var t = typeof total!=="undefined" ? total : 10;
     analytics.trackActivityComplete("word-families", s, t);
   }
+  // Curriculum: mark word-families complete (fallback on unload)
+  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
+    window.CurriculumManager.markActivityComplete('word-families');
+  }
 });</script>
 </body>
 </html>

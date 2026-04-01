@@ -146,6 +146,10 @@ function endGame() {
     </div>`;
   UI.setScore('sound-matching', { stars: score, total: TOTAL_ROUNDS });
   if(typeof analytics !== 'undefined') analytics.trackActivityComplete('sound-matching', score, TOTAL_ROUNDS);
+    // Curriculum: record completion so the learning path can unlock next stages
+    if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
+      window.CurriculumManager.markActivityComplete('sound-matching');
+    }
     if(typeof analytics!=='undefined') analytics.trackActivityComplete('sound-matching', score, TOTAL_ROUNDS);
 }
 

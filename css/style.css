@@ -139,3 +139,85 @@ body {
   color: #999;
   font-size: .85rem;
 }
+
+/* ── Curriculum / Toddler-friendly tweaks (appended) ───────────────────── */
+:root{
+  --brand:#667eea;
+  --accent:#ff7b6b;
+  --play-green:#2ecc71;
+  --muted:#6b7280;
+  --card-radius:18px;
+}
+
+/* Make curriculum area feel rounded, roomy and touch-friendly */
+.curriculum-container { display:flex; flex-direction:column; gap:18px; }
+.stage-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  border-radius: var(--card-radius);
+  padding: 18px;
+  box-shadow: 0 8px 28px rgba(32,41,61,0.08);
+  transition: transform .18s, box-shadow .18s;
+}
+.stage-card.locked { opacity: .95; filter: none; }
+.stage-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(32,41,61,0.12); }
+
+.stage-head { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; }
+.stage-head h2 { font-family: 'Fredoka One', cursive; font-size: 1.45rem; color: var(--brand); margin-bottom:6px; }
+.stage-head > div[style] { text-align:center; }
+.stage-head .stage-progress {
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 900;
+  color: #1f2937;
+  border: 2px solid rgba(102,126,234,0.06);
+  box-shadow: 0 4px 12px rgba(102,126,234,0.06);
+}
+.stage-head .expand-btn {
+  display:inline-block; margin-top:6px; background: var(--play-green); border:none; color:white;
+  padding:10px 18px; border-radius:12px; font-weight:900; cursor:pointer; box-shadow: 0 8px 18px rgba(46,204,113,0.16);
+}
+
+.stage-activities { margin-top: 12px; display:block; }
+.stage-activities .activity-card {
+  background: white; border-radius: 14px; padding: 14px 12px; margin-bottom:10px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.04); display:flex; align-items:center; gap:12px;
+}
+.stage-activities .activity-card h3 { font-size:1rem; font-weight:900; color:#1f2937; }
+.stage-activities .activity-card p { display:none; }
+
+/* Big friendly play button */
+.stage-activities .activity-card .play-btn,
+.activity-card .play-btn {
+  background: var(--play-green) !important; color: white !important; border-radius: 12px !important;
+  padding: 12px 16px !important; font-size: 1.02rem !important; font-weight: 900 !important;
+  box-shadow: 0 8px 20px rgba(46,204,113,0.18) !important; text-decoration:none !important;
+}
+.stage-activities .activity-card.locked .play-btn { background: #9ca3af !important; box-shadow:none !important; }
+
+/* Improve locked visual */
+.stage-card.locked { opacity: 0.95; }
+.stage-card.locked .activity-card { opacity: .95; }
+.stage-card.locked .play-btn { background:#d1d5db !important; color:#6b7280 !important; }
+
+/* Make touch targets larger across the curriculum area */
+.stage-activities .activity-card .play-btn { min-width: 120px; }
+
+/* Slightly larger base text for pre-readers */
+body { font-size: 16px; }
+
+/* Small responsive polish */
+@media (max-width:720px){
+  .stage-head h2 { font-size:1.2rem; }
+  .stage-activities .activity-card { padding:12px; }
+  .stage-activities .activity-card .play-btn { padding:10px; font-size:.98rem; }
+}
+
+/* Ensure any play button explicitly marked as a real Play control is green */
+a.play-btn[data-play="true"] {
+  background: var(--play-green) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 20px rgba(46,204,113,0.18) !important;
+}
+a.play-btn[data-play="true"]:hover { transform: translateY(-2px); }
+

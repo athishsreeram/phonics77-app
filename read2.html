@@ -130,6 +130,10 @@ function buildTabs() {
 document.getElementById('btn-read').addEventListener('click', () => {
   startTimer();
   AudioManager.speak(PASSAGES[cur].text, {rate:.82});
+  // Curriculum: mark read-advanced (fluency) when user triggers read
+  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
+    window.CurriculumManager.markActivityComplete('read-advanced');
+  }
 });
 
 document.getElementById('btn-repeat').addEventListener('click', () => {

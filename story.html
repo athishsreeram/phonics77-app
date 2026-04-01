@@ -142,6 +142,11 @@ async function loadStories() {
 document.getElementById('btn-read').addEventListener('click', () => {
   const s = STORIES[curStory];
   if (s) AudioManager.speak(s.content || s.text || '', { rate: .8 });
+  // Mark story-time activity complete when a story is read
+  // Curriculum: mark story-time complete when a story is read
+  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
+    window.CurriculumManager.markActivityComplete('story-time');
+  }
 });
 document.getElementById('btn-stop').addEventListener('click', () => AudioManager.stop());
 

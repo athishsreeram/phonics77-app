@@ -51,7 +51,13 @@ const activityGating = (() => {
       if (!btn || !page) return;
 
       const isFree    = FREE_ACTIVITIES.has(id);
-      const hasAccess = isFree || premium;
+
+      // If CurriculumManager is available, check stage unlock state for this activity
+      const stageIndex = (window.CurriculumManager && typeof window.CurriculumManager.getStageIndexForActivity === 'function')
+        ? window.CurriculumManager.getStageIndexForActivity(id)
+        : -1;
+      const stageUnlocked = (stageIndex < 0) ? true : !!window.CurriculumManager.isStageUnlocked(stageIndex);
+      const hasAccess = (isFree || premium) && stageUnlocked;
 
       if (hasAccess) {
         card.classList.remove('locked');
@@ -71,6 +77,11 @@ const activityGating = (() => {
         card.classList.add('locked');
         btn.addEventListener('click', (e) => {
           e.preventDefault();
+          if (!stageUnlocked) {
+            alert('This activity is locked. Complete the previous stage to unlock.');
+            return;
+          }
+          // otherwise it's premium-locked
           paymentManager.initiateSubscription();
         });
       }

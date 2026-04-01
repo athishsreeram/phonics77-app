@@ -218,6 +218,11 @@ document.getElementById('detail-mastered-btn').addEventListener('click', () => {
   if (mastered.has(currentLetter.l)) { mastered.delete(currentLetter.l); }
   else { mastered.add(currentLetter.l); AudioManager.playTone('star'); UI.showFeedback(true); }
   saveMastered(); buildGrid(); refreshStats(); closeDetail();
+  // Curriculum: mark letter-recognition activity complete the first time a letter is mastered
+  // Curriculum: marking letter-recognition when a letter is mastered
+  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
+    window.CurriculumManager.markActivityComplete('letter-recognition');
+  }
 });
 
 document.getElementById('btn-autoplay').addEventListener('click', () => {

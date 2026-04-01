@@ -98,6 +98,10 @@ window.addEventListener('beforeunload', function() {
     var t = typeof ROUNDS!=="undefined" ? ROUNDS : 10;
     analytics.trackActivityComplete("cvc-words", s, t);
   }
+  // Curriculum: mark CVC activity complete (fallback on unload)
+  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
+    window.CurriculumManager.markActivityComplete('cvc-words');
+  }
 });</script>
 </body>
 </html>

@@ -137,6 +137,10 @@ window.addEventListener('beforeunload', function() {
     var t = typeof qt!=="undefined" ? qt : 10;
     analytics.trackActivityComplete("digraph-practice", s, t);
   }
+  // Curriculum: mark digraph-practice complete (fallback on unload)
+  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
+    window.CurriculumManager.markActivityComplete('digraph-practice');
+  }
 });</script>
 </body>
 </html>

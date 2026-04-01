@@ -104,6 +104,13 @@ document.getElementById('btn-speak').addEventListener('click', ()=>{ const d=LET
 document.getElementById('btn-clear').addEventListener('click', clearCanvas);
 document.getElementById('btn-done').addEventListener('click',  ()=>{ AudioManager.playTone('star'); UI.showFeedback(true); UI.toast(`Great tracing of ${LETTERS[idx].l}! ⭐`); });
 
+// Curriculum: mark tracing activity complete when user taps Done
+document.getElementById('btn-done').addEventListener('click', () => {
+  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
+    window.CurriculumManager.markActivityComplete('progress-tracker');
+  }
+});
+
 render();
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("progress-tracker");
