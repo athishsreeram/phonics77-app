@@ -14,10 +14,10 @@ const CURRICULUM_CONFIG = {
 */
 const CurriculumManager = (() => {
   const STAGES = [
-    { name: 'Sound Awareness', description: 'Letter sounds and basic sound-matching activities', activities: ['letter-recognition','sound-matching'], requiredCompletions: 2, premium: false },
-    { name: 'First Words',     description: 'CVC blending and alphabet tracing to build first words', activities: ['cvc-words','progress-tracker'], requiredCompletions: 2, premium: false },
-    { name: 'Word Builder',     description: 'Digraphs, sight words and word families', activities: ['digraph-practice','sight-words','word-families'], requiredCompletions: 3, premium: true },
-    { name: 'Reading Ready',    description: 'Stories, fluency practice and consonant blends', activities: ['story-time','read-advanced','consonant-blends'], requiredCompletions: 3, premium: true },
+    { name: 'Sound Awareness', description: 'Letter sounds and basic sound-matching activities', activities: ['letter-recognition','sound-matching','alphabet-balloon','blending-intro'], requiredCompletions: 2, premium: false },
+    { name: 'First Words',     description: 'CVC blending and alphabet tracing to build first words', activities: ['cvc-words','progress-tracker','silent-e-words','syllables'], requiredCompletions: 2, premium: false },
+    { name: 'Word Builder',     description: 'Digraphs, sight words and word families', activities: ['digraph-practice','vowel-digraphs','diphthongs','vowel-teams','vowel-variants','sight-words','word-families'], requiredCompletions: 4, premium: true },
+    { name: 'Reading Ready',    description: 'Stories, fluency practice and consonant blends', activities: ['story-time','read-advanced','consonant-blends','sentence-reading','phonics-review','assessment-level-1','assessment-level-2','parent-dashboard'], requiredCompletions: 4, premium: true },
   ];
 
   // Read persisted store, defensive if localStorage unavailable

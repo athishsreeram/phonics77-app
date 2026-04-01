@@ -35,6 +35,7 @@
 .alpha-card .big-letter    { font-family: 'Fredoka One', cursive; font-size: clamp(1.8rem,5vw,2.8rem); line-height: 1; }
 .alpha-card .example-word  { font-size: clamp(.75rem,2vw,.95rem); font-weight: 700; color: var(--clr-text-soft); }
 .alpha-card .example-emoji { font-size: clamp(1rem,3vw,1.4rem); }
+.alpha-card .small-letter   { font-size: clamp(.9rem,2.5vw,1.1rem); color: var(--clr-text-soft); display:block; margin-top:2px; }
 .alpha-card .mastered-check { position:absolute; top:6px; right:8px; font-size:1rem; opacity:0; transition:opacity .3s; }
 .alpha-card.mastered .mastered-check { opacity:1; }
 .alpha-card.vowel { border-color: var(--clr-primary); }
@@ -167,6 +168,7 @@ function buildGrid() {
     card.innerHTML = `
       <span class="example-emoji">${data.emoji}</span>
       <span class="big-letter" style="color:hsl(${hue},70%,45%)">${data.l}</span>
+      <span class="small-letter">${data.l.toLowerCase()}</span>
       <span class="example-word">${data.word}</span>
       <span class="mastered-check">✅</span>`;
     card.addEventListener('click', () => openDetail(data));
