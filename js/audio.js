@@ -40,10 +40,30 @@ const AudioManager = (() => {
     speechSynthesis.speak(u);
   }
 
+  // Speak a single pure consonant phoneme (no trailing vowel).
+  // Uses PHONICS_DATA.alphabet entry's `ttsHint` when available.
+  function speakPhoneme(letter) {
+    if (!window.speechSynthesis) return;
+    if (!letter) return;
+    const key = String(letter).toUpperCase();
+    const entry = (typeof PHONICS_DATA !== 'undefined' && PHONICS_DATA.alphabet)
+      ? PHONICS_DATA.alphabet.find(a => a.l && a.l.toUpperCase() === key)
+      : null;
+    const hint = entry && entry.ttsHint ? entry.ttsHint : letter;
+    stop();
+    const u = new SpeechSynthesisUtterance(hint);
+    // slow rate to make the consonant clearer
+    u.rate = 0.5;
+    u.pitch = 1.0;
+    u.volume = 1;
+    currentUtterance = u;
+    speechSynthesis.speak(u);
+  }
+
   function stop() {
     if (window.speechSynthesis) speechSynthesis.cancel();
     currentUtterance = null;
   }
 
-  return { speak, stop, playTone };
+  return { speak, stop, playTone, speakPhoneme };
 })();
