@@ -40,6 +40,8 @@ const PHONICS_DATA = {
     { pair:'CK', word:'Clock',   emoji:'🕐', example:'cl-ock', sound:'kuh'  },
     { pair:'NG', word:'Ring',    emoji:'💍', example:'ri-ng',  sound:'ng'   },
     { pair:'QU', word:'Queen',   emoji:'👑', example:'qu-een', sound:'kwuh' },
+    { pair:'KN', word:'Knee',    emoji:'🦵', example:'k-nee',  sound:'nuh'  },
+    { pair:'WR', word:'Wrist',   emoji:'🤚', example:'wr-ist', sound:'r'    },
   ],
 
   cvc: [
@@ -49,6 +51,9 @@ const PHONICS_DATA = {
     { word:'bit', emoji:'🦷' }, { word:'red', emoji:'🔴' }, { word:'wet', emoji:'💧' },
     { word:'lip', emoji:'💋' }, { word:'log', emoji:'🪵' }, { word:'mud', emoji:'🟤' },
     { word:'nut', emoji:'🌰' }, { word:'rob', emoji:'👨' }, { word:'tip', emoji:'💡' },
+    { word:'jam', emoji:'🍓' }, { word:'fox', emoji:'🦊' }, { word:'bed', emoji:'🛏️' },
+    { word:'mix', emoji:'🧪' }, { word:'yak', emoji:'🐂' }, { word:'zip', emoji:'📦' },
+    { word:'cab', emoji:'🚕' }, { word:'jar', emoji:'🍯' }, { word:'sap', emoji:'🌲' },
   ],
 
   sightWords: [
@@ -58,6 +63,7 @@ const PHONICS_DATA = {
     'all','were','we','when','your','can','said','there','use','an',
     'each','which','she','do','how','their','if','will','up','other',
     'about','out','many','then','them','these','so','some','her','would',
+    'who','when','where','why','all','very','more','most','been','get',
   ],
 
   vowels: [
@@ -91,6 +97,10 @@ const PHONICS_DATA = {
     { cvc:'man', magic:'mane', emoji1:'👨', emoji2:'🦁' },
     { cvc:'rid', magic:'ride', emoji1:'😤', emoji2:'🚲' },
     { cvc:'fad', magic:'fade', emoji1:'😐', emoji2:'🌅' },
+    { cvc:'tap', magic:'tape', emoji1:'🛠️', emoji2:'🏷️' },
+    { cvc:'mad', magic:'made', emoji1:'😡', emoji2:'✅' },
+    { cvc:'pan', magic:'pane', emoji1:'🍳', emoji2:'🪟' },
+    { cvc:'nod', magic:'node', emoji1:'🤏', emoji2:'🔗' },
   ],
 
   rhymes: [
@@ -100,6 +110,8 @@ const PHONICS_DATA = {
     { family:'og', words:['bog','dog','fog','hog','log','cog','tog','frog'] },
     { family:'un', words:['bun','fun','gun','nun','pun','run','sun','nun'] },
     { family:'ip', words:['dip','hip','lip','nip','rip','sip','tip','zip'] },
+    { family:'ake', words:['cake','lake','make','rake','sake','take','wake','fake'] },
+    { family:'op', words:['hop','mop','pop','top','cop','shop','stop'] },
   ],
 
   diphthongs: [
@@ -115,6 +127,9 @@ const PHONICS_DATA = {
     { letters:'ow', word:'cow',      emoji:'🐄', sounds:'ow' },
     { letters:'ow', word:'owl',      emoji:'🦉', sounds:'ow' },
     { letters:'ow', word:'bow',      emoji:'🏹', sounds:'ow' },
+    { letters:'aw', word:'saw',      emoji:'🪚', sounds:'aw' },
+    { letters:'au', word:'haul',     emoji:'🚚', sounds:'aw' },
+    { letters:'ew', word:'new',      emoji:'🆕', sounds:'oo' },
   ],
 
   vowelVariants: [
@@ -139,6 +154,9 @@ const PHONICS_DATA = {
     { word:'ocean',    type:'vowel-team',syllables:2, emoji:'🌊', breakdown:'o·cean' },
     { word:'rabbit',   type:'closed',    syllables:2, emoji:'🐰', breakdown:'rab·bit' },
     { word:'table',    type:'open',      syllables:2, emoji:'🪑', breakdown:'ta·ble' },
+    { word:'banana',   type:'open',      syllables:3, emoji:'🍌', breakdown:'ba·na·na' },
+    { word:'elephant', type:'closed',    syllables:3, emoji:'🐘', breakdown:'el·e·phant' },
+    { word:'chocolate',type:'closed',    syllables:3, emoji:'🍫', breakdown:'choc·o·late' },
   ],
 
   vowelDigraphs: [
@@ -157,6 +175,9 @@ const PHONICS_DATA = {
     { pair:'oa', word:'boat',    emoji:'⛵', sound:'long-oh', sounds:['long-oh'] },
     { pair:'ue', word:'blue',    emoji:'🔵', sound:'long-oo', sounds:['long-oo'] },
     { pair:'igh', word:'light',  emoji:'💡', sound:'long-eye', sounds:['long-eye'] },
+    { pair:'aw', word:'saw',     emoji:'🪓', sound:'aw', sounds:['aw'] },
+    { pair:'au', word:'haul',    emoji:'🚛', sound:'aw', sounds:['aw'] },
+    { pair:'ew', word:'new',     emoji:'🆕', sound:'long-oo', sounds:['long-oo'] },
   ],
 
   // Activities metadata used by the curriculum UI and activity-gating
