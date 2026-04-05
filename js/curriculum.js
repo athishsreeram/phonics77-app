@@ -14,10 +14,10 @@ const CURRICULUM_CONFIG = {
 */
 const CurriculumManager = (() => {
   const STAGES = [
-    { name: 'Sound Awareness', description: 'Letter sounds and basic sound-matching activities', activities: ['letter-recognition','sound-matching','alphabet-balloon','blending-intro'], requiredCompletions: 2, premium: false },
-    { name: 'First Words',     description: 'CVC blending and alphabet tracing to build first words', activities: ['cvc-words','progress-tracker','silent-e-words','syllables'], requiredCompletions: 2, premium: false },
-    { name: 'Word Builder',     description: 'Digraphs, sight words and word families', activities: ['digraph-practice','vowel-digraphs','diphthongs','vowel-teams','vowel-variants','sight-words','word-families'], requiredCompletions: 4, premium: true },
-    { name: 'Reading Ready',    description: 'Stories, fluency practice and consonant blends', activities: ['story-time','read-advanced','consonant-blends','sentence-reading','phonics-review','assessment-level-1','assessment-level-2','parent-dashboard'], requiredCompletions: 4, premium: true },
+    { name: 'Letter Sounds & Listening', description: 'Introduce letter names, individual sounds, and listening/matching activities', activities: ['letter-recognition','sound-matching','alphabet-balloon','blending-intro'], requiredCompletions: 2, premium: false },
+    { name: 'CVC & First Words',     description: 'Practice consonant-vowel-consonant blending, early reading games, and tracing', activities: ['cvc-words','progress-tracker','silent-e-words','syllables'], requiredCompletions: 2, premium: false },
+    { name: 'Digraphs & Vowel Teams',     description: 'Build word knowledge with digraphs, vowel teams, diphthongs, and sight words', activities: ['digraph-practice','vowel-digraphs','diphthongs','vowel-teams','vowel-variants','sight-words','word-families'], requiredCompletions: 4, premium: true },
+    { name: 'Fluency & Story Reading',    description: 'Fluency practice, stories, assessments, and parent tools', activities: ['story-time','read-advanced','consonant-blends','sentence-reading','phonics-review','assessment-level-1','assessment-level-2','parent-dashboard'], requiredCompletions: 4, premium: true },
   ];
 
   // Read persisted store, defensive if localStorage unavailable

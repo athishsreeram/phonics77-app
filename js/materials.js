@@ -158,4 +158,49 @@ const PHONICS_DATA = {
     { pair:'ue', word:'blue',    emoji:'🔵', sound:'long-oo', sounds:['long-oo'] },
     { pair:'igh', word:'light',  emoji:'💡', sound:'long-eye', sounds:['long-eye'] },
   ],
+
+  // Activities metadata used by the curriculum UI and activity-gating
+  activities: [
+    { id:'letter-recognition', title:'Alphabet: Letter Recognition', description:'Recognize letters and hear their sounds', file:'alphabet.html', emoji:'🔤', stageIndex:0, premium:false, difficulty:'easy', ttsHint:'letters' },
+    { id:'sound-matching', title:'Sound Matching', description:'Match sounds to letters and words', file:'listen-choose.html', emoji:'🎧', stageIndex:0, premium:false, difficulty:'easy' },
+    { id:'alphabet-balloon', title:'Alphabet Balloon Pop', description:'Pop balloons to identify letters', file:'alphabet-ballon-pop.html', emoji:'🎈', stageIndex:0, premium:true, difficulty:'easy' },
+    { id:'blending-intro', title:'Intro to Blending', description:'Blend sounds to form simple words', file:'phonic-set1.html', emoji:'🧩', stageIndex:0, premium:false, difficulty:'easy' },
+
+    { id:'cvc-words', title:'CVC Word Blending', description:'Blend consonant-vowel-consonant words', file:'cvc.html', emoji:'🐱', stageIndex:1, premium:true, difficulty:'easy' },
+    { id:'progress-tracker', title:'Progress Tracker', description:'Track learning progress and achievements', file:'trace.html', emoji:'📈', stageIndex:1, premium:true, difficulty:'n/a', parentFacing:true },
+    { id:'silent-e-words', title:'Magic E (Silent-e)', description:'Change short vowels to long with Magic E', file:'magic-e.html', emoji:'🪄', stageIndex:1, premium:true, difficulty:'medium' },
+    { id:'syllables', title:'Syllable Types', description:'Identify syllable types and break words apart', file:'syllables.html', emoji:'🔡', stageIndex:1, premium:true, difficulty:'medium' },
+
+    { id:'digraph-practice', title:'Digraph Practice', description:'Practice digraphs like SH, CH, TH', file:'digraphs.html', emoji:'🦈', stageIndex:2, premium:true, difficulty:'medium' },
+    { id:'vowel-digraphs', title:'Vowel Digraphs', description:'Explore vowel pairs like EA, OO', file:'digraph_fill.html', emoji:'🍞', stageIndex:2, premium:true, difficulty:'medium' },
+    { id:'diphthongs', title:'Diphthongs', description:'Practice oi/oy and ou/ow sounds', file:'diphthongs.html', emoji:'🐄', stageIndex:2, premium:true, difficulty:'medium' },
+    { id:'vowel-teams', title:'Vowel Teams', description:'Learn vowel team sounds (ea, ai, oa)', file:'vowels.html', emoji:'🍃', stageIndex:2, premium:true, difficulty:'medium' },
+    { id:'vowel-variants', title:'Vowel Variants', description:'Explore alternate pronunciations (ea, oo)', file:'vowel-variants.html', emoji:'📖', stageIndex:2, premium:true, difficulty:'medium' },
+    { id:'sight-words', title:'Sight Words', description:'Recognize high-frequency sight words', file:'sight-words.html', emoji:'✨', stageIndex:2, premium:true, difficulty:'easy' },
+    { id:'word-families', title:'Word Families (Rhymes)', description:'Practice rhyming families and word patterns', file:'rhyme.html', emoji:'🎵', stageIndex:2, premium:true, difficulty:'easy' },
+
+    { id:'story-time', title:'Story Time', description:'Listen to simple stories and answer questions', file:'story.html', emoji:'📚', stageIndex:3, premium:true, difficulty:'medium' },
+    { id:'read-advanced', title:'Advanced Reading', description:'Longer passages and fluency practice', file:'read2.html', emoji:'📖', stageIndex:3, premium:true, difficulty:'hard' },
+    { id:'consonant-blends', title:'Consonant Blends', description:'Practice blends like bl, st, tr', file:'consonant-blend.html', emoji:'🥁', stageIndex:3, premium:true, difficulty:'medium' },
+    { id:'sentence-reading', title:'Sentence Reading', description:'Read and comprehend short sentences', file:'read.html', emoji:'📝', stageIndex:3, premium:true, difficulty:'medium' },
+    { id:'phonics-review', title:'Phonics Review', description:'Mixed practice across phonics skills', file:'phkids.html', emoji:'🔁', stageIndex:3, premium:true, difficulty:'varied' },
+    { id:'assessment-level-1', title:'Assessment Level 1', description:'Adaptive assessment for core skills', file:'word-match.html', emoji:'🧾', stageIndex:3, premium:true, difficulty:'assessment' },
+    { id:'assessment-level-2', title:'Assessment Level 2', description:'Extended assessment with open tasks', file:'word-explore.html', emoji:'🔎', stageIndex:3, premium:true, difficulty:'assessment' },
+    { id:'parent-dashboard', title:'Parent Dashboard', description:'Parent tools and printable resources', file:'parent-dashboard.html', emoji:'👨‍👩‍👧', stageIndex:3, premium:true, difficulty:'n/a', parentFacing:true },
+  ],
+
+  // Simple runtime validator to ensure CurriculumManager.STAGES activities are present here.
+  validateActivities: function() {
+    if (typeof window === 'undefined' || !window.CurriculumManager) {
+      console.warn('PHONICS_DATA.validateActivities: CurriculumManager not available yet. Run after page load.');
+      return;
+    }
+    const known = (PHONICS_DATA.activities || []).map(a => a.id);
+    const missing = [];
+    window.CurriculumManager.STAGES.forEach((s, idx) => {
+      (s.activities || []).forEach(id => { if (!known.includes(id)) missing.push({ id, stage: idx, stageName: s.name }); });
+    });
+    if (missing.length) console.warn('PHONICS_DATA: missing activity metadata for:', missing);
+    else console.log('PHONICS_DATA: all curriculum activities present.');
+  },
 };
