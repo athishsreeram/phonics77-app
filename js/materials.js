@@ -208,6 +208,7 @@ const PHONICS_DATA = {
     { id:'assessment-level-1', title:'Assessment Level 1', description:'Adaptive assessment for core skills', file:'word-match.html', emoji:'🧾', stageIndex:3, premium:true, difficulty:'assessment' },
     { id:'assessment-level-2', title:'Assessment Level 2', description:'Extended assessment with open tasks', file:'word-explore.html', emoji:'🔎', stageIndex:3, premium:true, difficulty:'assessment' },
     { id:'parent-dashboard', title:'Parent Dashboard', description:'Parent tools and printable resources', file:'parent-dashboard.html', emoji:'👨‍👩‍👧', stageIndex:3, premium:true, difficulty:'n/a', parentFacing:true },
+    { id:'ai-reading-tutor', title:'AI Reading Tutor', description:'Interactive AI-guided fluency practice and phonics coach', file:'pages/ai-reading-tutor.html', emoji:'🦉', stageIndex:3, premium:true, difficulty:'medium' },
   ],
 
   // Simple runtime validator to ensure CurriculumManager.STAGES activities are present here.

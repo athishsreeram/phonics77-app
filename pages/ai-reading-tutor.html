@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🦉 AI Reading Tutor</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --indigo: #4f46e5; --violet: #7c3aed; --amber: #f59e0b;
+    --orange: #f97316; --green: #059669; --red: #dc2626; --gray: #6b7280;
+  }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fef9c3 0%, #dbeafe 55%, #ede9fe 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+  }
+  .card {
+    background: rgba(255,255,255,0.96);
+    border-radius: 24px;
+    box-shadow: 0 8px 40px rgba(165,180,252,.35);
+    padding: 36px 28px;
+    max-width: 520px; width: 100%;
+    text-align: center;
+    animation: fadeUp .4s ease;
+  }
+  .card-wide { max-width: 680px; }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .owl { font-size:48px; line-height:1; margin-bottom:4px; }
+  h1 { font-family:'Baloo 2',sans-serif; font-size:26px; color:#1e1b4b; margin:6px 0 4px; }
+  .sub { color:var(--gray); font-size:14px; margin-bottom:18px; }
+  label { display:block; font-weight:700; font-size:13px; color:#374151; margin-bottom:5px; text-align:left; }
+  textarea, input[type=text] {
+    width:100%; border:2px solid #c7d2fe; border-radius:12px;
+    padding:10px 12px; font-size:15px; font-family:inherit;
+    outline:none; transition:border-color .2s; resize:vertical;
+  }
+  textarea:focus, input:focus { border-color:var(--indigo); }
+  .btn {
+    display:inline-block;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    color:#fff; border:none; border-radius:50px;
+    padding:13px 28px; font-size:16px; font-weight:700;
+    cursor:pointer; font-family:inherit;
+    box-shadow:0 4px 16px rgba(129,140,248,.4);
+    margin:5px 4px; transition:transform .15s, box-shadow .15s;
+  }
+  .btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(129,140,248,.5); }
+  .btn:active { transform:translateY(0); }
+  .btn:disabled { opacity:.4; cursor:default; transform:none; }
+  .btn-gray { background:var(--gray); box-shadow:none; }
+  .btn-sm { padding:10px 18px; font-size:14px; }
+  .chip {
+    background:#ede9fe; color:#5b21b6; border:none; border-radius:99px;
+    padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer;
+    font-family:inherit; transition:background .15s;
+  }
+  .chip:hover { background:#ddd6fe; }
+  .mic-btn {
+    color:#fff; border:none; border-radius:50px;
+    padding:14px 20px; font-size:16px; font-weight:700;
+    cursor:pointer; font-family:inherit;
+    box-shadow:0 4px 20px rgba(99,102,241,.3); transition:all .2s;
+  }
+  .mic-btn:disabled { opacity:.5; cursor:default; }
+  .info-box {
+    background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px;
+    padding:12px 14px; font-size:13px; color:#166534;
+    text-align:left; margin-top:16px; line-height:2;
+  }
+  .warn { color:#b45309; font-size:13px; margin-top:10px; }
+  .top-bar { display:flex; align-items:center; margin-bottom:14px; }
+  .bar-wrap { flex:1; margin:0 10px; }
+  .bar { background:#e0e7ff; border-radius:99px; height:10px; overflow:hidden; }
+  .bar-fill { background:linear-gradient(90deg,#6366f1,#a78bfa); height:100%; border-radius:99px; transition:width .4s ease; }
+  .bar-txt { font-size:11px; color:#9ca3af; margin-top:3px; text-align:left; }
+  .badge { background:#fef3c7; border-radius:99px; padding:4px 12px; font-weight:700; font-size:14px; color:#92400e; }
+  .passage {
+    background:#f8fafc; border-radius:16px; padding:16px 14px;
+    line-height:2.3; font-size:20px; font-weight:600; color:#374151;
+    text-align:left; word-spacing:5px; margin-bottom:14px;
+  }
+  .word { display:inline-block; margin-right:6px; border-radius:6px; padding:0 3px; transition:all .2s; cursor:default; }
+  .word-active { background:#fef08a; color:#1e1b4b; text-decoration:underline 3px #f59e0b; transform:scale(1.15); box-shadow:0 2px 8px rgba(252,211,77,.5); }
+  .word-done { color:#9ca3af; }
+  .word-hard { color:var(--orange); }
+  .callout {
+    display:flex; flex-direction:column; align-items:center;
+    background:linear-gradient(135deg,#ede9fe,#dbeafe);
+    border-radius:16px; padding:14px 24px; margin-bottom:12px;
+  }
+  .big-word { font-family:'Baloo 2',sans-serif; font-size:50px; font-weight:900; color:var(--indigo); letter-spacing:3px; }
+  .callout-hint { font-size:12px; color:var(--violet); margin-top:2px; }
+  .banner { border-radius:12px; padding:10px 14px; font-size:14px; font-weight:600; margin-bottom:10px; }
+  .coach-box { background:#fff7ed; border:2px solid #fed7aa; border-radius:14px; padding:12px 14px; margin-bottom:10px; text-align:left; }
+  .coach-title { font-weight:700; color:#c2410c; font-size:12px; margin-bottom:6px; }
+  .coach-text { color:#1c1917; font-size:14px; white-space:pre-wrap; line-height:1.9; font-family:inherit; }
+  .dots { display:flex; align-items:center; gap:6px; justify-content:center; margin-bottom:12px; }
+  .dot { width:13px; height:13px; border-radius:50%; transition:background .2s; }
+  .dot-txt { font-size:12px; color:#9ca3af; margin-left:4px; }
+  .row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:8px; }
+  .hard-box { background:#fff7ed; border:2px solid #fed7aa; border-radius:16px; padding:16px; margin-bottom:14px; }
+  .chip-word { display:inline-block; background:#fef3c7; color:#92400e; border-radius:99px; padding:5px 14px; font-weight:700; font-size:16px; }
+  .hidden { display:none !important; }
+  @media(max-width:480px) {
+    .card { padding:24px 16px; }
+    .big-word { font-size:38px; }
+    .passage { font-size:17px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ SETUP ═══ -->
+<div id="screen-setup" class="card">
+  <div class="owl">🦉</div>
+  <h1>AI Reading Tutor</h1>
+  <p class="sub">No API key needed — works 100% in your browser!</p>
+  <div style="margin-bottom:14px">
+    <label for="passage-input">📖 Type or paste a passage</label>
+    <textarea id="passage-input" rows="4" placeholder="e.g. The cat sat on the mat. A big fat cat."></textarea>
+  </div>
+  <div class="row" style="margin-bottom:16px">
+    <button class="chip" onclick="setSample('The cat sat on a mat. It is a big fat cat.')">🐱 CVC</button>
+    <button class="chip" onclick="setSample('The dog ran fast. It had a red ball. The ball was big.')">🌈 Simple</button>
+    <button class="chip" onclick="setSample('Sam likes to play in the park. He can jump and run. His dog loves to play too.')">⭐ Medium</button>
+  </div>
+  <button id="start-btn" class="btn" onclick="startSession()" disabled>Start Reading! 🚀</button>
+  <div class="info-box">
+    <strong>✨ How it works</strong><br/>
+    🎤 Say each highlighted word aloud (Chrome/Edge)<br/>
+    ⌨️ Or type your answer if no mic<br/>
+    📖 Built-in phonics coach — no internet required!
+  </div>
+  <p id="no-speech-warn" class="warn hidden">⚠️ No mic detected — use the ⌨️ Type button during reading.</p>
+</div>
+
+<!-- ═══ READING ═══ -->
+<div id="screen-reading" class="card card-wide hidden">
+  <div class="top-bar">
+    <span style="font-size:32px">🦉</span>
+    <div class="bar-wrap">
+      <div class="bar"><div id="bar-fill" class="bar-fill" style="width:0%"></div></div>
+      <div id="bar-txt" class="bar-txt">Word 1 of ?</div>
+    </div>
+    <div id="badge" class="badge">⭐ 0</div>
+  </div>
+  <div id="passage-display" class="passage"></div>
+  <div class="callout">
+    <span id="target-word" class="big-word">—</span>
+    <span class="callout-hint">👆 Say this word!</span>
+  </div>
+  <div id="banner" class="banner hidden"></div>
+  <div id="coach-box" class="coach-box hidden">
+    <div class="coach-title">📖 Phonics Coach says:</div>
+    <div id="coach-text" class="coach-text"></div>
+  </div>
+  <div class="dots">
+    <div id="dot1" class="dot" style="background:#e5e7eb"></div>
+    <div id="dot2" class="dot" style="background:#e5e7eb"></div>
+    <div id="dot3" class="dot" style="background:#e5e7eb"></div>
+    <span id="dot-txt" class="dot-txt hidden"></span>
+  </div>
+  <div class="row">
+    <button id="mic-btn" class="mic-btn" style="background:#4f46e5;flex:2" onclick="tapMic()">🎤 Tap to Speak</button>
+    <button class="mic-btn btn-gray" style="flex:1;font-size:14px" onclick="toggleManual()">⌨️ Type</button>
+  </div>
+  <div id="manual-row" class="row hidden" style="margin-top:0">
+    <input type="text" id="manual-input" placeholder="Type the word…" style="flex:1;margin:0" onkeydown="if(event.key==='Enter')submitManual()"/>
+    <button class="btn btn-sm" style="margin:0" onclick="submitManual()">Go ✓</button>
+  </div>
+</div>
+
+<!-- ═══ REVIEW ═══ -->
+<div id="screen-review" class="card hidden">
+  <div style="font-size:64px">🏆</div>
+  <h1>Passage complete!</h1>
+  <p id="review-sub" class="sub"></p>
+  <div id="review-hard" class="hidden">
+    <div class="hard-box">
+      <p style="font-weight:700;color:#c2410c;margin-bottom:8px">Words to practise more:</p>
+      <div id="hard-chips" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"></div>
+    </div>
+    <p style="color:var(--gray);margin-bottom:12px">Want to practise these words again?</p>
+    <div class="row">
+      <button class="btn" onclick="startPractice()">Yes, practise! 💪</button>
+      <button class="btn btn-gray" onclick="gotoSetup()">All done 👋</button>
+    </div>
+  </div>
+  <div id="review-perfect" class="hidden">
+    <p style="color:#059669;font-size:20px;font-weight:800">Zero mistakes — amazing! 🌟</p>
+    <button class="btn" onclick="gotoSetup()">Read Another 📖</button>
+  </div>
+</div>
+
+<!-- ═══ PRACTICE ═══ -->
+<div id="screen-practice" class="card hidden">
+  <div class="owl">🦉</div>
+  <h1>Practice Mode</h1>
+  <p id="practice-sub" class="sub"></p>
+  <div id="practice-active" class="hidden">
+    <div class="callout" style="margin-bottom:12px">
+      <span id="practice-word" class="big-word">—</span>
+    </div>
+    <div class="coach-box">
+      <div class="coach-title">📖 Phonics Coach says:</div>
+      <div id="practice-coach" class="coach-text"></div>
+    </div>
+    <button id="practice-next-btn" class="btn" onclick="nextPractice()">Next Word →</button>
+  </div>
+  <div id="practice-done" class="hidden">
+    <div style="font-size:56px">🎊</div>
+    <p style="font-size:20px;font-weight:800;color:#059669">All done — great work!</p>
+    <button class="btn" onclick="gotoSetup()">New Passage 📖</button>
+  </div>
+</div>
+
+<script>
+// ── PHONICS ENGINE ─────────────────────────────────────────────────────────
+const RHYME_FAMILIES = {
+  at:["cat","bat","hat","mat","rat","sat","fat","pat"],
+  an:["can","fan","man","pan","ran","tan","van","ban"],
+  ap:["cap","map","nap","rap","tap","zap","clap","snap"],
+  ag:["bag","rag","tag","wag","flag","drag"],
+  am:["ham","jam","ram","yam","clam","slam"],
+  ig:["big","dig","fig","jig","pig","wig","twig"],
+  in:["bin","fin","pin","sin","tin","win","chin","spin"],
+  it:["bit","fit","hit","kit","lit","pit","sit","wit"],
+  ip:["dip","hip","lip","rip","sip","tip","zip","chip","drip","skip"],
+  og:["dog","fog","hog","log","bog","frog"],
+  op:["cop","hop","mop","pop","top","chop","drop","shop","stop"],
+  ot:["dot","got","hot","lot","not","pot","rot","shot","spot"],
+  ug:["bug","dug","hug","jug","mug","rug","tug","plug","slug"],
+  un:["bun","fun","gun","nun","run","sun","spun"],
+  ut:["but","cut","gut","hut","nut","put","rut"],
+  ay:["bay","day","hay","jay","may","pay","ray","say","way","play","stay","tray"],
+  ee:["bee","fee","see","tree","free","knee","three"],
+  igh:["high","night","right","light","fight","might","sight","tight"],
+  ow:["bow","cow","how","now","row","wow","blow","flow","show","snow","grow"],
+  oo:["boo","moo","zoo","too","cool","fool","pool","tool","moon","soon"],
+};
+
+function buildPhonics(word) {
+  const w = word.toLowerCase().replace(/[^a-z]/g,"");
+  if (!w) return null;
+  const phonemes = [];
+  let i = 0;
+  while (i < w.length) {
+    const ch=w[i], ch2=w.slice(i,i+2), ch3=w.slice(i,i+3);
+    if(ch3==="tch"){phonemes.push("/ch/");i+=3;}
+    else if(ch2==="sh"){phonemes.push("/sh/");i+=2;}
+    else if(ch2==="ch"){phonemes.push("/ch/");i+=2;}
+    else if(ch2==="th"){phonemes.push("/th/");i+=2;}
+    else if(ch2==="ph"){phonemes.push("/f/");i+=2;}
+    else if(ch2==="wh"){phonemes.push("/w/");i+=2;}
+    else if(ch2==="ck"){phonemes.push("/k/");i+=2;}
+    else if(ch2==="ng"){phonemes.push("/ng/");i+=2;}
+    else if(ch2==="ee"){phonemes.push("/ēē/");i+=2;}
+    else if(ch2==="oo"){phonemes.push("/oo/");i+=2;}
+    else if(ch2==="ay"){phonemes.push("/āy/");i+=2;}
+    else if(ch2==="ai"){phonemes.push("/ā/");i+=2;}
+    else if(ch2==="oa"){phonemes.push("/ō/");i+=2;}
+    else if(ch2==="ou"){phonemes.push("/ow/");i+=2;}
+    else if(ch2==="ow"){phonemes.push("/ow/");i+=2;}
+    else if(ch2==="oi"){phonemes.push("/oy/");i+=2;}
+    else if(ch2==="au"){phonemes.push("/aw/");i+=2;}
+    else if(ch2==="aw"){phonemes.push("/aw/");i+=2;}
+    else if(ch==='a'){phonemes.push("/ă/");i++;}
+    else if(ch==='e'){phonemes.push("/ĕ/");i++;}
+    else if(ch==='i'){phonemes.push("/ĭ/");i++;}
+    else if(ch==='o'){phonemes.push("/ŏ/");i++;}
+    else if(ch==='u'){phonemes.push("/ŭ/");i++;}
+    else{phonemes.push("/"+ch+"/");i++;}
+  }
+  let rhymeHint=null;
+  for(const[family,members]of Object.entries(RHYME_FAMILIES)){
+    if(w.endsWith(family)&&members.includes(w)){
+      const others=members.filter(m=>m!==w).slice(0,3);
+      if(others.length)rhymeHint=`It rhymes with "${others[0]}"! (${others.join(", ")})`;
+      break;
+    }
+    if(w.endsWith(family)){
+      const others=members.slice(0,2);
+      rhymeHint=`The ending sounds like "${others[0]}" and "${others[1]}"!`;
+      break;
+    }
+  }
+  if(!rhymeHint){const ending=w.slice(-2);rhymeHint=`Listen to the sounds: "${w[0]}…${ending}"`;}
+  return{phonemes,rhymeHint};
+}
+
+function getCoaching(word, heard) {
+  const info=buildPhonics(word);
+  if(!info) return `Let's try again! Say "${word}" slowly.`;
+  const sounds=info.phonemes.join(" – ");
+  const heardLine=heard?`You said "${heard}" — let's try again!\n`:"";
+  return `${heardLine}Sounds: ${sounds}\n${info.rhymeHint}\nNow YOU try — say it slowly! 🎉`;
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function tokenise(text){ return text.match(/[a-zA-Z']+/g)??[]; }
+function norm(s){ return s.toLowerCase().replace(/[^a-z']/g,""); }
+function speak(text,rate=0.85){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.rate=rate;
+  window.speechSynthesis.speak(u);
+}
+function el(id){ return document.getElementById(id); }
+function show(id){ el(id).classList.remove("hidden"); }
+function hide(id){ el(id).classList.add("hidden"); }
+function showScreen(name){
+  ["setup","reading","review","practice"].forEach(s=>{
+    el("screen-"+s).classList.toggle("hidden",s!==name);
+  });
+}
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let words=[], cursor=0, attempts=0, hardWords=[];
+let blocked=false, listening=false, noSpeech=false;
+let practiceIdx=0, rec=null;
+
+// ── SETUP EVENTS ──────────────────────────────────────────────────────────
+el("passage-input").addEventListener("input",()=>{
+  el("start-btn").disabled=!el("passage-input").value.trim();
+});
+function setSample(text){ el("passage-input").value=text; el("start-btn").disabled=false; }
+function gotoSetup(){ el("passage-input").value=""; el("start-btn").disabled=true; showScreen("setup"); }
+
+// ── SPEECH RECOGNITION ────────────────────────────────────────────────────
+(function initSR(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){noSpeech=true;show("no-speech-warn");return;}
+  rec=new SR();
+  rec.lang="en-US"; rec.continuous=false; rec.interimResults=false;
+  rec.onresult=e=>{const said=e.results[0]?.[0]?.transcript?.trim()??"";if(said)processWord(said);};
+  rec.onend=()=>{listening=false;updateMicBtn();};
+  rec.onerror=()=>{listening=false;updateMicBtn();};
+})();
+
+function updateMicBtn(){
+  const btn=el("mic-btn");
+  if(!btn)return;
+  if(noSpeech){hide("mic-btn");return;}
+  btn.textContent=listening?"🎙️ Listening…":"🎤 Tap to Speak";
+  btn.style.background=listening?"#ef4444":"#4f46e5";
+  btn.disabled=listening||blocked;
+}
+
+// ── START SESSION ─────────────────────────────────────────────────────────
+function startSession(){
+  words=tokenise(el("passage-input").value);
+  if(!words.length)return;
+  cursor=0; attempts=0; hardWords=[]; blocked=false;
+  showScreen("reading");
+  if(noSpeech)hide("mic-btn");
+  renderPassage(); updateReadingUI();
+  hide("banner"); hide("coach-box"); hide("manual-row");
+  setTimeout(()=>speak("Let's read together! Say the highlighted word."),400);
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function renderPassage(){
+  el("passage-display").innerHTML=words.map((w,i)=>`<span class="word" id="w${i}">${w}</span>`).join(" ");
+}
+function refreshWordStyles(){
+  words.forEach((w,i)=>{
+    const span=el("w"+i); if(!span)return;
+    span.className="word";
+    if(i===cursor)span.classList.add("word-active");
+    else if(i<cursor){span.classList.add("word-done");if(hardWords.includes(w))span.classList.add("word-hard");}
+  });
+}
+function updateReadingUI(){
+  refreshWordStyles();
+  const pct=words.length?Math.round((cursor/words.length)*100):0;
+  el("bar-fill").style.width=pct+"%";
+  el("bar-txt").textContent=`Word ${Math.min(cursor+1,words.length)} of ${words.length}`;
+  el("badge").textContent=`⭐ ${Math.max(0,words.length-hardWords.length)}`;
+  el("target-word").textContent=words[cursor]||"—";
+  updateDots(); updateMicBtn();
+}
+function updateDots(){
+  [1,2,3].forEach(n=>{el("dot"+n).style.background=n<=attempts?"#f97316":"#e5e7eb";});
+  if(attempts>0){el("dot-txt").textContent=`${attempts}/3 tries`;show("dot-txt");}
+  else hide("dot-txt");
+}
+
+// ── PROCESS WORD ──────────────────────────────────────────────────────────
+function processWord(said){
+  if(blocked)return;
+  const target=words[cursor]; if(!target)return;
+  blocked=true;
+  if(norm(said)===norm(target)){
+    showBanner("ok",`✅ "${target}" — great job!`); hide("coach-box");
+    attempts=0; speak("Great!");
+    setTimeout(()=>{
+      hide("banner"); const next=cursor+1; blocked=false;
+      if(next>=words.length){showReview();return;}
+      cursor=next; attempts=0; updateReadingUI();
+    },1200);
+  } else {
+    attempts++;
+    if(!hardWords.includes(target))hardWords.push(target);
+    if(attempts>=3){
+      showBanner("info",`The word is "${target}". Listen! 👂`); hide("coach-box");
+      speak(`The word is ${target}. ${target}.`,0.65);
+      setTimeout(()=>{
+        hide("banner"); const next=cursor+1; blocked=false; attempts=0;
+        if(next>=words.length){showReview();return;}
+        cursor=next; updateReadingUI();
+      },3200);
+    } else {
+      const tip=getCoaching(target,said);
+      showBanner("err",`I heard "${said}" — let's try phonics! (try ${attempts}/3)`);
+      el("coach-text").textContent=tip; show("coach-box");
+      speak(tip,0.8); blocked=false; updateDots(); updateMicBtn();
+    }
+  }
+}
+function showBanner(kind,msg){
+  const b=el("banner"); b.textContent=msg;
+  b.style.background=kind==="ok"?"#dcfce7":kind==="err"?"#fee2e2":"#fef9c3";
+  b.style.color=kind==="ok"?"#166534":kind==="err"?"#991b1b":"#713f12";
+  show("banner");
+}
+
+// ── MIC / MANUAL ──────────────────────────────────────────────────────────
+function tapMic(){
+  if(!rec||listening||blocked)return;
+  try{rec.abort();setTimeout(()=>{rec.start();listening=true;updateMicBtn();},80);}catch(e){}
+}
+function toggleManual(){
+  const row=el("manual-row");
+  const hidden=row.classList.toggle("hidden");
+  if(!hidden)el("manual-input").focus();
+}
+function submitManual(){
+  const v=el("manual-input").value.trim(); if(!v)return;
+  el("manual-input").value=""; hide("manual-row"); processWord(v);
+}
+
+// ── REVIEW ────────────────────────────────────────────────────────────────
+function showReview(){
+  const stars=Math.max(0,words.length-hardWords.length);
+  el("review-sub").textContent=`${words.length} words · ${stars} ⭐ earned`;
+  showScreen("review");
+  if(hardWords.length>0){
+    el("hard-chips").innerHTML=hardWords.map(w=>`<span class="chip-word">${w}</span>`).join("");
+    show("review-hard"); hide("review-perfect");
+  } else { hide("review-hard"); show("review-perfect"); }
+}
+
+// ── PRACTICE ──────────────────────────────────────────────────────────────
+function startPractice(){ practiceIdx=0; showScreen("practice"); loadPracticeWord(); }
+function loadPracticeWord(){
+  if(practiceIdx>=hardWords.length){ hide("practice-active"); show("practice-done"); return; }
+  show("practice-active"); hide("practice-done");
+  el("practice-sub").textContent=`Word ${practiceIdx+1} of ${hardWords.length}`;
+  const w=hardWords[practiceIdx];
+  el("practice-word").textContent=w;
+  el("practice-coach").textContent=getCoaching(w,"");
+  el("practice-next-btn").textContent=practiceIdx+1<hardWords.length?"Next Word →":"Finish! 🎉";
+}
+function nextPractice(){ practiceIdx++; loadPracticeWord(); }
+</script>
+</body>
+</html>

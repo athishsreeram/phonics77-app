@@ -32,6 +32,7 @@ const activityGating = (() => {
     'progress-tracker':  'trace.html',
     'alphabet-balloon':  'alphabet-ballon-pop.html',
     'read-advanced':     'read2.html',
+    'ai-reading-tutor':  'pages/ai-reading-tutor.html',
   };
 
   const FREE_ACTIVITIES = new Set([
