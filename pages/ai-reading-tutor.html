@@ -174,6 +174,10 @@
     <span id="target-word" class="big-word">—</span>
     <span class="callout-hint">👆 Say this word!</span>
   </div>
+  <div class="row" style="margin-bottom:10px">
+    <button id="prev-btn" class="btn btn-sm btn-gray" style="min-width:120px" onclick="prevWord()">◀ Previous</button>
+    <button id="next-btn" class="btn btn-sm" style="min-width:120px" onclick="nextWord()">Next ▶</button>
+  </div>
   <div id="banner" class="banner hidden"></div>
   <div id="coach-box" class="coach-box hidden">
     <div class="coach-title">📖 Phonics Coach says:</div>
@@ -480,6 +484,10 @@ function updateReadingUI(){
   el("badge").textContent=`⭐ ${Math.max(0,words.length-hardWords.length)}`;
   el("target-word").textContent=words[cursor]||"—";
   updateDots(); updateMicBtn();
+  // enable/disable manual nav buttons
+  const prev = el("prev-btn"); const next = el("next-btn");
+  if(prev) prev.disabled = blocked || cursor<=0;
+  if(next) next.disabled = blocked || cursor>=words.length-1;
 }
 function updateDots(){
   // Single attempt dot — orange when wrong
@@ -564,6 +572,32 @@ function toggleManual(){
 function submitManual(){
   const v=el("manual-input").value.trim(); if(!v)return;
   el("manual-input").value=""; hide("manual-row"); processWord(v);
+}
+
+function prevWord(){
+  if(blocked) return;
+  if(cursor<=0) return;
+  // move back one word
+  cursor = Math.max(0, cursor-1);
+  attempts = 0;
+  hide("banner"); hide("coach-box");
+  updateReadingUI();
+  // speak current target to prompt the child
+  speak(el("target-word").textContent || words[cursor]);
+}
+
+function nextWord(){
+  if(blocked) return;
+  const next = cursor+1;
+  if(next>=words.length){
+    showReview();
+    return;
+  }
+  cursor = next;
+  attempts = 0;
+  hide("banner"); hide("coach-box");
+  updateReadingUI();
+  speak(el("target-word").textContent || words[cursor]);
 }
 
 // ── REVIEW ────────────────────────────────────────────────────────────────
