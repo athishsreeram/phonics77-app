@@ -36,7 +36,7 @@
   h1 { font-family:'Baloo 2',sans-serif; font-size:26px; color:#1e1b4b; margin:6px 0 4px; }
   .sub { color:var(--gray); font-size:14px; margin-bottom:18px; }
   label { display:block; font-weight:700; font-size:13px; color:#374151; margin-bottom:5px; text-align:left; }
-  textarea, input[type=text] {
+  textarea, input[type=text], input[type=password] {
     width:100%; border:2px solid #c7d2fe; border-radius:12px;
     padding:10px 12px; font-size:15px; font-family:inherit;
     outline:none; transition:border-color .2s; resize:vertical;
@@ -75,6 +75,16 @@
     text-align:left; margin-top:16px; line-height:2;
   }
   .warn { color:#b45309; font-size:13px; margin-top:10px; }
+  .api-row { display:flex; gap:8px; align-items:center; margin-bottom:14px; }
+  .api-row input { flex:1; font-size:13px; padding:8px 12px; }
+  .api-badge { font-size:11px; font-weight:700; border-radius:99px; padding:3px 10px; white-space:nowrap; }
+  .api-badge.ok  { background:#dcfce7; color:#166534; }
+  .api-badge.off { background:#fee2e2; color:#991b1b; }
+  .thinking { display:flex; align-items:center; gap:8px; font-size:13px; color:#7c3aed; font-weight:600; }
+  .thinking span { display:inline-block; animation:bounce .8s infinite alternate; }
+  .thinking span:nth-child(2){animation-delay:.15s}
+  .thinking span:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-5px)}}
   .top-bar { display:flex; align-items:center; margin-bottom:14px; }
   .bar-wrap { flex:1; margin:0 10px; }
   .bar { background:#e0e7ff; border-radius:99px; height:10px; overflow:hidden; }
@@ -132,11 +142,19 @@
     <button class="chip" onclick="setSample('Sam likes to play in the park. He can jump and run. His dog loves to play too.')">⭐ Medium</button>
   </div>
   <button id="start-btn" class="btn" onclick="startSession()" disabled>Start Reading! 🚀</button>
+  <div style="margin-bottom:14px">
+    <label for="api-key-input">🔑 Gemini API Key <span style="font-weight:400;color:var(--gray)">(optional — enables AI coaching)</span></label>
+    <div class="api-row">
+      <input type="password" id="api-key-input" placeholder="Paste your Gemini API key…" oninput="onApiKeyChange()"/>
+      <span id="api-badge" class="api-badge off">AI off</span>
+    </div>
+  </div>
   <div class="info-box">
     <strong>✨ How it works</strong><br/>
     🎤 Say each highlighted word aloud (Chrome/Edge)<br/>
     ⌨️ Or type your answer if no mic<br/>
-    📖 Built-in phonics coach — no internet required!
+    🤖 Gemini AI coaches on first wrong attempt (key required)<br/>
+    📖 Falls back to built-in phonics if no key
   </div>
   <p id="no-speech-warn" class="warn hidden">⚠️ No mic detected — use the ⌨️ Type button during reading.</p>
 </div>
@@ -160,12 +178,15 @@
   <div id="coach-box" class="coach-box hidden">
     <div class="coach-title">📖 Phonics Coach says:</div>
     <div id="coach-text" class="coach-text"></div>
+    <div id="ai-meta" class="coach-text" style="font-size:12px;color:#6b7280;margin-top:8px;display:none"></div>
   </div>
   <div class="dots">
     <div id="dot1" class="dot" style="background:#e5e7eb"></div>
-    <div id="dot2" class="dot" style="background:#e5e7eb"></div>
-    <div id="dot3" class="dot" style="background:#e5e7eb"></div>
     <span id="dot-txt" class="dot-txt hidden"></span>
+    <div id="thinking-indicator" class="thinking hidden">
+      <span>●</span><span>●</span><span>●</span>
+      <span style="animation:none;margin-left:2px">Thinking…</span>
+    </div>
   </div>
   <div class="row">
     <button id="mic-btn" class="mic-btn" style="background:#4f46e5;flex:2" onclick="tapMic()">🎤 Tap to Speak</button>
@@ -222,7 +243,80 @@
 </div>
 
 <script>
-// ── PHONICS ENGINE ─────────────────────────────────────────────────────────
+// ── GEMINI CONFIG ──────────────────────────────────────────────────────────
+const GEMINI_MODEL = "gemini-2.0-flash";
+let GEMINI_API_KEY = "";
+
+function onApiKeyChange(){
+  const v = el("api-key-input").value.trim();
+  GEMINI_API_KEY = v;
+  const badge = el("api-badge");
+  if(v){ badge.textContent="✓ AI on"; badge.className="api-badge ok"; }
+  else { badge.textContent="AI off"; badge.className="api-badge off"; }
+}
+
+async function getPhonicsCoach(target, heard) {
+  const prompt = `You are a warm, fun phonics coach for a child aged 4–8.
+The child tried to say "${target}" but said "${heard || "something unclear"}".
+
+Write exactly 3 short lines (no bullets, no numbers):
+Break "${target}" into its sounds, and spell each sound (e.g., "th" then "ŭ" for "the").
+Give a rhyme clue, e.g. "It rhymes with bee!"
+End with a cheerful "Now you try!
+
+Max 10 words per line. Simple English only.`;
+  try {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`;
+    const headers = { "Content-Type": "application/json" };
+    if (GEMINI_API_KEY) headers["X-goog-api-key"] = GEMINI_API_KEY;
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      // Send prompt exactly in contents[].parts[].text to match the curl format
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`HTTP ${res.status} ${res.statusText} ${text}`);
+    }
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+    const candidate = data.candidates?.[0];
+    const part = candidate?.content?.parts?.[0];
+    const text = part?.text?.trim();
+    const thoughtSignature = part?.thoughtSignature;
+    const usage = data.usageMetadata || data.usage || null;
+    const modelVersion = data.modelVersion || data.model || null;
+    const responseId = data.responseId || data.id || null;
+
+    // Return a structured object that includes the raw response plus the extracted text
+    return {
+      text: text ?? "Let's sound it out! Try each sound slowly, then say the whole word. Now you try! 🎉",
+      thoughtSignature,
+      usage,
+      modelVersion,
+      responseId,
+      candidates: data.candidates ?? null,
+      raw: data,
+    };
+  } catch (err) {
+    // If Gemini call fails (network/CORS/server), fall back to local phonics
+    console.warn("Gemini error:", err);
+    const badge = el("api-badge");
+    if (badge) { badge.textContent = "AI unavailable"; badge.className = "api-badge off"; }
+    // Give a clearer banner for CORS/network issues in-browser
+    try { showBanner("err", "AI unreachable — using local phonics fallback."); } catch (e) {}
+    return { text: getCoaching(target, heard), thoughtSignature: null };
+  }
+}
+
+// ── PHONICS ENGINE (fallback) ───────────────────────────────────────────────
 const RHYME_FAMILIES = {
   at:["cat","bat","hat","mat","rat","sat","fat","pat"],
   an:["can","fan","man","pan","ran","tan","van","ban"],
@@ -271,11 +365,11 @@ function buildPhonics(word) {
     else if(ch2==="oi"){phonemes.push("/oy/");i+=2;}
     else if(ch2==="au"){phonemes.push("/aw/");i+=2;}
     else if(ch2==="aw"){phonemes.push("/aw/");i+=2;}
-    else if(ch==='a'){phonemes.push("/ă/");i++;}
-    else if(ch==='e'){phonemes.push("/ĕ/");i++;}
-    else if(ch==='i'){phonemes.push("/ĭ/");i++;}
-    else if(ch==='o'){phonemes.push("/ŏ/");i++;}
-    else if(ch==='u'){phonemes.push("/ŭ/");i++;}
+    else if(ch==="a"){phonemes.push("/ă/");i++;}
+    else if(ch==="e"){phonemes.push("/ĕ/");i++;}
+    else if(ch==="i"){phonemes.push("/ĭ/");i++;}
+    else if(ch==="o"){phonemes.push("/ŏ/");i++;}
+    else if(ch==="u"){phonemes.push("/ŭ/");i++;}
     else{phonemes.push("/"+ch+"/");i++;}
   }
   let rhymeHint=null;
@@ -388,17 +482,20 @@ function updateReadingUI(){
   updateDots(); updateMicBtn();
 }
 function updateDots(){
-  [1,2,3].forEach(n=>{el("dot"+n).style.background=n<=attempts?"#f97316":"#e5e7eb";});
-  if(attempts>0){el("dot-txt").textContent=`${attempts}/3 tries`;show("dot-txt");}
+  // Single attempt dot — orange when wrong
+  el("dot1").style.background = attempts>0 ? "#f97316" : "#e5e7eb";
+  if(attempts>0){el("dot-txt").textContent="1 try used";show("dot-txt");}
   else hide("dot-txt");
 }
 
-// ── PROCESS WORD ──────────────────────────────────────────────────────────
-function processWord(said){
+// ── PROCESS WORD (async — calls Gemini) ───────────────────────────────────
+async function processWord(said){
   if(blocked)return;
   const target=words[cursor]; if(!target)return;
   blocked=true;
+
   if(norm(said)===norm(target)){
+    // ✅ Correct
     showBanner("ok",`✅ "${target}" — great job!`); hide("coach-box");
     attempts=0; speak("Great!");
     setTimeout(()=>{
@@ -406,25 +503,47 @@ function processWord(said){
       if(next>=words.length){showReview();return;}
       cursor=next; attempts=0; updateReadingUI();
     },1200);
+
   } else {
+    // ❌ Wrong — 1 attempt, then AI coaches, then move on after coaching
     attempts++;
     if(!hardWords.includes(target))hardWords.push(target);
-    if(attempts>=3){
-      showBanner("info",`The word is "${target}". Listen! 👂`); hide("coach-box");
-      speak(`The word is ${target}. ${target}.`,0.65);
-      setTimeout(()=>{
-        hide("banner"); const next=cursor+1; blocked=false; attempts=0;
-        if(next>=words.length){showReview();return;}
-        cursor=next; updateReadingUI();
-      },3200);
+    updateDots();
+
+    // Show "AI thinking" spinner while fetching
+    showBanner("err",`I heard "${said}" — let me help! 🤖`);
+    show("thinking-indicator"); hide("coach-box");
+    updateMicBtn(); // keep buttons disabled while thinking
+
+    let tip = null;
+    if (GEMINI_API_KEY) {
+      tip = await getPhonicsCoach(target, said);
     } else {
-      const tip=getCoaching(target,said);
-      showBanner("err",`I heard "${said}" — let's try phonics! (try ${attempts}/3)`);
-      el("coach-text").textContent=tip; show("coach-box");
-      speak(tip,0.8); blocked=false; updateDots(); updateMicBtn();
+      tip = { text: getCoaching(target, said), thoughtSignature: null };
     }
+
+    hide("thinking-indicator");
+    const coachText = (typeof tip === 'string') ? tip : tip.text;
+    el("coach-text").textContent = coachText;
+    // Always hide AI metadata in the UI — show only the AI response text
+    el("ai-meta").textContent = "";
+    el("ai-meta").style.display = 'none';
+    show("coach-box");
+    speak(coachText, 0.8);
+
+    // After 1 wrong attempt + coaching, give the word and move on
+    showBanner("info", `Let's listen and try again! The word is "${target}" 👂`);
+    speak(`Listen carefully. The word is ${target}.`, 0.7);
+
+    setTimeout(()=>{
+      hide("banner"); hide("coach-box");
+      const next=cursor+1; blocked=false; attempts=0;
+      if(next>=words.length){showReview();return;}
+      cursor=next; updateReadingUI();
+    }, 5000);
   }
 }
+
 function showBanner(kind,msg){
   const b=el("banner"); b.textContent=msg;
   b.style.background=kind==="ok"?"#dcfce7":kind==="err"?"#fee2e2":"#fef9c3";
