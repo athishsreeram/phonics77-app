@@ -176,6 +176,7 @@
   </div>
   <div class="row" style="margin-bottom:10px">
     <button id="prev-btn" class="btn btn-sm btn-gray" style="min-width:120px" onclick="prevWord()">◀ Previous</button>
+    <button id="phonics-btn" class="chip" style="min-width:120px" onclick="readPhonics()">🔊 Phonics</button>
     <button id="next-btn" class="btn btn-sm" style="min-width:120px" onclick="nextWord()">Next ▶</button>
   </div>
   <div id="banner" class="banner hidden"></div>
@@ -488,6 +489,7 @@ function updateReadingUI(){
   const prev = el("prev-btn"); const next = el("next-btn");
   if(prev) prev.disabled = blocked || cursor<=0;
   if(next) next.disabled = blocked || cursor>=words.length-1;
+  const phon = el("phonics-btn"); if(phon) phon.disabled = blocked || !words.length;
 }
 function updateDots(){
   // Single attempt dot — orange when wrong
@@ -598,6 +600,20 @@ function nextWord(){
   hide("banner"); hide("coach-box");
   updateReadingUI();
   speak(el("target-word").textContent || words[cursor]);
+}
+
+function readPhonics(){
+  if(blocked) return;
+  const w = words[cursor]; if(!w) return;
+  const info = buildPhonics(w);
+  if(!info){ speak(w, 0.9); return; }
+  const phonemes = info.phonemes.join(' – ');
+  const msg = `Sounds: ${phonemes}. ${info.rhymeHint}`;
+  // show in coach box temporarily
+  el("coach-text").textContent = msg;
+  show("coach-box");
+  speak(msg, 0.8);
+  setTimeout(()=>{ hide("coach-box"); }, 4200);
 }
 
 // ── REVIEW ────────────────────────────────────────────────────────────────
