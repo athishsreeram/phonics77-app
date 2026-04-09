@@ -140,6 +140,9 @@
     <button class="chip" onclick="setSample('The cat sat on a mat. It is a big fat cat.')">🐱 CVC</button>
     <button class="chip" onclick="setSample('The dog ran fast. It had a red ball. The ball was big.')">🌈 Simple</button>
     <button class="chip" onclick="setSample('Sam likes to play in the park. He can jump and run. His dog loves to play too.')">⭐ Medium</button>
+    <button class="chip" style="margin-left:8px;background:#dbeafe;color:#3730a3;font-weight:800" onclick="generatePassage('cvc')">🎲 AI CVC</button>
+    <button class="chip" style="background:#dbeafe;color:#3730a3;font-weight:800" onclick="generatePassage('simple')">🎲 AI Simple</button>
+    <button class="chip" style="background:#dbeafe;color:#3730a3;font-weight:800" onclick="generatePassage('medium')">🎲 AI Medium</button>
   </div>
   <button id="start-btn" class="btn" onclick="startSession()" disabled>Start Reading! 🚀</button>
   <div style="margin-bottom:14px">
@@ -258,6 +261,40 @@ function onApiKeyChange(){
   const badge = el("api-badge");
   if(v){ badge.textContent="✓ AI on"; badge.className="api-badge ok"; }
   else { badge.textContent="AI off"; badge.className="api-badge off"; }
+}
+
+async function generatePassage(style){
+  if(!el('passage-input')) return;
+  if(!GEMINI_API_KEY){ showBanner('err','Paste your Gemini API key to generate passages.'); return; }
+  const btns = ['AI CVC','AI Simple','AI Medium'];
+  showBanner('info','Generating passage…'); show('thinking-indicator');
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`;
+  const headers = { 'Content-Type':'application/json', 'X-goog-api-key': GEMINI_API_KEY };
+
+  let prompt;
+  if(style==='cvc'){
+    prompt = 'Write 2 short sentences using simple CVC words for early readers, very simple grammar. Example style: "The cat sat on the mat. A big fat cat." Keep sentences short.';
+  } else if(style==='simple'){
+    prompt = 'Write 2–3 very simple sentences for beginning readers (age 4–6). Use common words and short phrases.';
+  } else {
+    prompt = 'Write 3 short sentences (4–8 words each) for a slightly older beginner reader (age 6–8). Use simple punctuation.';
+  }
+
+  try{
+    const res = await fetch(endpoint,{ method:'POST', headers, body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] }) });
+    if(!res.ok){ const t = await res.text().catch(()=>''); throw new Error(`HTTP ${res.status} ${res.statusText} ${t}`); }
+    const data = await res.json();
+    const cand = data.candidates?.[0];
+    const text = cand?.content?.parts?.[0]?.text?.trim();
+    if(text){ el('passage-input').value = text; el('start-btn').disabled = false; showBanner('ok','Passage generated — ready!'); }
+    else { throw new Error('No text returned'); }
+  }catch(err){
+    console.warn('Generate error',err);
+    showBanner('err','AI generation failed — try again or paste a passage.');
+  }finally{
+    hide('thinking-indicator');
+    setTimeout(()=>{ hide('banner'); },2200);
+  }
 }
 
 async function getPhonicsCoach(target, heard) {
