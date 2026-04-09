@@ -292,11 +292,12 @@ function toggleNoKey(cb){
 
 async function generatePassage(style){
   if(!el('passage-input')) return;
-  if(!GEMINI_API_KEY){ showBanner('err','Paste your Gemini API key to generate passages.'); return; }
+  if(!GEMINI_API_KEY){ showBanner('err','Paste your API key to generate passages.'); return; }
   const btns = ['AI CVC','AI Simple','AI Medium'];
   showBanner('info','Generating passage…'); show('thinking-indicator');
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`;
-  const headers = { 'Content-Type':'application/json', 'X-goog-api-key': GEMINI_API_KEY };
+  const endpoint = `https://openrouter.ai/api/v1/chat/completions`;
+  const OPENROUTER_MODEL = "google/gemma-4-31b-it:free";
+  const headers = { 'Content-Type':'application/json', 'Authorization': `Bearer ${GEMINI_API_KEY}` };
 
   let prompt;
   if(style==='cvc'){
@@ -314,13 +315,19 @@ async function generatePassage(style){
       el('passage-input').value = local; el('start-btn').disabled = false; showBanner('ok','Local passage created — ready!');
       return;
     }
-    const res = await fetch(endpoint,{ method:'POST', headers, body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] }) });
+
+    const body = {
+      model: OPENROUTER_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      reasoning: { enabled: true }
+    };
+
+    const res = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(body) });
     if(!res.ok){ const t = await res.text().catch(()=>''); throw new Error(`HTTP ${res.status} ${res.statusText} ${t}`); }
     const data = await res.json();
-    const cand = data.candidates?.[0];
-    const text = cand?.content?.parts?.[0]?.text?.trim();
-    if(text){ el('passage-input').value = text; el('start-btn').disabled = false; showBanner('ok','Passage generated — ready!'); }
-    else { throw new Error('No text returned'); }
+    const text = data.choices?.[0]?.message?.content ?? data.choices?.[0]?.message ?? null;
+    if(text){ el('passage-input').value = text.trim(); el('start-btn').disabled = false; showBanner('ok','Passage generated — ready!'); }
+    else { throw new Error('No text returned from OpenRouter'); }
   }catch(err){
     console.warn('Generate error',err);
     showBanner('err','AI generation failed — try again or paste a passage.');
@@ -364,19 +371,18 @@ End with a cheerful "Now you try!
 
 Max 10 words per line. Simple English only.`;
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`;
+    const endpoint = `https://openrouter.ai/api/v1/chat/completions`;
+    const OPENROUTER_MODEL = "google/gemma-4-26b-a4b-it:free";
     const headers = { "Content-Type": "application/json" };
-    if (GEMINI_API_KEY) headers["X-goog-api-key"] = GEMINI_API_KEY;
+    if (GEMINI_API_KEY) headers["Authorization"] = `Bearer ${GEMINI_API_KEY}`;
 
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers,
-      // Send prompt exactly in contents[].parts[].text to match the curl format
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      }),
-    });
+    const body = {
+      model: OPENROUTER_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      reasoning: { enabled: true }
+    };
 
+    const res = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(body) });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       throw new Error(`HTTP ${res.status} ${res.statusText} ${text}`);
@@ -385,22 +391,16 @@ Max 10 words per line. Simple English only.`;
     const data = await res.json();
     if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
-    const candidate = data.candidates?.[0];
-    const part = candidate?.content?.parts?.[0];
-    const text = part?.text?.trim();
-    const thoughtSignature = part?.thoughtSignature;
-    const usage = data.usageMetadata || data.usage || null;
-    const modelVersion = data.modelVersion || data.model || null;
-    const responseId = data.responseId || data.id || null;
+    const messageContent = data.choices?.[0]?.message?.content ?? data.choices?.[0]?.message ?? null;
+    const thoughtSignature = data.choices?.[0]?.message?.reasoning ?? null;
+    const responseId = data.id ?? null;
 
-    // Return a structured object that includes the raw response plus the extracted text
     return {
-      text: text ?? "Let's sound it out! Try each sound slowly, then say the whole word. Now you try! 🎉",
+      text: (typeof messageContent === 'string') ? messageContent.trim() : (messageContent || "Let's sound it out! Try each sound slowly, then say the whole word. Now you try! 🎉"),
       thoughtSignature,
-      usage,
-      modelVersion,
+      usage: data.usage ?? null,
+      modelVersion: data.model ?? null,
       responseId,
-      candidates: data.candidates ?? null,
       raw: data,
     };
   } catch (err) {
