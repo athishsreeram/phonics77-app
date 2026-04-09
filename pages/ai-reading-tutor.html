@@ -157,19 +157,38 @@
     </div>
   </div>
   <div class="info-box">
-    <strong>✨ How it works</strong><br/>
-    🎤 Say each highlighted word aloud (Chrome/Edge)<br/>
-    ⌨️ Or type your answer if no mic<br/>
-    🤖 Gemini AI coaches on first wrong attempt (key required)<br/>
-    📖 Falls back to built-in phonics if no key <br/>
-    <br/>
-    How to get your free API key:<br/>
-    1. Go to aistudio.google.com/apikey<br/>
-    2. Sign in with Google → Create API key<br/>
-    3. Paste it above — no credit card needed!
+    <strong>🔧 Configuration: OpenRouter + Google AI Studio (BYOK)</strong>
+    <p style="margin-top:6px">✨ How it works</p>
+    <ul style="margin-top:6px; text-align:left; line-height:1.6">
+      <li>🎤 Say each highlighted word aloud (best in Chrome/Edge).</li>
+      <li>⌨️ Or type your answer if you don't have a mic.</li>
+      <li>🤖 AI coaches via OpenRouter on first wrong attempt (key required).</li>
+      <li>📖 Falls back to built-in phonics if no key is provided.</li>
+    </ul>
+
+    <strong style="display:block;margin-top:10px;text-align:left">🔑 BYOK (Bring Your Own Key) — Two options</strong>
+    <ol style="text-align:left;margin-top:6px;line-height:1.6">
+      <li>
+        <strong>OpenRouter only (recommended)</strong>
+        <ol>
+          <li>Visit <a href="https://openrouter.io/keys" target="_blank" rel="noopener">openrouter.io/keys</a>.</li>
+          <li>Sign in (Google/GitHub) → Create Key → Copy it.</li>
+          <li>Paste the key into the app's OpenRouter API key field.</li>
+        </ol>
+      </li>
+      <li>
+        <strong>OpenRouter + Google AI Studio (optional)</strong>
+        <ol>
+          <li>Get your OpenRouter key (steps above).</li>
+          <li>Visit <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and create a Google AI Studio key.</li>
+          <li>Paste both keys into the app — OpenRouter as primary, Google AI Studio as fallback.</li>
+        </ol>
+      </li>
+    </ol>
+
+    <p style="margin-top:8px;text-align:left">💡 BYOK tip — Your keys stay local. OpenRouter provides free starter credit; Google AI Studio offers a free tier with limits.</p>
   </div>
   <p id="no-speech-warn" class="warn hidden">⚠️ No mic detected — use the ⌨️ Type button during reading.</p>
-</div>
 
 <!-- ═══ READING ═══ -->
 <div id="screen-reading" class="card card-wide hidden">
