@@ -151,13 +151,22 @@
       <input type="password" id="api-key-input" placeholder="Paste your Gemini API key…" oninput="onApiKeyChange()"/>
       <span id="api-badge" class="api-badge off">AI off</span>
     </div>
+    <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+      <input id="no-key-checkbox" type="checkbox" onchange="toggleNoKey(this)" />
+      <label for="no-key-checkbox" style="font-weight:600;color:var(--gray)">No API key — use built-in phonics only</label>
+    </div>
   </div>
   <div class="info-box">
     <strong>✨ How it works</strong><br/>
     🎤 Say each highlighted word aloud (Chrome/Edge)<br/>
     ⌨️ Or type your answer if no mic<br/>
     🤖 Gemini AI coaches on first wrong attempt (key required)<br/>
-    📖 Falls back to built-in phonics if no key
+    📖 Falls back to built-in phonics if no key <br/>
+    <br/>
+    How to get your free API key:<br/>
+    1. Go to aistudio.google.com/apikey<br/>
+    2. Sign in with Google → Create API key<br/>
+    3. Paste it above — no credit card needed!
   </div>
   <p id="no-speech-warn" class="warn hidden">⚠️ No mic detected — use the ⌨️ Type button during reading.</p>
 </div>
@@ -254,13 +263,31 @@
 // ── GEMINI CONFIG ──────────────────────────────────────────────────────────
 const GEMINI_MODEL = "gemini-2.0-flash";
 let GEMINI_API_KEY = "";
+let FORCE_LOCAL = false;
 
 function onApiKeyChange(){
   const v = el("api-key-input").value.trim();
   GEMINI_API_KEY = v;
+  // if user has forced local mode, ignore key visual state
   const badge = el("api-badge");
-  if(v){ badge.textContent="✓ AI on"; badge.className="api-badge ok"; }
-  else { badge.textContent="AI off"; badge.className="api-badge off"; }
+  if(FORCE_LOCAL){ if(badge){ badge.textContent="AI off"; badge.className="api-badge off"; } return; }
+  if(v){ if(badge){ badge.textContent="✓ AI on"; badge.className="api-badge ok"; } }
+  else { if(badge){ badge.textContent="AI off"; badge.className="api-badge off"; } }
+}
+
+function toggleNoKey(cb){
+  FORCE_LOCAL = !!cb.checked;
+  const keyInput = el('api-key-input');
+  const badge = el('api-badge');
+  if(FORCE_LOCAL){
+    // disable key input and switch badge
+    if(keyInput) keyInput.disabled = true;
+    if(badge){ badge.textContent = 'AI off'; badge.className = 'api-badge off'; }
+  } else {
+    if(keyInput) keyInput.disabled = false;
+    // refresh badge based on current key value
+    onApiKeyChange();
+  }
 }
 
 async function generatePassage(style){
@@ -281,6 +308,12 @@ async function generatePassage(style){
   }
 
   try{
+    if(FORCE_LOCAL || !GEMINI_API_KEY){
+      // Local generation fallback
+      const local = localGeneratePassage(style);
+      el('passage-input').value = local; el('start-btn').disabled = false; showBanner('ok','Local passage created — ready!');
+      return;
+    }
     const res = await fetch(endpoint,{ method:'POST', headers, body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] }) });
     if(!res.ok){ const t = await res.text().catch(()=>''); throw new Error(`HTTP ${res.status} ${res.statusText} ${t}`); }
     const data = await res.json();
@@ -295,6 +328,29 @@ async function generatePassage(style){
     hide('thinking-indicator');
     setTimeout(()=>{ hide('banner'); },2200);
   }
+}
+
+function localGeneratePassage(style){
+  // Simple local templates for generating short passages without AI
+  if(style==='cvc'){
+    const opts = [
+      'The cat sat on the mat. A big fat cat.',
+      'The dog ran in the sun. The dog is fun.'
+    ];
+    return opts[Math.floor(Math.random()*opts.length)];
+  }
+  if(style==='simple'){
+    const opts = [
+      'The boy has a red ball. He can run and play.',
+      'The girl likes to read. She sits by the tree.'
+    ];
+    return opts[Math.floor(Math.random()*opts.length)];
+  }
+  const opts = [
+    'Sam went to the park. He found a small frog. The frog jumped high.',
+    'Liam has a kite. The wind is strong. The kite flies high.'
+  ];
+  return opts[Math.floor(Math.random()*opts.length)];
 }
 
 async function getPhonicsCoach(target, heard) {
@@ -563,7 +619,7 @@ async function processWord(said){
     updateMicBtn(); // keep buttons disabled while thinking
 
     let tip = null;
-    if (GEMINI_API_KEY) {
+    if (!FORCE_LOCAL && GEMINI_API_KEY) {
       tip = await getPhonicsCoach(target, said);
     } else {
       tip = { text: getCoaching(target, said), thoughtSignature: null };
