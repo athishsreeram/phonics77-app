@@ -700,13 +700,13 @@ function readPhonics(){
   const w = words[cursor]; if(!w) return;
   const info = buildPhonics(w);
   if(!info){ speak(w, 0.9); return; }
-  const phonemes = info.phonemes.join(' – ');
-  const msg = `Sounds: ${phonemes}. ${info.rhymeHint}`;
-  // show in coach box temporarily
-  el("coach-text").textContent = msg;
+  // Speak only the phonics (no extra words or hints). Join with an ellipsis for a pause.
+  const phonemes = info.phonemes.join('…');
+  // show only the phonemes in the coach box temporarily
+  el("coach-text").textContent = phonemes;
   show("coach-box");
-  speak(msg, 0.8);
-  setTimeout(()=>{ hide("coach-box"); }, 4200);
+  speak(phonemes, 0.9);
+  setTimeout(()=>{ hide("coach-box"); }, 2200);
 }
 
 // ── REVIEW ────────────────────────────────────────────────────────────────
