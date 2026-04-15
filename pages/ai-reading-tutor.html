@@ -118,80 +118,96 @@
   .hard-box { background:#fff7ed; border:2px solid #fed7aa; border-radius:16px; padding:16px; margin-bottom:14px; }
   .chip-word { display:inline-block; background:#fef3c7; color:#92400e; border-radius:99px; padding:5px 14px; font-weight:700; font-size:16px; }
   .hidden { display:none !important; }
+
+  /* ── Screen management ── */
+  .screen { display:none; }
+  .screen.active { display:block; }
+
   @media(max-width:480px) {
     .card { padding:24px 16px; }
     .big-word { font-size:38px; }
     .passage { font-size:17px; }
   }
+  @media (max-width:900px) {
+    .card { max-width:92%; padding:28px 20px; border-radius:20px; }
+    .card-wide { max-width:720px; padding:26px; }
+    h1 { font-size:24px; }
+    .sub { font-size:13px; }
+    .passage { font-size:18px; line-height:2.15; }
+    .big-word { font-size:44px; }
+    .row { gap:10px; }
+    .mic-btn { padding:14px 18px; font-size:15px; }
+    .btn { padding:12px 22px; }
+    .chip { padding:8px 12px; }
+    .bar { height:10px; }
+  }
+  @media (max-width:740px) {
+    .row { flex-direction:column; gap:10px; align-items:stretch; }
+    .btn, .chip, .mic-btn { width:100%; display:block; }
+    .top-bar { flex-direction:column; align-items:flex-start; gap:10px; }
+    .bar-wrap { width:100%; margin:0; }
+    .bar { height:12px; }
+    .callout { padding:12px; }
+    .big-word { font-size:40px; }
+    .passage { font-size:19px; line-height:2; }
+    .api-row { flex-direction:column; gap:8px; }
+    #manual-row { width:100%; }
+  }
 </style>
 </head>
 <body>
 
-<!-- ═══ SETUP ═══ -->
-<div id="screen-setup" class="card">
+<!-- ═══ SETUP SCREEN ═══ -->
+<div id="screen-setup" class="card screen active">
   <div class="owl">🦉</div>
   <h1>AI Reading Tutor</h1>
   <p class="sub">No API key needed — works 100% in your browser!</p>
+
   <div style="margin-bottom:14px">
     <label for="passage-input">📖 Type or paste a passage</label>
     <textarea id="passage-input" rows="4" placeholder="e.g. The cat sat on the mat. A big fat cat."></textarea>
   </div>
+
   <div class="row" style="margin-bottom:16px">
     <button class="chip" onclick="setSample('The cat sat on a mat. It is a big fat cat.')">🐱 CVC</button>
     <button class="chip" onclick="setSample('The dog ran fast. It had a red ball. The ball was big.')">🌈 Simple</button>
     <button class="chip" onclick="setSample('Sam likes to play in the park. He can jump and run. His dog loves to play too.')">⭐ Medium</button>
-    <button class="chip" style="margin-left:8px;background:#dbeafe;color:#3730a3;font-weight:800" onclick="generatePassage('cvc')">🎲 AI CVC</button>
+    <button class="chip" style="background:#dbeafe;color:#3730a3;font-weight:800" onclick="generatePassage('cvc')">🎲 AI CVC</button>
     <button class="chip" style="background:#dbeafe;color:#3730a3;font-weight:800" onclick="generatePassage('simple')">🎲 AI Simple</button>
     <button class="chip" style="background:#dbeafe;color:#3730a3;font-weight:800" onclick="generatePassage('medium')">🎲 AI Medium</button>
   </div>
-  <button id="start-btn" class="btn" onclick="startSession()" disabled>Start Reading! 🚀</button>
+
   <div style="margin-bottom:14px">
-    <label for="api-key-input">🔑 Gemini API Key <span style="font-weight:400;color:var(--gray)">(optional — enables AI coaching)</span></label>
+    <label for="api-key-input">🔑 API Key <span style="font-weight:400;color:var(--gray)">(optional — enables AI coaching)</span></label>
     <div class="api-row">
-      <input type="password" id="api-key-input" placeholder="Paste your Gemini API key…" oninput="onApiKeyChange()"/>
+      <input type="password" id="api-key-input" placeholder="Paste your OpenRouter API key…" oninput="onApiKeyChange()"/>
       <span id="api-badge" class="api-badge off">AI off</span>
     </div>
     <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-      <input id="no-key-checkbox" type="checkbox" onchange="toggleNoKey(this)" />
-      <label for="no-key-checkbox" style="font-weight:600;color:var(--gray)">No API key — use built-in phonics only</label>
+      <input id="no-key-checkbox" type="checkbox" onchange="toggleNoKey(this)"/>
+      <label for="no-key-checkbox" style="font-weight:600;color:var(--gray);display:inline;margin:0">No API key — use built-in phonics only</label>
     </div>
   </div>
-  <div class="info-box">
-    <strong>🔧 Configuration: OpenRouter + Google AI Studio (BYOK)</strong>
-    <p style="margin-top:6px">✨ How it works</p>
-    <ul style="margin-top:6px; text-align:left; line-height:1.6">
-      <li>🎤 Say each highlighted word aloud (best in Chrome/Edge).</li>
-      <li>⌨️ Or type your answer if you don't have a mic.</li>
-      <li>🤖 AI coaches via OpenRouter on first wrong attempt (key required).</li>
-      <li>📖 Falls back to built-in phonics if no key is provided.</li>
-    </ul>
 
-    <strong style="display:block;margin-top:10px;text-align:left">🔑 BYOK (Bring Your Own Key) — Two options</strong>
-    <ol style="text-align:left;margin-top:6px;line-height:1.6">
-      <li>
-        <strong>OpenRouter only (recommended)</strong>
-        <ol>
-          <li>Visit <a href="https://openrouter.io/keys" target="_blank" rel="noopener">openrouter.io/keys</a>.</li>
-          <li>Sign in (Google/GitHub) → Create Key → Copy it.</li>
-          <li>Paste the key into the app's OpenRouter API key field.</li>
-        </ol>
-      </li>
-      <li>
-        <strong>OpenRouter + Google AI Studio (optional)</strong>
-        <ol>
-          <li>Get your OpenRouter key (steps above).</li>
-          <li>Visit <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and create a Google AI Studio key.</li>
-          <li>Paste both keys into the app — OpenRouter as primary, Google AI Studio as fallback.</li>
-        </ol>
-      </li>
-    </ol>
+  <button id="start-btn" class="btn" onclick="startSession()" disabled>Start Reading! 🚀</button>
 
-    <p style="margin-top:8px;text-align:left">💡 BYOK tip — Your keys stay local. OpenRouter provides free starter credit; Google AI Studio offers a free tier with limits.</p>
-  </div>
+  <div id="setup-banner" class="banner hidden" style="margin-top:10px"></div>
   <p id="no-speech-warn" class="warn hidden">⚠️ No mic detected — use the ⌨️ Type button during reading.</p>
 
-<!-- ═══ READING ═══ -->
-<div id="screen-reading" class="card card-wide hidden">
+  <div class="info-box">
+    <strong>How it works</strong>
+    <ul style="margin-top:6px;text-align:left;line-height:1.8;padding-left:16px">
+      <li>🎤 Say each highlighted word aloud (best in Chrome/Edge).</li>
+      <li>⌨️ Or type your answer if you don't have a mic.</li>
+      <li>🤖 AI coaches on wrong attempts (OpenRouter key required).</li>
+      <li>📖 Falls back to built-in phonics if no key is provided.</li>
+    </ul>
+  </div>
+</div><!-- END #screen-setup -->
+
+
+<!-- ═══ READING SCREEN ═══ -->
+<div id="screen-reading" class="card card-wide screen">
   <div class="top-bar">
     <span style="font-size:32px">🦉</span>
     <div class="bar-wrap">
@@ -200,22 +216,27 @@
     </div>
     <div id="badge" class="badge">⭐ 0</div>
   </div>
+
   <div id="passage-display" class="passage"></div>
+
   <div class="callout">
     <span id="target-word" class="big-word">—</span>
     <span class="callout-hint">👆 Say this word!</span>
   </div>
+
   <div class="row" style="margin-bottom:10px">
-    <button id="prev-btn" class="btn btn-sm btn-gray" style="min-width:120px" onclick="prevWord()">◀ Previous</button>
-    <button id="phonics-btn" class="chip" style="min-width:120px" onclick="readPhonics()">🔊 Phonics</button>
-    <button id="next-btn" class="btn btn-sm" style="min-width:120px" onclick="nextWord()">Next ▶</button>
+    <button id="prev-btn" class="btn btn-sm btn-gray" style="min-width:110px" onclick="prevWord()">◀ Prev</button>
+    <button id="phonics-btn" class="chip" style="min-width:110px" onclick="readPhonics()">🔊 Phonics</button>
+    <button id="next-btn" class="btn btn-sm" style="min-width:110px" onclick="nextWord()">Next ▶</button>
   </div>
+
   <div id="banner" class="banner hidden"></div>
+
   <div id="coach-box" class="coach-box hidden">
     <div class="coach-title">📖 Phonics Coach says:</div>
     <div id="coach-text" class="coach-text"></div>
-    <div id="ai-meta" class="coach-text" style="font-size:12px;color:#6b7280;margin-top:8px;display:none"></div>
   </div>
+
   <div class="dots">
     <div id="dot1" class="dot" style="background:#e5e7eb"></div>
     <span id="dot-txt" class="dot-txt hidden"></span>
@@ -224,21 +245,25 @@
       <span style="animation:none;margin-left:2px">Thinking…</span>
     </div>
   </div>
+
   <div class="row">
     <button id="mic-btn" class="mic-btn" style="background:#4f46e5;flex:2" onclick="tapMic()">🎤 Tap to Speak</button>
     <button class="mic-btn btn-gray" style="flex:1;font-size:14px" onclick="toggleManual()">⌨️ Type</button>
   </div>
-  <div id="manual-row" class="row hidden" style="margin-top:0">
+
+  <div id="manual-row" class="row hidden" style="margin-top:4px">
     <input type="text" id="manual-input" placeholder="Type the word…" style="flex:1;margin:0" onkeydown="if(event.key==='Enter')submitManual()"/>
     <button class="btn btn-sm" style="margin:0" onclick="submitManual()">Go ✓</button>
   </div>
-</div>
+</div><!-- END #screen-reading -->
 
-<!-- ═══ REVIEW ═══ -->
-<div id="screen-review" class="card hidden">
+
+<!-- ═══ REVIEW SCREEN ═══ -->
+<div id="screen-review" class="card screen">
   <div style="font-size:64px">🏆</div>
   <h1>Passage complete!</h1>
   <p id="review-sub" class="sub"></p>
+
   <div id="review-hard" class="hidden">
     <div class="hard-box">
       <p style="font-weight:700;color:#c2410c;margin-bottom:8px">Words to practise more:</p>
@@ -250,17 +275,20 @@
       <button class="btn btn-gray" onclick="gotoSetup()">All done 👋</button>
     </div>
   </div>
+
   <div id="review-perfect" class="hidden">
-    <p style="color:#059669;font-size:20px;font-weight:800">Zero mistakes — amazing! 🌟</p>
+    <p style="color:#059669;font-size:20px;font-weight:800;margin-bottom:16px">Zero mistakes — amazing! 🌟</p>
     <button class="btn" onclick="gotoSetup()">Read Another 📖</button>
   </div>
-</div>
+</div><!-- END #screen-review -->
 
-<!-- ═══ PRACTICE ═══ -->
-<div id="screen-practice" class="card hidden">
+
+<!-- ═══ PRACTICE SCREEN ═══ -->
+<div id="screen-practice" class="card screen">
   <div class="owl">🦉</div>
   <h1>Practice Mode</h1>
   <p id="practice-sub" class="sub"></p>
+
   <div id="practice-active" class="hidden">
     <div class="callout" style="margin-bottom:12px">
       <span id="practice-word" class="big-word">—</span>
@@ -271,486 +299,450 @@
     </div>
     <button id="practice-next-btn" class="btn" onclick="nextPractice()">Next Word →</button>
   </div>
+
   <div id="practice-done" class="hidden">
     <div style="font-size:56px">🎊</div>
-    <p style="font-size:20px;font-weight:800;color:#059669">All done — great work!</p>
+    <p style="font-size:20px;font-weight:800;color:#059669;margin-bottom:16px">All done — great work!</p>
     <button class="btn" onclick="gotoSetup()">New Passage 📖</button>
   </div>
-</div>
+</div><!-- END #screen-practice -->
+
 
 <script>
-// ── GEMINI CONFIG ──────────────────────────────────────────────────────────
-const GEMINI_MODEL = "gemini-2.0-flash";
+// ── SCREEN MANAGEMENT ─────────────────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('screen-' + name);
+  if (target) {
+    target.classList.add('active');
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const OPENROUTER_MODEL_GEN   = "google/gemma-4-31b-it:free";
+const OPENROUTER_MODEL_COACH = "google/gemma-3-12b-it:free";
 let GEMINI_API_KEY = "";
-let FORCE_LOCAL = false;
+let FORCE_LOCAL    = false;
 
-function onApiKeyChange(){
-  const v = el("api-key-input").value.trim();
+function onApiKeyChange() {
+  const v = document.getElementById("api-key-input").value.trim();
   GEMINI_API_KEY = v;
-  // if user has forced local mode, ignore key visual state
-  const badge = el("api-badge");
-  if(FORCE_LOCAL){ if(badge){ badge.textContent="AI off"; badge.className="api-badge off"; } return; }
-  if(v){ if(badge){ badge.textContent="✓ AI on"; badge.className="api-badge ok"; } }
-  else { if(badge){ badge.textContent="AI off"; badge.className="api-badge off"; } }
+  const badge = document.getElementById("api-badge");
+  if (FORCE_LOCAL) { badge.textContent = "AI off"; badge.className = "api-badge off"; return; }
+  if (v) { badge.textContent = "✓ AI on"; badge.className = "api-badge ok"; }
+  else   { badge.textContent = "AI off";  badge.className = "api-badge off"; }
 }
 
-function toggleNoKey(cb){
+function toggleNoKey(cb) {
   FORCE_LOCAL = !!cb.checked;
-  const keyInput = el('api-key-input');
-  const badge = el('api-badge');
-  if(FORCE_LOCAL){
-    // disable key input and switch badge
-    if(keyInput) keyInput.disabled = true;
-    if(badge){ badge.textContent = 'AI off'; badge.className = 'api-badge off'; }
-  } else {
-    if(keyInput) keyInput.disabled = false;
-    // refresh badge based on current key value
-    onApiKeyChange();
-  }
+  const keyInput = document.getElementById('api-key-input');
+  const badge    = document.getElementById('api-badge');
+  keyInput.disabled = FORCE_LOCAL;
+  if (FORCE_LOCAL) { badge.textContent = 'AI off'; badge.className = 'api-badge off'; }
+  else onApiKeyChange();
 }
 
-async function generatePassage(style){
-  if(!el('passage-input')) return;
-  if(!GEMINI_API_KEY){ showBanner('err','Paste your API key to generate passages.'); return; }
-  const btns = ['AI CVC','AI Simple','AI Medium'];
-  showBanner('info','Generating passage…'); show('thinking-indicator');
-  const endpoint = `https://openrouter.ai/api/v1/chat/completions`;
-  const OPENROUTER_MODEL = "google/gemma-4-31b-it:free";
-  const headers = { 'Content-Type':'application/json', 'Authorization': `Bearer ${GEMINI_API_KEY}` };
+// ── PASSAGE GENERATION ────────────────────────────────────────────────────
+async function generatePassage(style) {
+  const passageInput = document.getElementById('passage-input');
+  if (!GEMINI_API_KEY && !FORCE_LOCAL) {
+    showSetupBanner('err', 'Paste your API key first, or check "No API key" to use local samples.');
+    return;
+  }
+  showSetupBanner('info', 'Generating passage…');
 
-  let prompt;
-  if(style==='cvc'){
-    prompt = 'Write 2 short sentences using simple CVC words for early readers, very simple grammar. Example style: "The cat sat on the mat. A big fat cat." Keep sentences short.';
-  } else if(style==='simple'){
-    prompt = 'Write 2–3 very simple sentences for beginning readers (age 4–6). Use common words and short phrases.';
-  } else {
-    prompt = 'Write 3 short sentences (4–8 words each) for a slightly older beginner reader (age 6–8). Use simple punctuation.';
+  if (FORCE_LOCAL || !GEMINI_API_KEY) {
+    passageInput.value = localGeneratePassage(style);
+    document.getElementById('start-btn').disabled = false;
+    showSetupBanner('ok', 'Local passage ready!');
+    setTimeout(() => hideSetupBanner(), 2000);
+    return;
   }
 
-  try{
-    if(FORCE_LOCAL || !GEMINI_API_KEY){
-      // Local generation fallback
-      const local = localGeneratePassage(style);
-      el('passage-input').value = local; el('start-btn').disabled = false; showBanner('ok','Local passage created — ready!');
-      return;
-    }
+  const prompts = {
+    cvc:    'Write 2 short sentences using simple CVC words for early readers. Keep sentences very short. Example: "The cat sat on the mat. A big fat cat."',
+    simple: 'Write 2–3 very simple sentences for beginning readers (age 4–6). Use common words and short phrases.',
+    medium: 'Write 3 short sentences (4–8 words each) for a beginner reader (age 6–8). Use simple punctuation.'
+  };
 
-    const body = {
-      model: OPENROUTER_MODEL,
-      messages: [{ role: 'user', content: prompt }],
-      reasoning: { enabled: true }
-    };
-
-    const res = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(body) });
-    if(!res.ok){ const t = await res.text().catch(()=>''); throw new Error(`HTTP ${res.status} ${res.statusText} ${t}`); }
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GEMINI_API_KEY}` },
+      body: JSON.stringify({ model: OPENROUTER_MODEL_GEN, messages: [{ role: 'user', content: prompts[style] }] })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    const text = data.choices?.[0]?.message?.content ?? data.choices?.[0]?.message ?? null;
-    if(text){ el('passage-input').value = text.trim(); el('start-btn').disabled = false; showBanner('ok','Passage generated — ready!'); }
-    else { throw new Error('No text returned from OpenRouter'); }
-  }catch(err){
-    console.warn('Generate error',err);
-    showBanner('err','AI generation failed — try again or paste a passage.');
-  }finally{
-    hide('thinking-indicator');
-    setTimeout(()=>{ hide('banner'); },2200);
+    const text = data.choices?.[0]?.message?.content;
+    if (text) {
+      passageInput.value = text.trim();
+      document.getElementById('start-btn').disabled = false;
+      showSetupBanner('ok', 'Passage generated — ready!');
+    } else throw new Error('No text returned');
+  } catch (err) {
+    console.warn('Generate error', err);
+    // Fallback to local
+    passageInput.value = localGeneratePassage(style);
+    document.getElementById('start-btn').disabled = false;
+    showSetupBanner('ok', 'Used local sample (AI unavailable).');
   }
+  setTimeout(() => hideSetupBanner(), 2500);
 }
 
-function localGeneratePassage(style){
-  // Simple local templates for generating short passages without AI
-  if(style==='cvc'){
-    const opts = [
-      'The cat sat on the mat. A big fat cat.',
-      'The dog ran in the sun. The dog is fun.'
-    ];
-    return opts[Math.floor(Math.random()*opts.length)];
-  }
-  if(style==='simple'){
-    const opts = [
-      'The boy has a red ball. He can run and play.',
-      'The girl likes to read. She sits by the tree.'
-    ];
-    return opts[Math.floor(Math.random()*opts.length)];
-  }
-  const opts = [
-    'Sam went to the park. He found a small frog. The frog jumped high.',
-    'Liam has a kite. The wind is strong. The kite flies high.'
-  ];
-  return opts[Math.floor(Math.random()*opts.length)];
+function localGeneratePassage(style) {
+  const samples = {
+    cvc:    ['The cat sat on the mat. A big fat cat.', 'The dog ran in the sun. The dog is fun.'],
+    simple: ['The boy has a red ball. He can run and play.', 'The girl likes to read. She sits by the tree.'],
+    medium: ['Sam went to the park. He found a small frog. The frog jumped high.', 'Liam has a kite. The wind is strong. The kite flies high.']
+  };
+  const list = samples[style] || samples.simple;
+  return list[Math.floor(Math.random() * list.length)];
 }
 
+function showSetupBanner(kind, msg) {
+  const b = document.getElementById('setup-banner');
+  b.textContent = msg;
+  b.style.background = kind === 'ok' ? '#dcfce7' : kind === 'err' ? '#fee2e2' : '#fef9c3';
+  b.style.color       = kind === 'ok' ? '#166534' : kind === 'err' ? '#991b1b' : '#713f12';
+  b.classList.remove('hidden');
+}
+function hideSetupBanner() { document.getElementById('setup-banner').classList.add('hidden'); }
+
+// ── AI PHONICS COACH ──────────────────────────────────────────────────────
 async function getPhonicsCoach(target, heard) {
   const prompt = `You are a warm, fun phonics coach for a child aged 4–8.
-The child tried to say "${target}" but said "${heard || "something unclear"}".
-
+The child tried to say "${target}" but said "${heard || 'something unclear'}".
 Write exactly 3 short lines (no bullets, no numbers):
-Break "${target}" into its sounds, and spell each sound (e.g., "th" then "ŭ" for "the").
-Give a rhyme clue, e.g. "It rhymes with bee!"
-End with a cheerful "Now you try!
-
+1. Break "${target}" into its sounds (e.g. "c – ă – t").
+2. Give a rhyme clue (e.g. "It rhymes with bat!").
+3. End with "Now you try! 🎉"
 Max 10 words per line. Simple English only.`;
+
   try {
-    const endpoint = `https://openrouter.ai/api/v1/chat/completions`;
-    const OPENROUTER_MODEL = "google/gemma-4-26b-a4b-it:free";
-    const headers = { "Content-Type": "application/json" };
-    if (GEMINI_API_KEY) headers["Authorization"] = `Bearer ${GEMINI_API_KEY}`;
-
-    const body = {
-      model: OPENROUTER_MODEL,
-      messages: [{ role: 'user', content: prompt }],
-      reasoning: { enabled: true }
-    };
-
-    const res = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(body) });
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`HTTP ${res.status} ${res.statusText} ${text}`);
-    }
-
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GEMINI_API_KEY}` },
+      body: JSON.stringify({ model: OPENROUTER_MODEL_COACH, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-
-    const messageContent = data.choices?.[0]?.message?.content ?? data.choices?.[0]?.message ?? null;
-    const thoughtSignature = data.choices?.[0]?.message?.reasoning ?? null;
-    const responseId = data.id ?? null;
-
-    return {
-      text: (typeof messageContent === 'string') ? messageContent.trim() : (messageContent || "Let's sound it out! Try each sound slowly, then say the whole word. Now you try! 🎉"),
-      thoughtSignature,
-      usage: data.usage ?? null,
-      modelVersion: data.model ?? null,
-      responseId,
-      raw: data,
-    };
+    const text = data.choices?.[0]?.message?.content;
+    if (text) return text.trim();
+    throw new Error('No content');
   } catch (err) {
-    // If Gemini call fails (network/CORS/server), fall back to local phonics
-    console.warn("Gemini error:", err);
-    const badge = el("api-badge");
-    if (badge) { badge.textContent = "AI unavailable"; badge.className = "api-badge off"; }
-    // Give a clearer banner for CORS/network issues in-browser
-    try { showBanner("err", "AI unreachable — using local phonics fallback."); } catch (e) {}
-    return { text: getCoaching(target, heard), thoughtSignature: null };
+    console.warn('Coach AI error:', err);
+    return getCoaching(target, heard); // fallback
   }
 }
 
-// ── PHONICS ENGINE (fallback) ───────────────────────────────────────────────
+// ── PHONICS ENGINE (local fallback) ───────────────────────────────────────
 const RHYME_FAMILIES = {
-  at:["cat","bat","hat","mat","rat","sat","fat","pat"],
-  an:["can","fan","man","pan","ran","tan","van","ban"],
-  ap:["cap","map","nap","rap","tap","zap","clap","snap"],
-  ag:["bag","rag","tag","wag","flag","drag"],
-  am:["ham","jam","ram","yam","clam","slam"],
-  ig:["big","dig","fig","jig","pig","wig","twig"],
-  in:["bin","fin","pin","sin","tin","win","chin","spin"],
-  it:["bit","fit","hit","kit","lit","pit","sit","wit"],
-  ip:["dip","hip","lip","rip","sip","tip","zip","chip","drip","skip"],
-  og:["dog","fog","hog","log","bog","frog"],
-  op:["cop","hop","mop","pop","top","chop","drop","shop","stop"],
-  ot:["dot","got","hot","lot","not","pot","rot","shot","spot"],
-  ug:["bug","dug","hug","jug","mug","rug","tug","plug","slug"],
-  un:["bun","fun","gun","nun","run","sun","spun"],
-  ut:["but","cut","gut","hut","nut","put","rut"],
-  ay:["bay","day","hay","jay","may","pay","ray","say","way","play","stay","tray"],
-  ee:["bee","fee","see","tree","free","knee","three"],
-  igh:["high","night","right","light","fight","might","sight","tight"],
-  ow:["bow","cow","how","now","row","wow","blow","flow","show","snow","grow"],
-  oo:["boo","moo","zoo","too","cool","fool","pool","tool","moon","soon"],
+  at:['cat','bat','hat','mat','rat','sat','fat','pat'],
+  an:['can','fan','man','pan','ran','tan','van','ban'],
+  ap:['cap','map','nap','rap','tap','zap','clap','snap'],
+  ag:['bag','rag','tag','wag','flag','drag'],
+  am:['ham','jam','ram','yam','clam','slam'],
+  ig:['big','dig','fig','jig','pig','wig','twig'],
+  in:['bin','fin','pin','sin','tin','win','chin','spin'],
+  it:['bit','fit','hit','kit','lit','pit','sit','wit'],
+  ip:['dip','hip','lip','rip','sip','tip','zip','chip','drip','skip'],
+  og:['dog','fog','hog','log','bog','frog'],
+  op:['cop','hop','mop','pop','top','chop','drop','shop','stop'],
+  ot:['dot','got','hot','lot','not','pot','rot','shot','spot'],
+  ug:['bug','dug','hug','jug','mug','rug','tug','plug','slug'],
+  un:['bun','fun','gun','nun','run','sun','spun'],
+  ut:['but','cut','gut','hut','nut','put','rut'],
+  ay:['bay','day','hay','jay','may','pay','ray','say','way','play','stay','tray'],
+  ee:['bee','fee','see','tree','free','knee','three'],
+  ow:['bow','cow','how','now','row','wow','blow','flow','show','snow','grow'],
+  oo:['boo','moo','zoo','too','cool','fool','pool','tool','moon','soon'],
 };
 
 function buildPhonics(word) {
-  const w = word.toLowerCase().replace(/[^a-z]/g,"");
+  const w = word.toLowerCase().replace(/[^a-z]/g, '');
   if (!w) return null;
   const phonemes = [];
   let i = 0;
   while (i < w.length) {
-    const ch=w[i], ch2=w.slice(i,i+2), ch3=w.slice(i,i+3);
-    if(ch3==="tch"){phonemes.push("/ch/");i+=3;}
-    else if(ch2==="sh"){phonemes.push("/sh/");i+=2;}
-    else if(ch2==="ch"){phonemes.push("/ch/");i+=2;}
-    else if(ch2==="th"){phonemes.push("/th/");i+=2;}
-    else if(ch2==="ph"){phonemes.push("/f/");i+=2;}
-    else if(ch2==="wh"){phonemes.push("/w/");i+=2;}
-    else if(ch2==="ck"){phonemes.push("/k/");i+=2;}
-    else if(ch2==="ng"){phonemes.push("/ng/");i+=2;}
-    else if(ch2==="ee"){phonemes.push("/ēē/");i+=2;}
-    else if(ch2==="oo"){phonemes.push("/oo/");i+=2;}
-    else if(ch2==="ay"){phonemes.push("/āy/");i+=2;}
-    else if(ch2==="ai"){phonemes.push("/ā/");i+=2;}
-    else if(ch2==="oa"){phonemes.push("/ō/");i+=2;}
-    else if(ch2==="ou"){phonemes.push("/ow/");i+=2;}
-    else if(ch2==="ow"){phonemes.push("/ow/");i+=2;}
-    else if(ch2==="oi"){phonemes.push("/oy/");i+=2;}
-    else if(ch2==="au"){phonemes.push("/aw/");i+=2;}
-    else if(ch2==="aw"){phonemes.push("/aw/");i+=2;}
-    else if(ch==="a"){phonemes.push("/ă/");i++;}
-    else if(ch==="e"){phonemes.push("/ĕ/");i++;}
-    else if(ch==="i"){phonemes.push("/ĭ/");i++;}
-    else if(ch==="o"){phonemes.push("/ŏ/");i++;}
-    else if(ch==="u"){phonemes.push("/ŭ/");i++;}
-    else{phonemes.push("/"+ch+"/");i++;}
-  }
-  let rhymeHint=null;
-  for(const[family,members]of Object.entries(RHYME_FAMILIES)){
-    if(w.endsWith(family)&&members.includes(w)){
-      const others=members.filter(m=>m!==w).slice(0,3);
-      if(others.length)rhymeHint=`It rhymes with "${others[0]}"! (${others.join(", ")})`;
-      break;
+    const ch2 = w.slice(i, i+2), ch3 = w.slice(i, i+3);
+    if      (ch3 === 'tch')                    { phonemes.push('/ch/'); i+=3; }
+    else if (['sh','ch','th','ph','wh','ck','ng','ee','oo','ay','ai','oa','ou','ow','oi','au','aw'].includes(ch2)) {
+      const map = {sh:'/sh/',ch:'/ch/',th:'/th/',ph:'/f/',wh:'/w/',ck:'/k/',ng:'/ng/',
+                   ee:'/ēē/',oo:'/oo/',ay:'/āy/',ai:'/ā/',oa:'/ō/',ou:'/ow/',
+                   ow:'/ow/',oi:'/oy/',au:'/aw/',aw:'/aw/'};
+      phonemes.push(map[ch2]); i+=2;
+    } else {
+      const vowMap = {a:'/ă/',e:'/ĕ/',i:'/ĭ/',o:'/ŏ/',u:'/ŭ/'};
+      phonemes.push(vowMap[w[i]] || '/'+w[i]+'/'); i++;
     }
-    if(w.endsWith(family)){
-      const others=members.slice(0,2);
-      rhymeHint=`The ending sounds like "${others[0]}" and "${others[1]}"!`;
+  }
+  let rhymeHint = null;
+  for (const [family, members] of Object.entries(RHYME_FAMILIES)) {
+    if (w.endsWith(family)) {
+      const others = members.filter(m => m !== w).slice(0, 2);
+      rhymeHint = others.length ? `It rhymes with "${others[0]}"!` : `Ends like "${family}"!`;
       break;
     }
   }
-  if(!rhymeHint){const ending=w.slice(-2);rhymeHint=`Listen to the sounds: "${w[0]}…${ending}"`;}
-  return{phonemes,rhymeHint};
+  if (!rhymeHint) rhymeHint = `Listen: "${w[0]}…${w.slice(-2)}"`;
+  return { phonemes, rhymeHint };
 }
 
 function getCoaching(word, heard) {
-  const info=buildPhonics(word);
-  if(!info) return `Let's try again! Say "${word}" slowly.`;
-  const sounds=info.phonemes.join(" – ");
-  const heardLine=heard?`You said "${heard}" — let's try again!\n`:"";
+  const info = buildPhonics(word);
+  if (!info) return `Let's try again! Say "${word}" slowly. 🎉`;
+  const sounds = info.phonemes.join(' – ');
+  const heardLine = heard ? `You said "${heard}" — let's try again!\n` : '';
   return `${heardLine}Sounds: ${sounds}\n${info.rhymeHint}\nNow YOU try — say it slowly! 🎉`;
 }
 
-// ── HELPERS ────────────────────────────────────────────────────────────────
-function tokenise(text){ return text.match(/[a-zA-Z']+/g)??[]; }
-function norm(s){ return s.toLowerCase().replace(/[^a-z']/g,""); }
-function speak(text,rate=0.85){
-  if(!window.speechSynthesis)return;
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function tokenise(text) { return text.match(/[a-zA-Z']+/g) ?? []; }
+function norm(s) { return s.toLowerCase().replace(/[^a-z']/g, ''); }
+function speak(text, rate=0.85) {
+  if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);
-  u.rate=rate;
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = rate;
   window.speechSynthesis.speak(u);
 }
-function el(id){ return document.getElementById(id); }
-function show(id){ el(id).classList.remove("hidden"); }
-function hide(id){ el(id).classList.add("hidden"); }
-function showScreen(name){
-  ["setup","reading","review","practice"].forEach(s=>{
-    el("screen-"+s).classList.toggle("hidden",s!==name);
-  });
-}
+function el(id) { return document.getElementById(id); }
+function show(id) { el(id)?.classList.remove('hidden'); }
+function hide(id) { el(id)?.classList.add('hidden'); }
 
-// ── STATE ──────────────────────────────────────────────────────────────────
+// ── STATE ─────────────────────────────────────────────────────────────────
 let words=[], cursor=0, attempts=0, hardWords=[];
 let blocked=false, listening=false, noSpeech=false;
 let practiceIdx=0, rec=null;
 
-// ── SETUP EVENTS ──────────────────────────────────────────────────────────
-el("passage-input").addEventListener("input",()=>{
-  el("start-btn").disabled=!el("passage-input").value.trim();
+// ── SETUP EVENTS ─────────────────────────────────────────────────────────
+document.getElementById('passage-input').addEventListener('input', () => {
+  el('start-btn').disabled = !el('passage-input').value.trim();
 });
-function setSample(text){ el("passage-input").value=text; el("start-btn").disabled=false; }
-function gotoSetup(){ el("passage-input").value=""; el("start-btn").disabled=true; showScreen("setup"); }
+
+function setSample(text) {
+  el('passage-input').value = text;
+  el('start-btn').disabled = false;
+}
+function gotoSetup() {
+  el('passage-input').value = '';
+  el('start-btn').disabled = true;
+  showScreen('setup');
+}
 
 // ── SPEECH RECOGNITION ────────────────────────────────────────────────────
-(function initSR(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){noSpeech=true;show("no-speech-warn");return;}
-  rec=new SR();
-  rec.lang="en-US"; rec.continuous=false; rec.interimResults=false;
-  rec.onresult=e=>{const said=e.results[0]?.[0]?.transcript?.trim()??"";if(said)processWord(said);};
-  rec.onend=()=>{listening=false;updateMicBtn();};
-  rec.onerror=()=>{listening=false;updateMicBtn();};
+(function initSR() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { noSpeech = true; show('no-speech-warn'); return; }
+  rec = new SR();
+  rec.lang = 'en-US'; rec.continuous = false; rec.interimResults = false;
+  rec.onresult = e => { const said = e.results[0]?.[0]?.transcript?.trim() ?? ''; if (said) processWord(said); };
+  rec.onend = () => { listening = false; updateMicBtn(); };
+  rec.onerror = () => { listening = false; updateMicBtn(); };
 })();
 
-function updateMicBtn(){
-  const btn=el("mic-btn");
-  if(!btn)return;
-  if(noSpeech){hide("mic-btn");return;}
-  btn.textContent=listening?"🎙️ Listening…":"🎤 Tap to Speak";
-  btn.style.background=listening?"#ef4444":"#4f46e5";
-  btn.disabled=listening||blocked;
+function updateMicBtn() {
+  const btn = el('mic-btn');
+  if (!btn) return;
+  if (noSpeech) { hide('mic-btn'); return; }
+  btn.textContent = listening ? '🎙️ Listening…' : '🎤 Tap to Speak';
+  btn.style.background = listening ? '#ef4444' : '#4f46e5';
+  btn.disabled = listening || blocked;
 }
 
 // ── START SESSION ─────────────────────────────────────────────────────────
-function startSession(){
-  words=tokenise(el("passage-input").value);
-  if(!words.length)return;
-  cursor=0; attempts=0; hardWords=[]; blocked=false;
-  showScreen("reading");
-  if(noSpeech)hide("mic-btn");
-  renderPassage(); updateReadingUI();
-  hide("banner"); hide("coach-box"); hide("manual-row");
-  setTimeout(()=>speak("Let's read together! Say the highlighted word."),400);
+function startSession() {
+  words = tokenise(el('passage-input').value);
+  if (!words.length) return;
+  cursor = 0; attempts = 0; hardWords = []; blocked = false;
+  showScreen('reading');
+  if (noSpeech) hide('mic-btn');
+  renderPassage();
+  updateReadingUI();
+  hide('banner'); hide('coach-box'); hide('manual-row');
+  setTimeout(() => speak("Let's read together! Say the highlighted word."), 400);
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────
-function renderPassage(){
-  el("passage-display").innerHTML=words.map((w,i)=>`<span class="word" id="w${i}">${w}</span>`).join(" ");
+function renderPassage() {
+  el('passage-display').innerHTML = words.map((w, i) =>
+    `<span class="word" id="w${i}">${w}</span>`
+  ).join(' ');
 }
-function refreshWordStyles(){
-  words.forEach((w,i)=>{
-    const span=el("w"+i); if(!span)return;
-    span.className="word";
-    if(i===cursor)span.classList.add("word-active");
-    else if(i<cursor){span.classList.add("word-done");if(hardWords.includes(w))span.classList.add("word-hard");}
+
+function refreshWordStyles() {
+  words.forEach((w, i) => {
+    const span = el('w' + i); if (!span) return;
+    span.className = 'word';
+    if (i === cursor) span.classList.add('word-active');
+    else if (i < cursor) {
+      span.classList.add('word-done');
+      if (hardWords.includes(w)) span.classList.add('word-hard');
+    }
   });
 }
-function updateReadingUI(){
+
+function updateReadingUI() {
   refreshWordStyles();
-  const pct=words.length?Math.round((cursor/words.length)*100):0;
-  el("bar-fill").style.width=pct+"%";
-  el("bar-txt").textContent=`Word ${Math.min(cursor+1,words.length)} of ${words.length}`;
-  el("badge").textContent=`⭐ ${Math.max(0,words.length-hardWords.length)}`;
-  el("target-word").textContent=words[cursor]||"—";
+  const pct = words.length ? Math.round((cursor / words.length) * 100) : 0;
+  el('bar-fill').style.width = pct + '%';
+  el('bar-txt').textContent = `Word ${Math.min(cursor + 1, words.length)} of ${words.length}`;
+  el('badge').textContent = `⭐ ${Math.max(0, words.length - hardWords.length)}`;
+  el('target-word').textContent = words[cursor] || '—';
   updateDots(); updateMicBtn();
-  // enable/disable manual nav buttons
-  const prev = el("prev-btn"); const next = el("next-btn");
-  if(prev) prev.disabled = blocked || cursor<=0;
-  if(next) next.disabled = blocked || cursor>=words.length-1;
-  const phon = el("phonics-btn"); if(phon) phon.disabled = blocked || !words.length;
-}
-function updateDots(){
-  // Single attempt dot — orange when wrong
-  el("dot1").style.background = attempts>0 ? "#f97316" : "#e5e7eb";
-  if(attempts>0){el("dot-txt").textContent="1 try used";show("dot-txt");}
-  else hide("dot-txt");
+  el('prev-btn').disabled = blocked || cursor <= 0;
+  el('next-btn').disabled = blocked || cursor >= words.length - 1;
+  el('phonics-btn').disabled = blocked || !words.length;
 }
 
-// ── PROCESS WORD (async — calls Gemini) ───────────────────────────────────
-async function processWord(said){
-  if(blocked)return;
-  const target=words[cursor]; if(!target)return;
-  blocked=true;
+function updateDots() {
+  el('dot1').style.background = attempts > 0 ? '#f97316' : '#e5e7eb';
+  if (attempts > 0) { el('dot-txt').textContent = '1 try used'; show('dot-txt'); }
+  else hide('dot-txt');
+}
 
-  if(norm(said)===norm(target)){
+// ── PROCESS WORD ──────────────────────────────────────────────────────────
+async function processWord(said) {
+  if (blocked) return;
+  const target = words[cursor]; if (!target) return;
+  blocked = true;
+
+  if (norm(said) === norm(target)) {
     // ✅ Correct
-    showBanner("ok",`✅ "${target}" — great job!`); hide("coach-box");
-    attempts=0; speak("Great!");
-    setTimeout(()=>{
-      hide("banner"); const next=cursor+1; blocked=false;
-      if(next>=words.length){showReview();return;}
-      cursor=next; attempts=0; updateReadingUI();
-    },1200);
+    showBanner('ok', `✅ "${target}" — great job!`);
+    hide('coach-box');
+    attempts = 0;
+    speak('Great!');
+    setTimeout(() => {
+      hide('banner');
+      const next = cursor + 1;
+      blocked = false;
+      if (next >= words.length) { showReview(); return; }
+      cursor = next; attempts = 0; updateReadingUI();
+    }, 1200);
 
   } else {
-    // ❌ Wrong — 1 attempt, then AI coaches, then move on after coaching
+    // ❌ Wrong — show coaching then move on
     attempts++;
-    if(!hardWords.includes(target))hardWords.push(target);
+    if (!hardWords.includes(target)) hardWords.push(target);
     updateDots();
 
-    // Show "AI thinking" spinner while fetching
-    showBanner("err",`I heard "${said}" — let me help! 🤖`);
-    show("thinking-indicator"); hide("coach-box");
-    updateMicBtn(); // keep buttons disabled while thinking
+    showBanner('err', `I heard "${said}" — let me help! 🤖`);
+    show('thinking-indicator');
+    hide('coach-box');
+    updateMicBtn();
 
-    let tip = null;
+    let coachText;
     if (!FORCE_LOCAL && GEMINI_API_KEY) {
-      tip = await getPhonicsCoach(target, said);
+      coachText = await getPhonicsCoach(target, said);
     } else {
-      tip = { text: getCoaching(target, said), thoughtSignature: null };
+      coachText = getCoaching(target, said);
     }
 
-    hide("thinking-indicator");
-    const coachText = (typeof tip === 'string') ? tip : tip.text;
-    el("coach-text").textContent = coachText;
-    // Always hide AI metadata in the UI — show only the AI response text
-    el("ai-meta").textContent = "";
-    el("ai-meta").style.display = 'none';
-    show("coach-box");
+    hide('thinking-indicator');
+    el('coach-text').textContent = coachText;
+    show('coach-box');
     speak(coachText, 0.8);
-
-    // After 1 wrong attempt + coaching, give the word and move on
-    showBanner("info", `Let's listen and try again! The word is "${target}" 👂`);
+    showBanner('info', `The word is "${target}" — listen and try again! 👂`);
     speak(`Listen carefully. The word is ${target}.`, 0.7);
 
-    setTimeout(()=>{
-      hide("banner"); hide("coach-box");
-      const next=cursor+1; blocked=false; attempts=0;
-      if(next>=words.length){showReview();return;}
-      cursor=next; updateReadingUI();
-    }, 5000);
+    setTimeout(() => {
+      hide('banner'); hide('coach-box');
+      const next = cursor + 1;
+      blocked = false; attempts = 0;
+      if (next >= words.length) { showReview(); return; }
+      cursor = next; updateReadingUI();
+    }, 5500);
   }
 }
 
-function showBanner(kind,msg){
-  const b=el("banner"); b.textContent=msg;
-  b.style.background=kind==="ok"?"#dcfce7":kind==="err"?"#fee2e2":"#fef9c3";
-  b.style.color=kind==="ok"?"#166534":kind==="err"?"#991b1b":"#713f12";
-  show("banner");
+function showBanner(kind, msg) {
+  const b = el('banner');
+  b.textContent = msg;
+  b.style.background = kind === 'ok' ? '#dcfce7' : kind === 'err' ? '#fee2e2' : '#fef9c3';
+  b.style.color       = kind === 'ok' ? '#166534' : kind === 'err' ? '#991b1b' : '#713f12';
+  show('banner');
 }
 
 // ── MIC / MANUAL ──────────────────────────────────────────────────────────
-function tapMic(){
-  if(!rec||listening||blocked)return;
-  try{rec.abort();setTimeout(()=>{rec.start();listening=true;updateMicBtn();},80);}catch(e){}
-}
-function toggleManual(){
-  const row=el("manual-row");
-  const hidden=row.classList.toggle("hidden");
-  if(!hidden)el("manual-input").focus();
-}
-function submitManual(){
-  const v=el("manual-input").value.trim(); if(!v)return;
-  el("manual-input").value=""; hide("manual-row"); processWord(v);
+function tapMic() {
+  if (!rec || listening || blocked) return;
+  try { rec.abort(); setTimeout(() => { rec.start(); listening = true; updateMicBtn(); }, 80); }
+  catch (e) { console.warn(e); }
 }
 
-function prevWord(){
-  if(blocked) return;
-  if(cursor<=0) return;
-  // move back one word
-  cursor = Math.max(0, cursor-1);
+function toggleManual() {
+  const row = el('manual-row');
+  const hidden = row.classList.toggle('hidden');
+  if (!hidden) el('manual-input').focus();
+}
+
+function submitManual() {
+  const v = el('manual-input').value.trim();
+  if (!v) return;
+  el('manual-input').value = '';
+  hide('manual-row');
+  processWord(v);
+}
+
+function prevWord() {
+  if (blocked) return;
+  cursor = Math.max(0, cursor - 1);
   attempts = 0;
-  hide("banner"); hide("coach-box");
+  hide('banner'); hide('coach-box');
   updateReadingUI();
-  // speak current target to prompt the child
-  speak(el("target-word").textContent || words[cursor]);
+  speak(words[cursor] || '');
 }
 
-function nextWord(){
-  if(blocked) return;
-  const next = cursor+1;
-  if(next>=words.length){
-    showReview();
-    return;
-  }
-  cursor = next;
-  attempts = 0;
-  hide("banner"); hide("coach-box");
+function nextWord() {
+  if (blocked) return;
+  const next = cursor + 1;
+  if (next >= words.length) { showReview(); return; }
+  cursor = next; attempts = 0;
+  hide('banner'); hide('coach-box');
   updateReadingUI();
-  speak(el("target-word").textContent || words[cursor]);
+  speak(words[cursor] || '');
 }
 
-function readPhonics(){
-  if(blocked) return;
-  const w = words[cursor]; if(!w) return;
+function readPhonics() {
+  if (blocked || !words.length) return;
+  const w = words[cursor]; if (!w) return;
   const info = buildPhonics(w);
-  if(!info){ speak(w, 0.9); return; }
-  // Speak only the phonics (no extra words or hints). Join with an ellipsis for a pause.
-  const phonemes = info.phonemes.join('…');
-  // show only the phonemes in the coach box temporarily
-  el("coach-text").textContent = phonemes;
-  show("coach-box");
-  speak(phonemes, 0.9);
-  setTimeout(()=>{ hide("coach-box"); }, 2200);
+  const text = info ? info.phonemes.join('… ') : w;
+  el('coach-text').textContent = text;
+  show('coach-box');
+  speak(text, 0.85);
+  setTimeout(() => hide('coach-box'), 2500);
 }
 
 // ── REVIEW ────────────────────────────────────────────────────────────────
-function showReview(){
-  const stars=Math.max(0,words.length-hardWords.length);
-  el("review-sub").textContent=`${words.length} words · ${stars} ⭐ earned`;
-  showScreen("review");
-  if(hardWords.length>0){
-    el("hard-chips").innerHTML=hardWords.map(w=>`<span class="chip-word">${w}</span>`).join("");
-    show("review-hard"); hide("review-perfect");
-  } else { hide("review-hard"); show("review-perfect"); }
+function showReview() {
+  const stars = Math.max(0, words.length - hardWords.length);
+  el('review-sub').textContent = `${words.length} words · ${stars} ⭐ earned`;
+  showScreen('review');
+  if (hardWords.length > 0) {
+    el('hard-chips').innerHTML = hardWords.map(w => `<span class="chip-word">${w}</span>`).join('');
+    show('review-hard'); hide('review-perfect');
+  } else {
+    hide('review-hard'); show('review-perfect');
+  }
 }
 
-// ── PRACTICE ──────────────────────────────────────────────────────────────
-function startPractice(){ practiceIdx=0; showScreen("practice"); loadPracticeWord(); }
-function loadPracticeWord(){
-  if(practiceIdx>=hardWords.length){ hide("practice-active"); show("practice-done"); return; }
-  show("practice-active"); hide("practice-done");
-  el("practice-sub").textContent=`Word ${practiceIdx+1} of ${hardWords.length}`;
-  const w=hardWords[practiceIdx];
-  el("practice-word").textContent=w;
-  el("practice-coach").textContent=getCoaching(w,"");
-  el("practice-next-btn").textContent=practiceIdx+1<hardWords.length?"Next Word →":"Finish! 🎉";
+// ── PRACTICE ─────────────────────────────────────────────────────────────
+function startPractice() { practiceIdx = 0; showScreen('practice'); loadPracticeWord(); }
+
+function loadPracticeWord() {
+  if (practiceIdx >= hardWords.length) { hide('practice-active'); show('practice-done'); return; }
+  show('practice-active'); hide('practice-done');
+  el('practice-sub').textContent = `Word ${practiceIdx + 1} of ${hardWords.length}`;
+  const w = hardWords[practiceIdx];
+  el('practice-word').textContent = w;
+  el('practice-coach').textContent = getCoaching(w, '');
+  el('practice-next-btn').textContent = practiceIdx + 1 < hardWords.length ? 'Next Word →' : 'Finish! 🎉';
 }
-function nextPractice(){ practiceIdx++; loadPracticeWord(); }
+
+function nextPractice() { practiceIdx++; loadPracticeWord(); }
 </script>
 </body>
 </html>
