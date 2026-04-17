@@ -6,11 +6,25 @@
 <title>🎯 R-Controlled Vowels · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
+.mode-toggle { display:flex; gap:10px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
+.mode-btn { padding:8px 16px; border:2px solid #ddd; border-radius:12px; background:#f0f0f0; cursor:pointer; font-weight:700; transition:all .2s; }
+.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
 .r-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; margin:24px 0; }
 .r-card { background:white; border-radius:18px; padding:20px 12px; text-align:center; box-shadow:var(--shadow-sm); cursor:pointer; border:3px solid transparent; transition:all .2s; }
 .r-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:var(--clr-primary); }
 .r-big { font-family:'Fredoka One',cursive; font-size:2.4rem; color:var(--clr-primary); }
 .r-words { font-size:.8rem; font-weight:700; color:var(--clr-text-soft); margin-top:6px; line-height:1.5; }
+.quiz-choice { display:inline-flex; align-items:center; justify-content:center; min-width:80px; padding:12px 16px; border-radius:12px; font-size:1.3rem; font-weight:700; background:#f0f0f0; cursor:pointer; border:3px solid #ddd; transition:all .2s; margin:6px; }
+.quiz-choice:hover { transform:scale(1.05); background:#e8e8e8; }
+.quiz-choice.correct { background:#86efac; border-color:#22c55e; }
+.quiz-choice.incorrect { background:#fca5a5; border-color:#ef4444; }
+.mode-section { display:none; }
+.mode-section.active { display:block; }
+.score-badge { font-family:'Fredoka One',cursive; font-size:1.2rem; color:var(--clr-primary); margin-top:12px; }
+.quiz-card { background:white; border-radius:24px; padding:32px 24px; box-shadow:var(--shadow-md); max-width:500px; margin:24px auto; }
+.progress-wrap { width:100%; height:6px; background:#e5e7eb; border-radius:3px; overflow:hidden; margin-bottom:16px; }
+.progress-bar { height:100%; background:var(--clr-primary); transition:width .3s; }
+.btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
 </style>
 </head>
 <body>
@@ -25,8 +39,64 @@
   <p>When R joins a vowel, it changes the sound!</p>
 </div>
 <main>
-  <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-top:20px">Tap a card to hear the sound and example words.</p>
-  <div class="r-grid" id="r-grid"></div>
+  <!-- BROWSE MODE -->
+  <div class="mode-section active" id="mode-browse">
+    <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-top:20px">Tap a card to hear the sound and example words.</p>
+    <div class="r-grid" id="r-grid"></div>
+  </div>
+
+  <!-- QUIZ MODE (Sort) -->
+  <div class="mode-section" id="mode-sort">
+    <div class="quiz-card">
+      <div class="mode-toggle" style="border-bottom:2px solid #eee;padding-bottom:16px;margin-bottom:16px;">
+        <button class="mode-btn active" data-mode="browse">👀 Learn</button>
+        <button class="mode-btn" data-mode="sort">🎯 Sort</button>
+        <button class="mode-btn" data-mode="fill">✏️ Fill</button>
+      </div>
+      <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);" id="sort-count">Word 1 of 5</p>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="sort-prog-bar" style="width:20%"></div>
+      </div>
+      <p style="font-size:1.2rem;font-weight:700;margin:16px 0;">Listen and choose the R pattern:</p>
+      <p style="font-size:1rem;margin:12px 0;padding:12px;background:#f3f4f6;border-radius:12px;">🔊 <span id="sort-word" style="font-weight:700;color:var(--clr-primary);">(loading...)</span></p>
+      <div id="sort-choices" style="text-align:center;"></div>
+      <div class="score-badge">✅ <span id="sort-correct">0</span>/<span id="sort-total">0</span> correct</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-sort-replay">🔊 Replay</button>
+        <button class="btn btn-accent" id="btn-sort-next">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ MODE (Fill Blank) -->
+  <div class="mode-section" id="mode-fill">
+    <div class="quiz-card">
+      <div class="mode-toggle" style="border-bottom:2px solid #eee;padding-bottom:16px;margin-bottom:16px;">
+        <button class="mode-btn" data-mode="browse">👀 Learn</button>
+        <button class="mode-btn" data-mode="sort">🎯 Sort</button>
+        <button class="mode-btn active" data-mode="fill">✏️ Fill</button>
+      </div>
+      <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);" id="fill-count">Word 1 of 5</p>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="fill-prog-bar" style="width:20%"></div>
+      </div>
+      <p style="font-size:1.2rem;font-weight:700;margin:16px 0;">Fill in the missing R pattern:</p>
+      <p style="font-size:1.4rem;margin:16px 0;padding:16px;background:#f3f4f6;border-radius:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;">
+        <span id="fill-before"></span><span style="background:yellow;padding:4px 8px;border-radius:6px;">__</span><span id="fill-after"></span>
+      </p>
+      <div id="fill-choices" style="text-align:center;"></div>
+      <div class="score-badge">✅ <span id="fill-correct">0</span>/<span id="fill-total">0</span> correct</div>
+      <div class="btn-row">
+        <button class="btn btn-accent" id="btn-fill-next">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-toggle" style="margin-top:24px;">
+    <button class="mode-btn active" data-mode="browse">👀 Learn</button>
+    <button class="mode-btn" data-mode="sort">🎯 Sort Quiz</button>
+    <button class="mode-btn" data-mode="fill">✏️ Fill Blank</button>
+  </div>
 </main>
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
@@ -42,8 +112,10 @@ const R_VOWELS = [
   { pair:'UR', sound:'ur (like fur)',    words:['fur','burn','curl','turn','purse'],   emoji:'🐱' },
 ];
 const colors = ['#ef4444','#f97316','#eab308','#22c55e','#6366f1'];
+
+// ═══════════════════════════════════════════ BROWSE MODE ═══════════════════════════════════════════
+const grid = document.getElementById('r-grid');
 R_VOWELS.forEach((rv, i) => {
-  const grid = document.getElementById('r-grid');
   const card = document.createElement('div');
   card.className = 'r-card';
   card.innerHTML = `<div class="r-big" style="color:${colors[i]}">${rv.pair}</div><div style="font-size:2rem;margin:4px 0">${rv.emoji}</div><div class="r-words">${rv.words.slice(0,4).join(' · ')}</div>`;
@@ -54,12 +126,149 @@ R_VOWELS.forEach((rv, i) => {
   });
   grid.appendChild(card);
 });
+
+// ═══════════════════════════════════════════ MODE TOGGLE ═══════════════════════════════════════════
+let currentMode = 'browse';
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.mode;
+    if (mode === currentMode) return;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`mode-${mode}`).classList.add('active');
+    currentMode = mode;
+    if (mode === 'sort' && sortIdx === 0) loadSortWord();
+    if (mode === 'fill' && fillIdx === 0) loadFillWord();
+  });
+});
+
+// ═══════════════════════════════════════════ SORT QUIZ MODE ═══════════════════════════════════════════
+let sortIdx = 0, sortCorrect = 0, sortTotal = 0;
+const allWords = R_VOWELS.flatMap(rv => rv.words);
+
+function loadSortWord() {
+  if (sortIdx >= allWords.length) {
+    sortIdx = 0;
+    UI.toast(`Sort quiz done! ${sortCorrect}/${sortTotal} correct 🎉`);
+    sortCorrect = 0;
+    sortTotal = 0;
+    return;
+  }
+  
+  const word = allWords[sortIdx];
+  const answer = R_VOWELS.find(rv => rv.words.includes(word));
+  
+  document.getElementById('sort-count').textContent = `Word ${sortIdx+1} of ${allWords.length}`;
+  document.getElementById('sort-word').textContent = word;
+  document.getElementById('sort-prog-bar').style.width = ((sortIdx+1)/allWords.length)*100 + '%';
+  document.getElementById('sort-total').textContent = sortTotal;
+  document.getElementById('sort-correct').textContent = sortCorrect;
+  
+  const choices = [answer.pair, ...R_VOWELS.filter(rv => rv !== answer).map(rv => rv.pair)];
+  UI.shuffle(choices);
+  
+  const choicesDiv = document.getElementById('sort-choices');
+  choicesDiv.innerHTML = '';
+  choices.forEach(pair => {
+    const btn = document.createElement('div');
+    btn.className = 'quiz-choice';
+    btn.textContent = pair;
+    btn.style.background = colors[R_VOWELS.findIndex(rv => rv.pair === pair)];
+    btn.style.color = 'white';
+    btn.style.borderColor = colors[R_VOWELS.findIndex(rv => rv.pair === pair)];
+    btn.addEventListener('click', () => {
+      sortTotal++;
+      if (pair === answer.pair) {
+        btn.classList.add('correct');
+        sortCorrect++;
+        UI.toast('✅ Correct!');
+      } else {
+        btn.classList.add('incorrect');
+        UI.toast('❌ Try again!');
+      }
+      document.querySelectorAll('#sort-choices .quiz-choice').forEach(b => b.style.pointerEvents = 'none');
+      setTimeout(() => { sortIdx++; loadSortWord(); }, 800);
+    });
+    choicesDiv.appendChild(btn);
+  });
+}
+
+document.getElementById('btn-sort-replay').addEventListener('click', () => {
+  AudioManager.speak(allWords[sortIdx], {rate:.75});
+});
+document.getElementById('btn-sort-next').addEventListener('click', () => {
+  sortIdx++;
+  loadSortWord();
+});
+
+// ═══════════════════════════════════════════ FILL BLANK MODE ═══════════════════════════════════════════
+let fillIdx = 0, fillCorrect = 0, fillTotal = 0;
+
+function loadFillWord() {
+  if (fillIdx >= allWords.length) {
+    fillIdx = 0;
+    UI.toast(`Fill quiz done! ${fillCorrect}/${fillTotal} correct 🎉`);
+    fillCorrect = 0;
+    fillTotal = 0;
+    return;
+  }
+  
+  const word = allWords[fillIdx];
+  const answer = R_VOWELS.find(rv => rv.words.includes(word));
+  const pairPos = word.search(/[aeiou]r/i);
+  
+  if (pairPos === -1) { fillIdx++; loadFillWord(); return; }
+  
+  const before = word.substring(0, pairPos);
+  const after = word.substring(pairPos + 2);
+  
+  document.getElementById('fill-count').textContent = `Word ${fillIdx+1} of ${allWords.length}`;
+  document.getElementById('fill-before').textContent = before.toUpperCase();
+  document.getElementById('fill-after').textContent = after.toUpperCase();
+  document.getElementById('fill-prog-bar').style.width = ((fillIdx+1)/allWords.length)*100 + '%';
+  document.getElementById('fill-total').textContent = fillTotal;
+  document.getElementById('fill-correct').textContent = fillCorrect;
+  
+  const choices = [answer.pair, ...R_VOWELS.filter(rv => rv !== answer).map(rv => rv.pair)];
+  UI.shuffle(choices);
+  
+  const choicesDiv = document.getElementById('fill-choices');
+  choicesDiv.innerHTML = '';
+  choices.forEach(pair => {
+    const btn = document.createElement('div');
+    btn.className = 'quiz-choice';
+    btn.textContent = pair;
+    btn.style.background = colors[R_VOWELS.findIndex(rv => rv.pair === pair)];
+    btn.style.color = 'white';
+    btn.style.borderColor = colors[R_VOWELS.findIndex(rv => rv.pair === pair)];
+    btn.addEventListener('click', () => {
+      fillTotal++;
+      if (pair === answer.pair) {
+        btn.classList.add('correct');
+        fillCorrect++;
+        UI.toast('✅ Correct!');
+      } else {
+        btn.classList.add('incorrect');
+        UI.toast('❌ Try again!');
+      }
+      document.querySelectorAll('#fill-choices .quiz-choice').forEach(b => b.style.pointerEvents = 'none');
+      setTimeout(() => { fillIdx++; loadFillWord(); }, 800);
+    });
+    choicesDiv.appendChild(btn);
+  });
+}
+
+document.getElementById('btn-fill-next').addEventListener('click', () => {
+  fillIdx++;
+  loadFillWord();
+});
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("r-controlled-vowels");
 window.addEventListener('beforeunload', function() {
   if(typeof analytics!=="undefined") {
-    var s = typeof score!=="undefined" ? score : 0;
-    var t = typeof ROUNDS!=="undefined" ? ROUNDS : 10;
+    var s = sortCorrect + fillCorrect || 0;
+    var t = sortTotal + fillTotal || 10;
     analytics.trackActivityComplete("r-controlled-vowels", s, t);
   }
 });</script>

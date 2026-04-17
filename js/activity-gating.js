@@ -21,8 +21,6 @@ const activityGating = (() => {
     'r-controlled-vowels':'phonic-set2.html',
     'silent-e-words':    'magic-e.html',
     'vowel-digraphs':    'digraph_fill.html',
-    'diphthongs':        'diphthongs.html',
-    'vowel-variants':    'vowel-variants.html',
     'syllables':         'syllables.html',
     'phonics-review':    'phkids.html',
     'assessment-level-1':'word-match.html',
@@ -31,7 +29,6 @@ const activityGating = (() => {
     'parent-dashboard':  'parent-dashboard.html',
     'progress-tracker':  'trace.html',
     'alphabet-balloon':  'alphabet-ballon-pop.html',
-    'read-advanced':     'read2.html',
     'ai-reading-tutor':  'pages/ai-reading-tutor.html',
   };
 

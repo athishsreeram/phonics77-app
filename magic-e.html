@@ -16,6 +16,13 @@
 .label { font-size:.8rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--clr-text-soft); margin-top:4px; }
 .btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
 .nav-info { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:8px; }
+.quiz-choice { display:inline-flex; align-items:center; justify-content:center; min-width:100px; padding:14px 18px; border-radius:14px; font-size:1.4rem; font-weight:700; background:#f0f0f0; cursor:pointer; border:3px solid #ddd; transition:all .2s; margin:8px; }
+.quiz-choice:hover { transform:scale(1.05); background:#e8e8e8; }
+.quiz-choice.correct { background:#86efac; border-color:#22c55e; }
+.quiz-choice.incorrect { background:#fca5a5; border-color:#ef4444; }
+.mode-section { display:none; }
+.mode-section.active { display:block; }
+.score-badge { font-family:'Fredoka One',cursive; font-size:1.2rem; color:var(--clr-primary); margin-top:12px; }
 </style>
 </head>
 <body>
@@ -31,31 +38,48 @@
 </div>
 <main>
 <div class="magic-card">
-  <p class="nav-info" id="nav-info">Pair 1 of 8</p>
-  <div class="progress-wrap" style="margin-bottom:20px">
-    <div class="progress-bar" id="prog-bar" style="width:12.5%"></div>
-  </div>
-  <div class="transform-row">
-    <div class="word-box">
-      <span class="word-emoji" id="emoji1">🧢</span>
-      <div class="word-big" id="cvc-word" style="color:#22c55e">cap</div>
-      <div class="label">Short vowel</div>
+  <!-- BROWSE MODE -->
+  <div class="mode-section active" id="mode-browse">
+    <p class="nav-info" id="nav-info">Pair 1 of 8</p>
+    <div class="progress-wrap" style="margin-bottom:20px">
+      <div class="progress-bar" id="prog-bar" style="width:12.5%"></div>
     </div>
-    <div class="arrow-box">→ + E →</div>
-    <div class="word-box">
-      <span class="word-emoji" id="emoji2">🦸</span>
-      <div class="word-big" id="magic-word" style="color:var(--clr-primary)">cap<span class="magic-e-highlight">e</span></div>
-      <div class="label">Long vowel!</div>
+    <div class="transform-row">
+      <div class="word-box">
+        <span class="word-emoji" id="emoji1">🧢</span>
+        <div class="word-big" id="cvc-word" style="color:#22c55e">cap</div>
+        <div class="label">Short vowel</div>
+      </div>
+      <div class="arrow-box">→ + E →</div>
+      <div class="word-box">
+        <span class="word-emoji" id="emoji2">🦸</span>
+        <div class="word-big" id="magic-word" style="color:var(--clr-primary)">cap<span class="magic-e-highlight">e</span></div>
+        <div class="label">Long vowel!</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="btn-say1">🔊 Say "<span id="lbl1">cap</span>"</button>
+      <button class="btn btn-primary" id="btn-say2">🔊 Say "<span id="lbl2">cape</span>"</button>
+      <button class="btn btn-accent" id="btn-both">🔊 Both</button>
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-secondary" id="btn-prev">← Prev</button>
+      <button class="btn btn-green" id="btn-next">Next →</button>
     </div>
   </div>
-  <div class="btn-row">
-    <button class="btn btn-secondary" id="btn-say1">🔊 Say "<span id="lbl1">cap</span>"</button>
-    <button class="btn btn-primary" id="btn-say2">🔊 Say "<span id="lbl2">cape</span>"</button>
-    <button class="btn btn-accent" id="btn-both">🔊 Both</button>
-  </div>
-  <div class="btn-row" style="margin-top:12px">
-    <button class="btn btn-secondary" id="btn-prev">← Prev</button>
-    <button class="btn btn-green" id="btn-next">Next →</button>
+
+  <!-- QUIZ MODE (after every 3 pairs) -->
+  <div class="mode-section" id="mode-quiz">
+    <p class="nav-info" id="quiz-info">Quiz • Pair 1</p>
+    <div class="progress-wrap" style="margin-bottom:20px">
+      <div class="progress-bar" id="quiz-prog-bar"></div>
+    </div>
+    <p style="font-size:1.1rem;font-weight:700;margin:12px 0;">Add magic E to <span id="quiz-cvc" style="color:#22c55e;font-family:'Fredoka One',cursive;font-size:1.6rem;">cap</span>. What word do you get?</p>
+    <div id="quiz-choices"></div>
+    <div class="score-badge">✅ <span id="quiz-correct">0</span>/<span id="quiz-total">0</span> correct</div>
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn btn-accent" id="btn-quiz-next">Next →</button>
+    </div>
   </div>
 </div>
 </main>
@@ -67,36 +91,128 @@
 <script src="js/ui.js"></script>
 <script>
 const PAIRS = PHONICS_DATA.magicE;
-let idx = 0;
+let browseIdx = 0, quizIdx = 0;
+let quizCorrect = 0, quizTotal = 0;
+let pairsSeen = 0;
 
-function render() {
-  const p = PAIRS[idx];
-  document.getElementById('nav-info').textContent   = `Pair ${idx+1} of ${PAIRS.length}`;
+function shouldShowQuiz() {
+  return pairsSeen > 0 && pairsSeen % 3 === 0;
+}
+
+// ═══════════════════════════════════════════ BROWSE MODE ═══════════════════════════════════════════
+function renderBrowse() {
+  const p = PAIRS[browseIdx];
+  document.getElementById('nav-info').textContent   = `Pair ${browseIdx+1} of ${PAIRS.length}`;
   document.getElementById('emoji1').textContent     = p.emoji1;
   document.getElementById('emoji2').textContent     = p.emoji2;
   document.getElementById('cvc-word').innerHTML     = p.cvc;
   document.getElementById('magic-word').innerHTML   = `${p.magic.slice(0,-1)}<span class="magic-e-highlight">e</span>`;
   document.getElementById('lbl1').textContent       = p.cvc;
   document.getElementById('lbl2').textContent       = p.magic;
-  UI.updateProgress(document.getElementById('prog-bar'), idx+1, PAIRS.length);
+  UI.updateProgress(document.getElementById('prog-bar'), browseIdx+1, PAIRS.length);
+  
+  // Check if next should show quiz
+  pairsSeen++;
+  if (shouldShowQuiz()) {
+    setTimeout(() => { switchToQuiz(); }, 600);
+  }
 }
 
-document.getElementById('btn-say1').addEventListener('click', () => AudioManager.speak(PAIRS[idx].cvc,  {rate:.75}));
-document.getElementById('btn-say2').addEventListener('click', () => AudioManager.speak(PAIRS[idx].magic,{rate:.75}));
+document.getElementById('btn-say1').addEventListener('click', () => AudioManager.speak(PAIRS[browseIdx].cvc, {rate:.75}));
+document.getElementById('btn-say2').addEventListener('click', () => AudioManager.speak(PAIRS[browseIdx].magic, {rate:.75}));
 document.getElementById('btn-both').addEventListener('click', () => {
-  const p = PAIRS[idx];
+  const p = PAIRS[browseIdx];
   AudioManager.speak(`${p.cvc}... ${p.magic}`, {rate:.7});
 });
-document.getElementById('btn-prev').addEventListener('click', () => { idx=(idx-1+PAIRS.length)%PAIRS.length; render(); });
-document.getElementById('btn-next').addEventListener('click', () => { idx=(idx+1)%PAIRS.length; render(); });
+document.getElementById('btn-prev').addEventListener('click', () => {
+  browseIdx=(browseIdx-1+PAIRS.length)%PAIRS.length;
+  renderBrowse();
+});
+document.getElementById('btn-next').addEventListener('click', () => {
+  browseIdx=(browseIdx+1)%PAIRS.length;
+  renderBrowse();
+});
 
-render();
+// ═══════════════════════════════════════════ QUIZ MODE ═══════════════════════════════════════════
+function switchToQuiz() {
+  document.getElementById('mode-browse').classList.remove('active');
+  document.getElementById('mode-quiz').classList.add('active');
+  loadQuizQuestion();
+}
+
+function loadQuizQuestion() {
+  if (quizIdx >= PAIRS.length) {
+    quizIdx = 0;
+    UI.toast(`Quiz done! ${quizCorrect}/${quizTotal} correct 🎉`);
+    quizCorrect = 0;
+    quizTotal = 0;
+    pairsSeen = 0;
+    switchToBrowse();
+    return;
+  }
+  
+  const currentPair = PAIRS[quizIdx];
+  const answer = currentPair.magic;
+  
+  document.getElementById('quiz-info').textContent = `Quiz • Pair ${quizIdx+1}`;
+  document.getElementById('quiz-cvc').textContent = currentPair.cvc;
+  UI.updateProgress(document.getElementById('quiz-prog-bar'), quizIdx+1, PAIRS.length);
+  document.getElementById('quiz-correct').textContent = quizCorrect;
+  document.getElementById('quiz-total').textContent = quizTotal;
+  
+  // Generate 3 choices: correct + 2 random magic-e words
+  const choices = [answer];
+  const otherPairs = PAIRS.filter((p, i) => i !== quizIdx);
+  while (choices.length < 3 && otherPairs.length > 0) {
+    const rand = otherPairs[Math.floor(Math.random() * otherPairs.length)];
+    if (!choices.includes(rand.magic)) {
+      choices.push(rand.magic);
+      otherPairs.splice(otherPairs.indexOf(rand), 1);
+    }
+  }
+  UI.shuffle(choices);
+  
+  const choicesDiv = document.getElementById('quiz-choices');
+  choicesDiv.innerHTML = '';
+  choices.forEach(word => {
+    const btn = document.createElement('div');
+    btn.className = 'quiz-choice';
+    btn.textContent = word;
+    btn.addEventListener('click', () => {
+      quizTotal++;
+      if (word === answer) {
+        btn.classList.add('correct');
+        quizCorrect++;
+        UI.toast('✅ Correct!');
+      } else {
+        btn.classList.add('incorrect');
+        UI.toast('❌ Try again!');
+      }
+      document.querySelectorAll('.quiz-choice').forEach(b => b.style.pointerEvents = 'none');
+      setTimeout(() => { quizIdx++; loadQuizQuestion(); }, 800);
+    });
+    choicesDiv.appendChild(btn);
+  });
+}
+
+function switchToBrowse() {
+  document.getElementById('mode-quiz').classList.remove('active');
+  document.getElementById('mode-browse').classList.add('active');
+}
+
+document.getElementById('btn-quiz-next').addEventListener('click', () => {
+  quizIdx++;
+  loadQuizQuestion();
+});
+
+// Start
+renderBrowse();
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("silent-e-words");
 window.addEventListener('beforeunload', function() {
   if(typeof analytics!=="undefined") {
-    var s = typeof score!=="undefined" ? score : 0;
-    var t = typeof total!=="undefined" ? total : 10;
+    var s = quizCorrect || 0;
+    var t = quizTotal || 10;
     analytics.trackActivityComplete("silent-e-words", s, t);
   }
 });</script>

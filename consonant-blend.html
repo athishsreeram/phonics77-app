@@ -6,6 +6,12 @@
 <title>🔗 Consonant Blends · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
+.mode-toggle { display:flex; gap:10px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
+.mode-btn { padding:8px 16px; border:2px solid #ddd; border-radius:12px; background:#f0f0f0; cursor:pointer; font-weight:700; transition:all .2s; }
+.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
+.filter-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
+.filter-btn { padding:6px 12px; border:2px solid #ddd; border-radius:10px; background:#f0f0f0; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all .2s; }
+.filter-btn.active { background:var(--clr-secondary); color:white; border-color:var(--clr-secondary); }
 .blend-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:14px; margin:24px 0; }
 .blend-chip {
   background:white; border-radius:18px; padding:18px 10px; text-align:center;
@@ -17,6 +23,17 @@
 .blend-pair { font-family:'Fredoka One',cursive; font-size:2rem; color:var(--clr-primary); }
 .blend-emoji { font-size:1.8rem; margin:4px 0; display:block; }
 .blend-word  { font-size:.8rem; font-weight:800; color:var(--clr-text-soft); }
+.quiz-card { background:white; border-radius:24px; padding:28px 20px; box-shadow:var(--shadow-md); max-width:500px; margin:24px auto; }
+.quiz-choice { display:inline-flex; align-items:center; justify-content:center; min-width:90px; padding:12px 16px; border-radius:12px; font-size:1.2rem; font-weight:700; background:#f0f0f0; cursor:pointer; border:3px solid #ddd; transition:all .2s; margin:6px; }
+.quiz-choice:hover { transform:scale(1.05); background:#e8e8e8; }
+.quiz-choice.correct { background:#86efac; border-color:#22c55e; }
+.quiz-choice.incorrect { background:#fca5a5; border-color:#ef4444; }
+.mode-section { display:none; }
+.mode-section.active { display:block; }
+.score-badge { font-family:'Fredoka One',cursive; font-size:1.2rem; color:var(--clr-primary); margin-top:12px; }
+.progress-wrap { width:100%; height:6px; background:#e5e7eb; border-radius:3px; overflow:hidden; margin-bottom:16px; }
+.progress-bar { height:100%; background:var(--clr-primary); transition:width .3s; }
+.btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
 </style>
 </head>
 <body>
@@ -31,8 +48,59 @@
   <p>Tap a blend to hear it — learn all 22!</p>
 </div>
 <main>
-  <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-top:20px">Tap any blend to hear its sound and example word.</p>
-  <div class="blend-grid" id="blend-grid"></div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" data-mode="browse">👀 Learn</button>
+    <button class="mode-btn" data-mode="quiz-sound">🎧 Sound Quiz</button>
+    <button class="mode-btn" data-mode="quiz-word">🔤 Word Quiz</button>
+  </div>
+
+  <!-- BROWSE MODE -->
+  <div class="mode-section active" id="mode-browse">
+    <div class="filter-toggle">
+      <button class="filter-btn active" data-filter="all">All 22</button>
+      <button class="filter-btn" data-filter="l">L-blends</button>
+      <button class="filter-btn" data-filter="r">R-blends</button>
+      <button class="filter-btn" data-filter="s">S-blends</button>
+    </div>
+    <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);">Tap any blend to hear its sound and example word.</p>
+    <div class="blend-grid" id="blend-grid"></div>
+  </div>
+
+  <!-- QUIZ MODE: Sound identification -->
+  <div class="mode-section" id="mode-quiz-sound">
+    <div class="quiz-card">
+      <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);" id="sound-count">Blend 1 of 22</p>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="sound-prog-bar" style="width:4.5%"></div>
+      </div>
+      <p style="font-size:1.1rem;font-weight:700;margin:12px 0;">Listen and pick the blend:</p>
+      <p style="font-size:0.95rem;margin:12px 0;padding:10px;background:#f3f4f6;border-radius:10px;">🔊 Playing sound...</p>
+      <div id="sound-choices" style="text-align:center;"></div>
+      <div class="score-badge">✅ <span id="sound-correct">0</span>/<span id="sound-total">0</span> correct</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-sound-replay">🔊 Replay</button>
+        <button class="btn btn-accent" id="btn-sound-next">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ MODE: Word identification -->
+  <div class="mode-section" id="mode-quiz-word">
+    <div class="quiz-card">
+      <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);" id="word-count">Word 1 of 22</p>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="word-prog-bar" style="width:4.5%"></div>
+      </div>
+      <p style="font-size:1.1rem;font-weight:700;margin:12px 0;">Which blend starts this word?</p>
+      <p style="font-size:1.3rem;margin:12px 0;padding:12px;background:#f3f4f6;border-radius:10px;font-family:'Fredoka One',cursive;letter-spacing:1px;" id="word-to-guess">(loading...)</p>
+      <div id="word-choices" style="text-align:center;"></div>
+      <div class="score-badge">✅ <span id="word-correct">0</span>/<span id="word-total">0</span> correct</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-word-replay">🔊 Say word</button>
+        <button class="btn btn-accent" id="btn-word-next">Next →</button>
+      </div>
+    </div>
+  </div>
 </main>
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
@@ -41,32 +109,184 @@
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-PHONICS_DATA.consonantBlends.forEach((b, i) => {
+const BLENDS = PHONICS_DATA.consonantBlends;
+
+// Categorize blends
+const blendTypes = {
+  'l': BLENDS.filter(b => b.blend[1] === 'l'),
+  'r': BLENDS.filter(b => b.blend[1] === 'r'),
+  's': BLENDS.filter(b => b.blend[0] === 's'),
+};
+
+// ═══════════════════════════════════════════ BROWSE MODE ═══════════════════════════════════════════
+function renderBrowse(filter = 'all') {
   const grid = document.getElementById('blend-grid');
-  const chip = document.createElement('div');
-  chip.className = 'blend-chip';
-  const hue = (i * 16) % 360;
-  chip.innerHTML = `
-    <div class="blend-pair" style="color:hsl(${hue},65%,45%)">${b.blend.toUpperCase()}</div>
-    <span class="blend-emoji">${b.emoji}</span>
-    <div class="blend-word">${b.word}</div>`;
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('.blend-chip').forEach(c => c.classList.remove('playing'));
-    chip.classList.add('playing');
-    AudioManager.speak(`${b.blend}. ${b.word}`, {rate:.8});
-    setTimeout(() => chip.classList.remove('playing'), 1200);
+  grid.innerHTML = '';
+  const toShow = filter === 'all' ? BLENDS : blendTypes[filter];
+  toShow.forEach((b, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'blend-chip';
+    const hue = (BLENDS.indexOf(b) * 16) % 360;
+    chip.innerHTML = `
+      <div class="blend-pair" style="color:hsl(${hue},65%,45%)">${b.blend.toUpperCase()}</div>
+      <span class="blend-emoji">${b.emoji}</span>
+      <div class="blend-word">${b.word}</div>`;
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.blend-chip').forEach(c => c.classList.remove('playing'));
+      chip.classList.add('playing');
+      AudioManager.speak(`${b.blend}. ${b.word}`, {rate:.8});
+      setTimeout(() => chip.classList.remove('playing'), 1200);
+    });
+    grid.appendChild(chip);
   });
-  grid.appendChild(chip);
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderBrowse(btn.dataset.filter);
+  });
 });
+
+// ═══════════════════════════════════════════ MODE TOGGLE ═══════════════════════════════════════════
+let currentMode = 'browse';
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.mode;
+    if (mode === currentMode) return;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`mode-${mode}`).classList.add('active');
+    currentMode = mode;
+    if (mode === 'quiz-sound' && soundIdx === 0) loadSoundQuiz();
+    if (mode === 'quiz-word' && wordIdx === 0) loadWordQuiz();
+  });
+});
+
+// ═══════════════════════════════════════════ SOUND QUIZ MODE ═══════════════════════════════════════════
+let soundIdx = 0, soundCorrect = 0, soundTotal = 0;
+
+function loadSoundQuiz() {
+  if (soundIdx >= BLENDS.length) {
+    soundIdx = 0;
+    UI.toast(`Sound quiz done! ${soundCorrect}/${soundTotal} correct 🎉`);
+    soundCorrect = 0;
+    soundTotal = 0;
+    return;
+  }
+  
+  const blend = BLENDS[soundIdx];
+  document.getElementById('sound-count').textContent = `Blend ${soundIdx+1} of ${BLENDS.length}`;
+  document.getElementById('sound-prog-bar').style.width = ((soundIdx+1)/BLENDS.length)*100 + '%';
+  document.getElementById('sound-total').textContent = soundTotal;
+  document.getElementById('sound-correct').textContent = soundCorrect;
+  
+  // Play sound immediately
+  setTimeout(() => {
+    AudioManager.speak(`${blend.blend}`, {rate:.8});
+  }, 300);
+  
+  // Generate 4 choices
+  const choices = [blend.blend, ...UI.shuffle(BLENDS.filter(b => b !== blend)).slice(0, 3).map(b => b.blend)];
+  UI.shuffle(choices);
+  
+  const choicesDiv = document.getElementById('sound-choices');
+  choicesDiv.innerHTML = '';
+  choices.forEach(blend_str => {
+    const btn = document.createElement('div');
+    btn.className = 'quiz-choice';
+    btn.textContent = blend_str.toUpperCase();
+    btn.addEventListener('click', () => {
+      soundTotal++;
+      if (blend_str === blend.blend) {
+        btn.classList.add('correct');
+        soundCorrect++;
+        UI.toast('✅ Correct!');
+      } else {
+        btn.classList.add('incorrect');
+        UI.toast('❌ Try again!');
+      }
+      document.querySelectorAll('#sound-choices .quiz-choice').forEach(b => b.style.pointerEvents = 'none');
+      setTimeout(() => { soundIdx++; loadSoundQuiz(); }, 800);
+    });
+    choicesDiv.appendChild(btn);
+  });
+}
+
+document.getElementById('btn-sound-replay').addEventListener('click', () => {
+  AudioManager.speak(`${BLENDS[soundIdx].blend}`, {rate:.8});
+});
+document.getElementById('btn-sound-next').addEventListener('click', () => {
+  soundIdx++;
+  loadSoundQuiz();
+});
+
+// ═══════════════════════════════════════════ WORD QUIZ MODE ═══════════════════════════════════════════
+let wordIdx = 0, wordCorrect = 0, wordTotal = 0;
+
+function loadWordQuiz() {
+  if (wordIdx >= BLENDS.length) {
+    wordIdx = 0;
+    UI.toast(`Word quiz done! ${wordCorrect}/${wordTotal} correct 🎉`);
+    wordCorrect = 0;
+    wordTotal = 0;
+    return;
+  }
+  
+  const blend = BLENDS[wordIdx];
+  document.getElementById('word-count').textContent = `Word ${wordIdx+1} of ${BLENDS.length}`;
+  document.getElementById('word-to-guess').textContent = blend.word.toUpperCase();
+  document.getElementById('word-prog-bar').style.width = ((wordIdx+1)/BLENDS.length)*100 + '%';
+  document.getElementById('word-total').textContent = wordTotal;
+  document.getElementById('word-correct').textContent = wordCorrect;
+  
+  // Generate 4 choices
+  const choices = [blend.blend, ...UI.shuffle(BLENDS.filter(b => b !== blend)).slice(0, 3).map(b => b.blend)];
+  UI.shuffle(choices);
+  
+  const choicesDiv = document.getElementById('word-choices');
+  choicesDiv.innerHTML = '';
+  choices.forEach(blend_str => {
+    const btn = document.createElement('div');
+    btn.className = 'quiz-choice';
+    btn.textContent = blend_str.toUpperCase();
+    btn.addEventListener('click', () => {
+      wordTotal++;
+      if (blend_str === blend.blend) {
+        btn.classList.add('correct');
+        wordCorrect++;
+        UI.toast('✅ Correct!');
+      } else {
+        btn.classList.add('incorrect');
+        UI.toast('❌ Try again!');
+      }
+      document.querySelectorAll('#word-choices .quiz-choice').forEach(b => b.style.pointerEvents = 'none');
+      setTimeout(() => { wordIdx++; loadWordQuiz(); }, 800);
+    });
+    choicesDiv.appendChild(btn);
+  });
+}
+
+document.getElementById('btn-word-replay').addEventListener('click', () => {
+  AudioManager.speak(`${BLENDS[wordIdx].word}`, {rate:.75});
+});
+document.getElementById('btn-word-next').addEventListener('click', () => {
+  wordIdx++;
+  loadWordQuiz();
+});
+
+// Start
+renderBrowse();
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("consonant-blends");
 window.addEventListener('beforeunload', function() {
   if(typeof analytics!=="undefined") {
-    var s = typeof score!=="undefined" ? score : 0;
-    var t = typeof ROUNDS!=="undefined" ? ROUNDS : 10;
+    var s = soundCorrect + wordCorrect || 0;
+    var t = soundTotal + wordTotal || 10;
     analytics.trackActivityComplete("consonant-blends", s, t);
   }
-  // Curriculum: mark consonant-blends complete (fallback on unload)
   if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
     window.CurriculumManager.markActivityComplete('consonant-blends');
   }
