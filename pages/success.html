@@ -1,160 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎉 Premium Unlocked! · Phonics Hub</title>
-<link rel="stylesheet" href="../css/shared.css">
-<style>
-body {
-  display:flex; align-items:center; justify-content:center;
-  min-height:100vh; padding:20px;
-  background:linear-gradient(135deg,#667eea,#764ba2);
-}
-.card {
-  background:white; border-radius:28px; padding:48px 28px;
-  text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.25);
-  max-width:460px; width:100%; animation:fadeIn .5s ease;
-}
-.icon  { font-size:5rem; display:block; margin-bottom:16px; }
-h1     { font-family:'Fredoka One',cursive; font-size:2.2rem; color:#667eea; margin-bottom:8px; }
-.sub   { font-size:1rem; color:#666; margin-bottom:20px; }
-.perks { list-style:none; text-align:left; margin:20px 0; display:flex; flex-direction:column; gap:10px; }
-.perks li { display:flex; align-items:center; gap:10px; font-weight:700; font-size:.95rem; }
-.go-btn {
-  display:block; width:100%; padding:16px; border-radius:16px; border:none;
-  background:linear-gradient(135deg,#667eea,#764ba2); color:white;
-  font-family:'Nunito',sans-serif; font-weight:800; font-size:1.1rem;
-  cursor:pointer; text-decoration:none; margin-top:8px;
-  transition:transform .2s, box-shadow .2s;
-}
-.go-btn:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(102,126,234,.4); }
-.status-row {
-  margin-top:16px; padding:12px 16px; border-radius:12px;
-  background:#f0fdf4; border:1px solid #bbf7d0;
-  font-size:.85rem; font-weight:700; color:#15803d;
-  min-height:20px;
-}
-.status-row.warn  { background:#fffbeb; border-color:#fde68a; color:#b45309; }
-.status-row.error { background:#fef2f2; border-color:#fecaca; color:#dc2626; }
-.expiry-info { font-size:.78rem; color:#888; margin-top:8px; }
-</style>
-</head>
-<body>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>🎉 Premium Unlocked! · Phonics Hub</title><link rel="stylesheet" href="../css/shared.css">
+<style>body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:linear-gradient(135deg,#667eea,#764ba2)}.card{background:white;border-radius:28px;padding:48px 28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);max-width:460px;width:100%;animation:fadeIn .5s ease}.icon{font-size:5rem;display:block;margin-bottom:16px}h1{font-family:'Fredoka One',cursive;font-size:2.2rem;color:#667eea;margin-bottom:8px}.sub{font-size:1rem;color:#666;margin-bottom:20px}.perks{list-style:none;text-align:left;margin:20px 0;display:flex;flex-direction:column;gap:10px}.perks li{display:flex;align-items:center;gap:10px;font-weight:700;font-size:.95rem}.go-btn{display:block;width:100%;padding:16px;border-radius:16px;border:none;background:linear-gradient(135deg,#667eea,#764ba2);color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.1rem;cursor:pointer;text-decoration:none;margin-top:8px;transition:transform .2s,box-shadow .2s}.go-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,.4)}.status-row{margin-top:16px;padding:12px 16px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:.85rem;font-weight:700;color:#15803d}</style>
+</head><body>
 <div class="card">
   <span class="icon">🎉</span>
   <h1>Premium Unlocked!</h1>
-  <p class="sub">All 19+ phonics activities are now available.</p>
+  <p class="sub">All phonics activities are now available.</p>
   <ul class="perks">
-    <li>✅ 19+ interactive phonics activities</li>
+    <li>✅ All interactive phonics activities</li>
     <li>🔊 Text-to-speech on every activity</li>
-    <li>📊 Parent dashboard &amp; progress tracking</li>
+    <li>📊 Parent dashboard & progress tracking</li>
     <li>🚫 Zero ads, zero tracking</li>
     <li>📴 Works offline</li>
   </ul>
   <a href="../index.html" class="go-btn" id="go-btn">🚀 Start Learning Now!</a>
   <div class="status-row" id="status">Activating your subscription…</div>
-  <div class="expiry-info" id="expiry-info"></div>
 </div>
-
-<script src="../js/config.js"></script>
-<script src="../js/api.js"></script>
+<script src="../js/config.js"></script><script src="../js/api.js"></script>
 <script>
-(async () => {
-  const statusEl = document.getElementById('status');
-  const expiryEl = document.getElementById('expiry-info');
-  const btn      = document.getElementById('go-btn');
-  const params   = new URLSearchParams(window.location.search);
-  const sessionId = params.get('session_id');
-
-  // ── Step 1: Instant localStorage unlock ────────────────────────────────────
-  // User sees premium immediately — backend verify happens in background
-  localStorage.setItem('ph_premium',    'true');
-  localStorage.setItem('ph_premium_ts', Date.now().toString());
-
-  // ── Step 2: Countdown redirect ─────────────────────────────────────────────
-  let countdown = 5;
-  let redirectTimer;
-
-  function tick() {
-    btn.textContent = `🚀 Start Learning! (${countdown}s)`;
-    if (countdown <= 0) {
-      window.location.href = '../index.html';
-      return;
-    }
-    countdown--;
-    redirectTimer = setTimeout(tick, 1000);
-  }
+(async()=>{
+  const statusEl=document.getElementById('status');const btn=document.getElementById('go-btn');const params=new URLSearchParams(window.location.search);const sessionId=params.get('session_id');
+  localStorage.setItem('ph_premium','true');localStorage.setItem('ph_premium_ts',Date.now().toString());
+  let countdown=5;let redirectTimer;
+  function tick(){btn.textContent=`🚀 Start Learning! (${countdown}s)`;if(countdown<=0){window.location.href='../index.html';return;}countdown--;redirectTimer=setTimeout(tick,1000);}
   tick();
-
-  // ── Step 3: Verify with backend ────────────────────────────────────────────
-  if (!sessionId) {
-    statusEl.textContent = '✅ Premium active';
-    return;
-  }
-
-  try {
-    const data = await PhonicsAPI.verifySession(sessionId);
-
-    if (data && data.active) {
-      // ── Success: subscription confirmed ────────────────────────────────────
-      statusEl.textContent = '✅ Subscription verified & saved';
-      statusEl.className   = 'status-row';
-
-      // Store expiry for offline checks
-      if (data.expires_at) {
-        localStorage.setItem('ph_expires_at', data.expires_at);
-        const expDate = new Date(data.expires_at);
-        expiryEl.textContent = `Premium active until ${expDate.toLocaleDateString('en-CA', {
-          year: 'numeric', month: 'long', day: 'numeric'
-        })}`;
-      }
-
-      // Register user row if email returned from Stripe
-      if (data.email) {
-        localStorage.setItem('ph_email', data.email);
-        PhonicsAPI.registerUser(data.email, null, null).catch(() => {});
-      }
-
-      // Log purchase event
-      PhonicsAPI.logEvent('purchase_complete', {
-        data: {
-          session_id: sessionId,
-          status:     data.status,
-          expires_at: data.expires_at,
-          email:      data.email || localStorage.getItem('ph_email'),
-        },
-      });
-
-      // Speed up redirect — verified, no need to wait
-      clearTimeout(redirectTimer);
-      countdown = 2;
-      tick();
-
-    } else {
-      // ── Payment processing / not yet confirmed ──────────────────────────
-      // Premium is already set in localStorage so user has access
-      statusEl.textContent = '✅ Premium active — sync in progress';
-      statusEl.className   = 'status-row warn';
-      expiryEl.textContent = 'Your subscription will be fully confirmed within a minute.';
-
-      PhonicsAPI.logEvent('purchase_pending', {
-        data: { session_id: sessionId },
-      });
-    }
-
-  } catch (e) {
-    // ── API error — localStorage premium still grants access ───────────────
-    console.warn('[success] verify error:', e.message);
-    statusEl.textContent = '✅ Premium active';
-    statusEl.className   = 'status-row';
-    expiryEl.textContent = 'Your subscription is active. Sync will complete in the background.';
-
-    PhonicsAPI.logEvent('purchase_verify_failed', {
-      data: { session_id: sessionId, error: e.message },
-    });
-  }
+  if(!sessionId){statusEl.textContent='✅ Premium active';return;}
+  try{
+    const data=await PhonicsAPI.verifySession(sessionId);
+    if(data&&data.active){statusEl.textContent='✅ Subscription verified & saved';if(data.email){localStorage.setItem('ph_email',data.email);PhonicsAPI.registerUser(data.email,null,null).catch(()=>{});}PhonicsAPI.logEvent('purchase_complete',{data:{session_id:sessionId,status:data.status,email:data.email||localStorage.getItem('ph_email')}});clearTimeout(redirectTimer);countdown=2;tick();}
+    else{statusEl.textContent='✅ Premium active — sync in progress';statusEl.style.background='#fffbeb';statusEl.style.color='#92400e';}
+  }catch(e){statusEl.textContent='✅ Premium active';}
 })();
 </script>
-</body>
-</html>
+</body></html>

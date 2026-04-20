@@ -1,43 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📈 Alphabet Tracing · Phonics Hub</title>
-<link rel="stylesheet" href="css/shared.css">
-<style>
-.trace-card { background:white; border-radius:28px; padding:32px 20px; text-align:center; box-shadow:var(--shadow-md); max-width:500px; margin:28px auto; }
-.letter-nav { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:16px; }
-.letter-show { font-family:'Fredoka One',cursive; font-size:clamp(5rem,20vw,10rem); line-height:1; }
-.canvas-wrap { position:relative; margin:0 auto; display:inline-block; }
-canvas { border:3px dashed #e5e7eb; border-radius:20px; cursor:crosshair; touch-action:none; display:block; }
-.trace-guide { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
-.trace-guide span { font-family:'Fredoka One',cursive; font-size:clamp(6rem,25vw,12rem); color:rgba(200,200,200,.35); line-height:1; }
-.info-row { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); margin-top:8px; }
-.btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
-.stroke-info { font-size:.85rem; color:var(--clr-text-soft); font-weight:700; margin:8px 0; }
-</style>
-</head>
-<body>
-<nav class="top-nav">
-  <div class="nav-left">
-    <a href="index.html" class="nav-home-btn">🏠</a>
-    <span class="nav-title">Alphabet Tracing</span>
-  </div>
-</nav>
-<div class="page-header" style="background:linear-gradient(135deg,#d946ef,#9d174d)">
-  <h1>📈 Alphabet Tracing</h1>
-  <p>Trace both uppercase and lowercase letters with your finger!</p>
-</div>
-<main>
-<div class="trace-card">
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>📈 Alphabet Tracing · Phonics Hub</title><link rel="stylesheet" href="css/shared.css">
+<style>.trace-card{background:white;border-radius:28px;padding:32px 20px;text-align:center;box-shadow:var(--shadow-md);max-width:500px;margin:28px auto}.letter-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:16px}.letter-show{font-family:'Fredoka One',cursive;font-size:clamp(5rem,20vw,10rem);line-height:1}.canvas-wrap{position:relative;margin:0 auto;display:inline-block}.trace-guide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}.trace-guide span{font-family:'Fredoka One',cursive;font-size:clamp(6rem,25vw,12rem);color:rgba(200,200,200,.35);line-height:1}canvas{border:3px dashed #e5e7eb;border-radius:20px;cursor:crosshair;touch-action:none;display:block}.info-row{font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-top:8px}.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}</style>
+</head><body>
+<nav class="top-nav"><div class="nav-left"><a href="index.html" class="nav-home-btn">🏠</a><span class="nav-title">Alphabet Tracing</span></div></nav>
+<div class="page-header" style="background:linear-gradient(135deg,#d946ef,#9d174d)"><h1>📈 Alphabet Tracing</h1><p>Trace letters with your finger!</p></div>
+<main><div class="trace-card">
   <div class="letter-nav">
     <button class="btn btn-secondary" id="btn-prev">←</button>
     <span class="letter-show" id="letter-show" style="color:#667eea">A</span>
     <button class="btn btn-secondary" id="btn-next">→</button>
   </div>
-  <div class="info-row" id="info-row">Letter 1 of 26 · A is for Apple 🍎</div>
-  <p class="stroke-info">Trace over the letter below. Press 🔊 to hear it.</p>
+  <div class="info-row" id="info-row">Letter 1 of 52 · Uppercase A is for Apple 🍎</div>
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);margin:8px 0">Trace over the letter below.</p>
   <div class="canvas-wrap">
     <div class="trace-guide"><span id="guide-letter">A</span></div>
     <canvas id="trace-canvas" width="280" height="280"></canvas>
@@ -47,79 +21,26 @@ canvas { border:3px dashed #e5e7eb; border-radius:20px; cursor:crosshair; touch-
     <button class="btn btn-secondary" id="btn-clear">🗑 Clear</button>
     <button class="btn btn-green" id="btn-done">✅ Done!</button>
   </div>
-</div>
-</main>
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/analytics.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/materials.js"></script>
-<script src="js/ui.js"></script>
+</div></main>
+<script src="js/config.js"></script><script src="js/api.js"></script><script src="js/analytics.js"></script><script src="js/audio.js"></script><script src="js/materials.js"></script><script src="js/ui.js"></script>
 <script>
-const UPPERCASE = PHONICS_DATA.alphabet;
-const LOWERCASE = PHONICS_DATA.alphabet.map(item => ({
-  l: item.l.toLowerCase(),
-  word: item.word,
-  emoji: item.emoji,
-  sound: item.sound,
-  vowel: item.vowel
-}));
-const LETTERS = [...UPPERCASE, ...LOWERCASE];
-const COLORS   = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
-let idx = 0, drawing = false;
-const canvas = document.getElementById('trace-canvas');
-const ctx    = canvas.getContext('2d');
-
-function getPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  const src  = e.touches ? e.touches[0] : e;
-  return { x: src.clientX - rect.left, y: src.clientY - rect.top };
-}
-
-function render() {
-  const d = LETTERS[idx];
-  const hue = (idx * 14) % 360;
-  const letterType = idx < 26 ? 'Uppercase' : 'Lowercase';
-  document.getElementById('letter-show').textContent  = d.l;
-  document.getElementById('letter-show').style.color  = `hsl(${hue},70%,50%)`;
-  document.getElementById('guide-letter').textContent = d.l;
-  document.getElementById('guide-letter').style.color = `hsla(${hue},60%,60%,.3)`;
-  document.getElementById('info-row').textContent     = `Letter ${idx+1} of 52 · ${letterType} ${d.l} is for ${d.word} ${d.emoji}`;
-  clearCanvas();
-}
-
-function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-
-canvas.addEventListener('mousedown',  e => { drawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
-canvas.addEventListener('mousemove',  e => { if(!drawing) return; const p=getPos(e); ctx.lineWidth=8; ctx.lineCap='round'; ctx.strokeStyle=COLORS[idx%COLORS.length]; ctx.lineTo(p.x,p.y); ctx.stroke(); });
-canvas.addEventListener('mouseup',    ()=>{ drawing=false; });
-canvas.addEventListener('mouseleave', ()=>{ drawing=false; });
-canvas.addEventListener('touchstart', e=>{ e.preventDefault(); drawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }, {passive:false});
-canvas.addEventListener('touchmove',  e=>{ e.preventDefault(); if(!drawing) return; const p=getPos(e); ctx.lineWidth=10; ctx.lineCap='round'; ctx.strokeStyle=COLORS[idx%COLORS.length]; ctx.lineTo(p.x,p.y); ctx.stroke(); }, {passive:false});
-canvas.addEventListener('touchend',   ()=>{ drawing=false; });
-
-document.getElementById('btn-prev').addEventListener('click',  ()=>{ idx=(idx-1+52)%52; render(); });
-document.getElementById('btn-next').addEventListener('click',  ()=>{ idx=(idx+1)%52; render(); });
-document.getElementById('btn-speak').addEventListener('click', ()=>{ const d=LETTERS[idx]; AudioManager.speak(`${d.l}. ${d.sound}. ${d.word}`,{rate:.75}); });
-document.getElementById('btn-clear').addEventListener('click', clearCanvas);
-document.getElementById('btn-done').addEventListener('click',  ()=>{ AudioManager.playTone('star'); UI.showFeedback(true); UI.toast(`Great tracing of ${LETTERS[idx].l}! ⭐`); });
-
-// Curriculum: mark tracing activity complete when user taps Done
-document.getElementById('btn-done').addEventListener('click', () => {
-  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
-    window.CurriculumManager.markActivityComplete('progress-tracker');
-  }
-});
-
+const UPPERCASE=PHONICS_DATA.alphabet;const LOWERCASE=PHONICS_DATA.alphabet.map(item=>({l:item.l.toLowerCase(),word:item.word,emoji:item.emoji,sound:item.sound,vowel:item.vowel}));const LETTERS=[...UPPERCASE,...LOWERCASE];const COLORS=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
+let idx=0,drawing=false;const canvas=document.getElementById('trace-canvas');const ctx=canvas.getContext('2d');
+function getPos(e){const rect=canvas.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return{x:src.clientX-rect.left,y:src.clientY-rect.top};}
+function render(){const d=LETTERS[idx];const hue=(idx*14)%360;const letterType=idx<26?'Uppercase':'Lowercase';document.getElementById('letter-show').textContent=d.l;document.getElementById('letter-show').style.color=`hsl(${hue},70%,50%)`;document.getElementById('guide-letter').textContent=d.l;document.getElementById('guide-letter').style.color=`hsla(${hue},60%,60%,.3)`;document.getElementById('info-row').textContent=`Letter ${idx+1} of 52 · ${letterType} ${d.l} is for ${d.word} ${d.emoji}`;clearCanvas();}
+function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height);}
+canvas.addEventListener('mousedown',e=>{drawing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
+canvas.addEventListener('mousemove',e=>{if(!drawing)return;const p=getPos(e);ctx.lineWidth=8;ctx.lineCap='round';ctx.strokeStyle=COLORS[idx%COLORS.length];ctx.lineTo(p.x,p.y);ctx.stroke();});
+canvas.addEventListener('mouseup',()=>{drawing=false;});canvas.addEventListener('mouseleave',()=>{drawing=false;});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();drawing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;const p=getPos(e);ctx.lineWidth=10;ctx.lineCap='round';ctx.strokeStyle=COLORS[idx%COLORS.length];ctx.lineTo(p.x,p.y);ctx.stroke();},{passive:false});
+canvas.addEventListener('touchend',()=>{drawing=false;});
+document.getElementById('btn-prev').addEventListener('click',()=>{idx=(idx-1+52)%52;render();});
+document.getElementById('btn-next').addEventListener('click',()=>{idx=(idx+1)%52;render();});
+document.getElementById('btn-speak').addEventListener('click',()=>{const d=LETTERS[idx];AudioManager.speak(`${d.l}. ${d.sound}. ${d.word}`,{rate:.75});});
+document.getElementById('btn-clear').addEventListener('click',clearCanvas);
+document.getElementById('btn-done').addEventListener('click',()=>{AudioManager.playTone('star');UI.showFeedback(true);UI.toast(`Great tracing of ${LETTERS[idx].l}! ⭐`);if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('alphabet-trace');});
 render();
 </script>
-<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("progress-tracker");
-window.addEventListener('beforeunload', function() {
-  if(typeof analytics!=="undefined") {
-    var s = typeof score!=="undefined" ? score : 0;
-    var t = typeof total!=="undefined" ? total : (typeof ROUNDS!=="undefined" ? ROUNDS : 10);
-    analytics.trackActivityComplete("alphabet-tracing", s, t);
-  }
-});</script>
-</body>
-</html>
+<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("alphabet-trace");window.addEventListener('beforeunload',function(){if(typeof analytics!=="undefined")analytics.trackActivityComplete("alphabet-tracing",0,10);});</script>
+</body></html>

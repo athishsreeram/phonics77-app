@@ -1,40 +1,9 @@
-/* css/payment.css – payment UI styles (stubs for GH Pages) */
-
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.5);
-  z-index: 900;
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-  opacity: 0; pointer-events: none;
-  transition: opacity .3s;
-}
+/* css/payment.css */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 900; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .3s; }
 .modal-overlay.open { opacity: 1; pointer-events: auto; }
-
-.modal-box {
-  background: white;
-  border-radius: 24px;
-  padding: 36px 28px;
-  max-width: 420px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25);
-}
+.modal-box { background: white; border-radius: 24px; padding: 36px 28px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
 .modal-box h2 { font-family: 'Fredoka One', cursive; font-size: 1.8rem; margin-bottom: 8px; color: #1e1e2e; }
 .modal-box p  { color: #666; margin-bottom: 20px; font-size: .95rem; }
-
-.modal-btn {
-  display: block; width: 100%;
-  background: linear-gradient(135deg,#667eea,#764ba2);
-  color: white; border: none;
-  padding: 14px; border-radius: 12px;
-  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem;
-  cursor: pointer; margin-bottom: 10px;
-  transition: transform .2s;
-}
+.modal-btn { display: block; width: 100%; background: linear-gradient(135deg,#667eea,#764ba2); color: white; border: none; padding: 14px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-bottom: 10px; transition: transform .2s; }
 .modal-btn:hover { transform: translateY(-2px); }
-
-.modal-close {
-  background: none; border: none; color: #aaa;
-  font-size: .9rem; cursor: pointer; margin-top: 8px;
-}
+.modal-close { background: none; border: none; color: #aaa; font-size: .9rem; cursor: pointer; margin-top: 8px; }

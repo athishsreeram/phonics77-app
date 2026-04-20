@@ -15,8 +15,26 @@
 .thumb-btn:hover { transform:scale(1.1); }
 .thumb-btn.know  { background:#dcfce7; border-color:var(--clr-green); }
 .thumb-btn.learn { background:#fee2e2; border-color:var(--clr-primary); }
-.stats-row { display:flex; gap:16px; justify-content:center; margin-top:20px; font-weight:700; font-size:.95rem; }
+.stats-row { display:flex; gap:12px; justify-content:center; margin-top:20px; font-weight:700; font-size:.9rem; flex-wrap:wrap; }
 .stat-pill { background:#f3f4f6; border-radius:10px; padding:6px 14px; }
+.review-badge { display:inline-block; background:#fffbeb; color:#92400e; border:2px solid #fde68a; border-radius:8px; padding:4px 12px; font-size:.78rem; font-weight:800; margin-bottom:8px; }
+/* Spelling mode */
+.spell-prompt { font-size:1rem; font-weight:800; color:var(--clr-text-soft); margin-bottom:12px; }
+.letter-tiles { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
+.letter-tile { width:52px; height:58px; border-radius:12px; background:#f3f4f6; border:3px solid #e5e7eb;
+  font-family:'Fredoka One',cursive; font-size:1.5rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all .15s; }
+.letter-tile:hover { background:#e0e7ff; border-color:var(--clr-blue); }
+.letter-tile.used { opacity:.3; pointer-events:none; }
+.answer-slots { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
+.answer-slot { width:52px; height:58px; border-radius:12px; background:white; border:3px solid #e5e7eb;
+  font-family:'Fredoka One',cursive; font-size:1.5rem; display:flex; align-items:center; justify-content:center; }
+.answer-slot.filled { border-color:var(--clr-primary); color:var(--clr-primary); }
+.answer-slot.correct-slot { border-color:var(--clr-green); background:#dcfce7; color:#15803d; }
+.answer-slot.wrong-slot   { border-color:var(--clr-primary); background:#fee2e2; color:#b91c1c; }
+.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:16px; }
+.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 16px; font-weight:800; font-size:.9rem; cursor:pointer; }
+.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
 </style>
 </head>
 <body>
@@ -31,20 +49,39 @@
   <p>High-frequency words every reader needs!</p>
 </div>
 <main>
-<div class="sw-card">
+<div class="sw-card" id="sw-card">
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="mode-flash">📖 Flashcards</button>
+    <button class="mode-btn" id="mode-spell">🔤 Spelling</button>
+  </div>
   <p class="sw-index" id="sw-index">Word 1 of 50</p>
-  <div class="progress-wrap" style="margin:12px 0 20px">
+  <div class="progress-wrap" style="margin:12px 0 8px">
     <div class="progress-bar" id="sw-bar" style="width:2%"></div>
   </div>
-  <div class="sw-word" id="sw-word">the</div>
-  <div class="btn-row">
-    <button class="btn btn-primary" id="btn-speak">🔊 Say It</button>
-    <button class="btn btn-secondary" id="btn-spell">🔤 Spell It</button>
+  <div id="review-tag" style="display:none"><div class="review-badge">🔁 Review word</div></div>
+
+  <!-- Flashcard mode -->
+  <div id="flash-mode">
+    <div class="sw-word" id="sw-word">the</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-speak">🔊 Say It</button>
+      <button class="btn btn-secondary" id="btn-spell-it">🔤 Spell It</button>
+    </div>
+    <div class="thumbs">
+      <button class="thumb-btn know"  id="btn-know">✅ Know it!</button>
+      <button class="thumb-btn learn" id="btn-learn">📚 Learning</button>
+    </div>
   </div>
-  <div class="thumbs">
-    <button class="thumb-btn know"  id="btn-know"  title="I know this!">✅ Know it!</button>
-    <button class="thumb-btn learn" id="btn-learn" title="Still learning">📚 Learning</button>
+
+  <!-- Spelling mode -->
+  <div id="spell-mode" style="display:none">
+    <p class="spell-prompt">🔊 Listen and spell the word!</p>
+    <button class="btn btn-primary" id="spell-hear" style="margin:0 auto 16px;display:block">🔊 Hear Word</button>
+    <div class="answer-slots" id="answer-slots"></div>
+    <div class="letter-tiles" id="letter-tiles"></div>
+    <button class="btn btn-secondary" id="spell-clear" style="margin-top:8px">🗑 Clear</button>
   </div>
+
   <div class="stats-row">
     <div class="stat-pill">✅ Known: <span id="known-count">0</span></div>
     <div class="stat-pill">📚 Learning: <span id="learn-count">0</span></div>
@@ -58,41 +95,153 @@
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-const WORDS = UI.shuffle([...PHONICS_DATA.sightWords]).slice(0, 50);
+const BASE_WORDS = UI.shuffle([...PHONICS_DATA.sightWords]).slice(0, 50);
+// Queue: normal words + learning-tagged words get re-inserted 2 slots later
+let queue = [...BASE_WORDS];
+let learningWords = {};  // word → remaining repeat count
 let idx = 0, known = 0, learning = 0;
+let spellingMode = false;
+let spellAnswer = [];
+const VOWELS = new Set('aeiou');
+
+function currentWord() { return queue[idx] || BASE_WORDS[0]; }
 
 function loadWord() {
-  if (idx >= WORDS.length) { endGame(); return; }
-  const w = WORDS[idx];
-  document.getElementById('sw-word').textContent  = w;
-  document.getElementById('sw-index').textContent = `Word ${idx+1} of ${WORDS.length}`;
-  UI.updateProgress(document.getElementById('sw-bar'), idx+1, WORDS.length);
-  AudioManager.speak(w, {rate:.75});
+  if (idx >= queue.length) { endGame(); return; }
+  const w = currentWord();
+  document.getElementById('sw-word').textContent = w;
+  document.getElementById('sw-index').textContent = `Word ${Math.min(idx+1, BASE_WORDS.length)} of ${BASE_WORDS.length}`;
+  UI.updateProgress(document.getElementById('sw-bar'), Math.min(idx+1, BASE_WORDS.length), BASE_WORDS.length);
+
+  const isReview = learningWords[w] > 0;
+  document.getElementById('review-tag').style.display = isReview ? 'block' : 'none';
+
+  if (spellingMode) loadSpelling(w);
 }
 
-document.getElementById('btn-speak').addEventListener('click', () => AudioManager.speak(WORDS[idx], {rate:.7}));
-document.getElementById('btn-spell').addEventListener('click', () => {
-  const spelled = WORDS[idx].split('').join(', ');
+function loadSpelling(w) {
+  // Build shuffled letter tiles
+  const letters = w.split('');
+  const shuffled = UI.shuffle([...letters]);
+  spellAnswer = new Array(letters.length).fill(null);
+
+  const slots = document.getElementById('answer-slots');
+  const tiles = document.getElementById('letter-tiles');
+  slots.innerHTML = '';
+  tiles.innerHTML = '';
+
+  letters.forEach((_, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'answer-slot'; slot.dataset.idx = i;
+    slots.appendChild(slot);
+  });
+
+  shuffled.forEach((ch, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'letter-tile'; tile.textContent = ch.toUpperCase(); tile.dataset.char = ch; tile.dataset.ti = i;
+    tile.addEventListener('click', () => {
+      if (tile.classList.contains('used')) return;
+      const emptyIdx = spellAnswer.findIndex(x => x === null);
+      if (emptyIdx === -1) return;
+      spellAnswer[emptyIdx] = { ch, tileEl: tile };
+      tile.classList.add('used');
+      const slot = slots.querySelectorAll('.answer-slot')[emptyIdx];
+      slot.textContent = ch.toUpperCase();
+      slot.classList.add('filled');
+      // Check if complete
+      if (spellAnswer.every(x => x !== null)) checkSpelling(w, letters);
+    });
+    tiles.appendChild(tile);
+  });
+
+  document.getElementById('spell-hear').onclick = () => AudioManager.speak(w, {rate:.7});
+  document.getElementById('spell-clear').onclick = () => loadSpelling(w);
+  AudioManager.speak(w, {rate:.7});
+}
+
+function checkSpelling(w, letters) {
+  const slots = document.querySelectorAll('.answer-slot');
+  let correct = true;
+  spellAnswer.forEach((entry, i) => {
+    const slot = slots[i];
+    if (entry.ch === letters[i]) {
+      slot.classList.add('correct-slot');
+    } else {
+      slot.classList.add('wrong-slot');
+      correct = false;
+    }
+  });
+  if (correct) {
+    AudioManager.playTone('correct'); UI.showFeedback(true);
+    known++;
+    document.getElementById('known-count').textContent = known;
+    setTimeout(() => { idx++; loadWord(); }, 1400);
+  } else {
+    AudioManager.playTone('wrong');
+    setTimeout(() => { loadSpelling(w); }, 1600);
+  }
+}
+
+document.getElementById('btn-speak').addEventListener('click', () => AudioManager.speak(currentWord(), {rate:.7}));
+document.getElementById('btn-spell-it').addEventListener('click', () => {
+  const spelled = currentWord().split('').join(', ');
   AudioManager.speak(spelled, {rate:.6});
 });
-document.getElementById('btn-know').addEventListener('click', () => { known++; document.getElementById('known-count').textContent = known; AudioManager.playTone('correct'); UI.showFeedback(true); idx++; loadWord(); });
-document.getElementById('btn-learn').addEventListener('click', () => { learning++; document.getElementById('learn-count').textContent = learning; idx++; loadWord(); });
+
+document.getElementById('btn-know').addEventListener('click', () => {
+  known++;
+  document.getElementById('known-count').textContent = known;
+  AudioManager.playTone('correct');
+  UI.showFeedback(true);
+  idx++;
+  loadWord();
+});
+
+document.getElementById('btn-learn').addEventListener('click', () => {
+  const w = currentWord();
+  learning++;
+  document.getElementById('learn-count').textContent = learning;
+  // Insert word again 2 and 4 positions later for spaced repetition
+  learningWords[w] = 2;
+  const insertAt1 = Math.min(idx + 2, queue.length);
+  const insertAt2 = Math.min(idx + 4, queue.length + 1);
+  queue.splice(insertAt1, 0, w);
+  queue.splice(insertAt2, 0, w);
+  idx++;
+  loadWord();
+});
+
+// Mode toggle
+document.getElementById('mode-flash').addEventListener('click', () => {
+  spellingMode = false;
+  document.getElementById('mode-flash').classList.add('active');
+  document.getElementById('mode-spell').classList.remove('active');
+  document.getElementById('flash-mode').style.display = 'block';
+  document.getElementById('spell-mode').style.display = 'none';
+  loadWord();
+});
+document.getElementById('mode-spell').addEventListener('click', () => {
+  spellingMode = true;
+  document.getElementById('mode-spell').classList.add('active');
+  document.getElementById('mode-flash').classList.remove('active');
+  document.getElementById('flash-mode').style.display = 'none';
+  document.getElementById('spell-mode').style.display = 'block';
+  loadWord();
+});
 
 function endGame() {
   document.querySelector('main').innerHTML = `
     <div class="sw-card">
       <div style="font-size:4rem;margin-bottom:16px">🏆</div>
       <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">All done!</h2>
-      <p style="font-size:1.1rem;color:#666;margin-bottom:24px">You know <strong>${known}</strong> sight words!</p>
+      <p style="font-size:1.1rem;color:#666;margin-bottom:8px">You know <strong>${known}</strong> sight words!</p>
+      <p style="font-size:.9rem;color:#aaa;margin-bottom:24px">Still learning: ${learning} words — they'll come back in the next round.</p>
       <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>
       <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>
     </div>`;
-  UI.setScore('sight-words', {stars: known, total: WORDS.length});
-  if(typeof analytics!=='undefined') analytics.trackActivityComplete('sight-words', known, WORDS.length);
-  // Curriculum: mark sight-words complete when finished
-  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
-    window.CurriculumManager.markActivityComplete('sight-words');
-  }
+  UI.setScore('sight-words', {stars: known, total: BASE_WORDS.length});
+  if(typeof analytics!=='undefined') analytics.trackActivityComplete('sight-words', known, BASE_WORDS.length);
+  if (window.CurriculumManager) window.CurriculumManager.markActivityComplete('sight-words');
 }
 
 loadWord();

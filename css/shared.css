@@ -1,11 +1,10 @@
 /* ============================================================
    Phonics Hub – shared.css
-   Used by every activity page (alphabet.html, digraphs.html …)
+   Used by every activity page
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
 
-/* ── CSS Variables ─────────────────────────────────────── */
 :root {
   --clr-primary:   #ff6b6b;
   --clr-secondary: #ffd93d;
@@ -17,176 +16,82 @@
   --clr-text-soft: #6b7280;
   --clr-bg:        #f9fafb;
   --clr-surface:   #ffffff;
-
-  /* stage palette */
-  --stage1: #ff6b6b;
-  --stage2: #ffa94d;
-  --stage3: #ffd43b;
-  --stage4: #69db7c;
-  --stage5: #4dabf7;
-  --stage6: #cc5de8;
-
+  --stage1: #ff6b6b; --stage2: #ffa94d; --stage3: #ffd43b;
+  --stage4: #69db7c; --stage5: #4dabf7; --stage6: #cc5de8;
   --shadow-sm: 0 2px 8px rgba(0,0,0,.08);
   --shadow-md: 0 6px 24px rgba(0,0,0,.12);
-
-  --radius:    16px;
-  --radius-lg: 28px;
+  --radius: 16px; --radius-lg: 28px;
 }
 
-/* ── Reset & base ──────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { font-size: 16px; -webkit-text-size-adjust: 100%; }
-
-body {
-  font-family: 'Nunito', sans-serif;
-  background: var(--clr-bg);
-  color: var(--clr-text);
-  min-height: 100vh;
-}
-
+body { font-family: 'Nunito', sans-serif; background: var(--clr-bg); color: var(--clr-text); min-height: 100vh; }
 img { max-width: 100%; display: block; }
 
-/* ── Top nav ───────────────────────────────────────────── */
 .top-nav {
   position: sticky; top: 0; z-index: 100;
-  background: var(--clr-surface);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  gap: 12px;
+  background: var(--clr-surface); box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; gap: 12px;
 }
-
 .nav-left  { display: flex; align-items: center; gap: 10px; }
 .nav-right { display: flex; align-items: center; gap: 10px; }
 
 .nav-home-btn {
-  background: #f3f4f6;
-  border: none;
-  border-radius: 12px;
-  width: 44px; height: 44px;
-  font-size: 1.4rem;
+  background: #f3f4f6; border: none; border-radius: 12px;
+  width: 44px; height: 44px; font-size: 1.4rem;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background .2s;
+  cursor: pointer; text-decoration: none; transition: background .2s;
   -webkit-tap-highlight-color: transparent;
 }
 .nav-home-btn:hover { background: #e5e7eb; }
+.nav-title { font-family: 'Fredoka One', cursive; font-size: clamp(1rem,3vw,1.4rem); color: var(--clr-text); }
 
-.nav-title {
-  font-family: 'Fredoka One', cursive;
-  font-size: clamp(1rem, 3vw, 1.4rem);
-  color: var(--clr-text);
-}
+.page-header { padding: 28px 20px 24px; text-align: center; color: white; }
+.page-header h1 { font-family: 'Fredoka One', cursive; font-size: clamp(1.6rem,5vw,2.6rem); margin-bottom: 6px; text-shadow: 0 2px 4px rgba(0,0,0,.2); }
+.page-header p  { font-size: clamp(.9rem,2.5vw,1.1rem); opacity: .92; font-weight: 600; }
 
-/* ── Page header banner ────────────────────────────────── */
-.page-header {
-  padding: 28px 20px 24px;
-  text-align: center;
-  color: white;
-}
-.page-header h1 {
-  font-family: 'Fredoka One', cursive;
-  font-size: clamp(1.6rem, 5vw, 2.6rem);
-  margin-bottom: 6px;
-  text-shadow: 0 2px 4px rgba(0,0,0,.2);
-}
-.page-header p {
-  font-size: clamp(.9rem, 2.5vw, 1.1rem);
-  opacity: .92;
-  font-weight: 600;
-}
+main { max-width: 900px; margin: 0 auto; padding: 0 16px 80px; }
 
-/* ── Main content wrapper ──────────────────────────────── */
-main {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 16px 80px;
-}
-
-/* ── Buttons ───────────────────────────────────────────── */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border: none;
-  border-radius: 14px;
-  padding: 12px 22px;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 800;
-  font-size: .95rem;
-  cursor: pointer;
-  transition: transform .15s, box-shadow .15s, background .15s;
-  -webkit-tap-highlight-color: transparent;
-  text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: none; border-radius: 14px; padding: 12px 22px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .95rem;
+  cursor: pointer; transition: transform .15s, box-shadow .15s, background .15s;
+  -webkit-tap-highlight-color: transparent; text-decoration: none;
 }
-.btn:active  { transform: translateY(2px); }
-.btn:hover   { box-shadow: 0 4px 12px rgba(0,0,0,.15); }
-
-.btn-primary  { background: var(--clr-primary);  color: white; }
+.btn:active { transform: translateY(2px); }
+.btn:hover  { box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.btn-primary   { background: var(--clr-primary);  color: white; }
 .btn-primary:hover { background: #e05a5a; }
-
 .btn-secondary { background: #e5e7eb; color: var(--clr-text); }
 .btn-secondary:hover { background: #d1d5db; }
-
-.btn-accent  { background: var(--clr-accent);  color: white; }
+.btn-accent    { background: var(--clr-accent);  color: white; }
 .btn-accent:hover { background: #55b863; }
-
-.btn-purple  { background: var(--clr-purple); color: white; }
+.btn-purple    { background: var(--clr-purple); color: white; }
 .btn-purple:hover { background: #9333ea; }
-
-.btn-green   { background: var(--clr-green);  color: white; }
+.btn-green     { background: var(--clr-green);  color: white; }
 .btn-green:hover { background: #16a34a; }
-
-.btn-blue    { background: var(--clr-blue);   color: white; }
+.btn-blue      { background: var(--clr-blue);   color: white; }
 .btn-blue:hover { background: #2563eb; }
-
 .btn-lg { padding: 14px 28px; font-size: 1.05rem; border-radius: 18px; }
 
-/* ── Progress bar ──────────────────────────────────────── */
-.progress-wrap {
-  background: #e5e7eb;
-  border-radius: 999px;
-  height: 12px;
-  overflow: hidden;
-}
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--clr-accent), var(--clr-primary));
-  border-radius: 999px;
-  transition: width .5s ease;
-}
+.progress-wrap { background: #e5e7eb; border-radius: 999px; height: 12px; overflow: hidden; }
+.progress-bar  { height: 100%; background: linear-gradient(90deg, var(--clr-accent), var(--clr-primary)); border-radius: 999px; transition: width .5s ease; }
 
-/* ── Toast / feedback overlay ──────────────────────────── */
 .toast-msg {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-  background: var(--clr-text); color: white;
-  padding: 12px 24px; border-radius: 999px;
-  font-weight: 700; font-size: .95rem;
-  z-index: 500;
-  transition: transform .3s, opacity .3s;
-  opacity: 0;
-  pointer-events: none;
-  white-space: nowrap;
+  background: var(--clr-text); color: white; padding: 12px 24px; border-radius: 999px;
+  font-weight: 700; font-size: .95rem; z-index: 500;
+  transition: transform .3s, opacity .3s; opacity: 0; pointer-events: none; white-space: nowrap;
 }
 .toast-msg.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-.feedback-flash {
-  position: fixed; inset: 0;
-  pointer-events: none;
-  z-index: 400;
-  opacity: 0;
-  transition: opacity .2s;
-}
+.feedback-flash { position: fixed; inset: 0; pointer-events: none; z-index: 400; opacity: 0; transition: opacity .2s; }
 .feedback-flash.correct { background: rgba(34,197,94,.15); }
 .feedback-flash.wrong   { background: rgba(255,107,107,.15); }
 .feedback-flash.show    { opacity: 1; }
 
-/* ── Keyframes ─────────────────────────────────────────── */
 @keyframes fadeIn   { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 @keyframes pop      { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
 @keyframes wiggle   { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-6deg)} 75%{transform:rotate(6deg)} }

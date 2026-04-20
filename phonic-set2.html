@@ -6,25 +6,22 @@
 <title>🎯 R-Controlled Vowels · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.mode-toggle { display:flex; gap:10px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
-.mode-btn { padding:8px 16px; border:2px solid #ddd; border-radius:12px; background:#f0f0f0; cursor:pointer; font-weight:700; transition:all .2s; }
-.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
 .r-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; margin:24px 0; }
 .r-card { background:white; border-radius:18px; padding:20px 12px; text-align:center; box-shadow:var(--shadow-sm); cursor:pointer; border:3px solid transparent; transition:all .2s; }
 .r-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:var(--clr-primary); }
 .r-big { font-family:'Fredoka One',cursive; font-size:2.4rem; color:var(--clr-primary); }
 .r-words { font-size:.8rem; font-weight:700; color:var(--clr-text-soft); margin-top:6px; line-height:1.5; }
-.quiz-choice { display:inline-flex; align-items:center; justify-content:center; min-width:80px; padding:12px 16px; border-radius:12px; font-size:1.3rem; font-weight:700; background:#f0f0f0; cursor:pointer; border:3px solid #ddd; transition:all .2s; margin:6px; }
-.quiz-choice:hover { transform:scale(1.05); background:#e8e8e8; }
-.quiz-choice.correct { background:#86efac; border-color:#22c55e; }
-.quiz-choice.incorrect { background:#fca5a5; border-color:#ef4444; }
-.mode-section { display:none; }
-.mode-section.active { display:block; }
-.score-badge { font-family:'Fredoka One',cursive; font-size:1.2rem; color:var(--clr-primary); margin-top:12px; }
-.quiz-card { background:white; border-radius:24px; padding:32px 24px; box-shadow:var(--shadow-md); max-width:500px; margin:24px auto; }
-.progress-wrap { width:100%; height:6px; background:#e5e7eb; border-radius:3px; overflow:hidden; margin-bottom:16px; }
-.progress-bar { height:100%; background:var(--clr-primary); transition:width .3s; }
-.btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:20px; }
+.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 16px; font-weight:800; font-size:.9rem; cursor:pointer; }
+.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
+.quiz-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:520px; margin:28px auto; }
+.quiz-word { font-family:'Fredoka One',cursive; font-size:clamp(2.5rem,10vw,5rem); color:var(--clr-text); margin:16px 0; }
+.quiz-blank { color:var(--clr-primary); border-bottom:4px solid var(--clr-primary); min-width:48px; display:inline-block; }
+.r-choices { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
+.r-choice { background:#f3f4f6; border:3px solid transparent; border-radius:14px; padding:12px 18px;
+  font-family:'Fredoka One',cursive; font-size:1.6rem; cursor:pointer; transition:all .15s; }
+.r-choice.correct { background:#dcfce7; border-color:var(--clr-green); }
+.r-choice.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
 </style>
 </head>
 <body>
@@ -39,63 +36,31 @@
   <p>When R joins a vowel, it changes the sound!</p>
 </div>
 <main>
-  <!-- BROWSE MODE -->
-  <div class="mode-section active" id="mode-browse">
-    <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-top:20px">Tap a card to hear the sound and example words.</p>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="mode-browse">📖 Study</button>
+    <button class="mode-btn" id="mode-quiz">🎯 Quiz</button>
+  </div>
+
+  <!-- Browse mode -->
+  <div id="browse-section">
+    <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-bottom:12px">Tap a card to hear the sound and example words.</p>
     <div class="r-grid" id="r-grid"></div>
   </div>
 
-  <!-- QUIZ MODE (Sort) -->
-  <div class="mode-section" id="mode-sort">
+  <!-- Quiz mode -->
+  <div id="quiz-section" style="display:none">
     <div class="quiz-card">
-      <div class="mode-toggle" style="border-bottom:2px solid #eee;padding-bottom:16px;margin-bottom:16px;">
-        <button class="mode-btn active" data-mode="browse">👀 Learn</button>
-        <button class="mode-btn" data-mode="sort">🎯 Sort</button>
-        <button class="mode-btn" data-mode="fill">✏️ Fill</button>
+      <p style="font-weight:700;color:var(--clr-text-soft);margin-bottom:8px" id="q-label">Question 1 of 10</p>
+      <div class="progress-wrap" style="margin-bottom:20px">
+        <div class="progress-bar" id="q-bar" style="width:10%"></div>
       </div>
-      <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);" id="sort-count">Word 1 of 5</p>
-      <div class="progress-wrap">
-        <div class="progress-bar" id="sort-prog-bar" style="width:20%"></div>
-      </div>
-      <p style="font-size:1.2rem;font-weight:700;margin:16px 0;">Listen and choose the R pattern:</p>
-      <p style="font-size:1rem;margin:12px 0;padding:12px;background:#f3f4f6;border-radius:12px;">🔊 <span id="sort-word" style="font-weight:700;color:var(--clr-primary);">(loading...)</span></p>
-      <div id="sort-choices" style="text-align:center;"></div>
-      <div class="score-badge">✅ <span id="sort-correct">0</span>/<span id="sort-total">0</span> correct</div>
-      <div class="btn-row">
-        <button class="btn btn-primary" id="btn-sort-replay">🔊 Replay</button>
-        <button class="btn btn-accent" id="btn-sort-next">Next →</button>
-      </div>
+      <div style="font-size:3rem;margin-bottom:8px" id="q-emoji">🚗</div>
+      <div class="quiz-word" id="q-word">c<span class="quiz-blank">__</span></div>
+      <p style="font-weight:700;color:var(--clr-text-soft)">Which r-vowel pattern completes this word?</p>
+      <button class="btn btn-primary" id="q-speak" style="margin:12px auto;display:block">🔊 Hear Word</button>
+      <div class="r-choices" id="r-choices"></div>
+      <p style="font-weight:700;margin-top:16px">Score: <span id="q-score">0</span>/<span id="q-total">0</span></p>
     </div>
-  </div>
-
-  <!-- QUIZ MODE (Fill Blank) -->
-  <div class="mode-section" id="mode-fill">
-    <div class="quiz-card">
-      <div class="mode-toggle" style="border-bottom:2px solid #eee;padding-bottom:16px;margin-bottom:16px;">
-        <button class="mode-btn" data-mode="browse">👀 Learn</button>
-        <button class="mode-btn" data-mode="sort">🎯 Sort</button>
-        <button class="mode-btn active" data-mode="fill">✏️ Fill</button>
-      </div>
-      <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);" id="fill-count">Word 1 of 5</p>
-      <div class="progress-wrap">
-        <div class="progress-bar" id="fill-prog-bar" style="width:20%"></div>
-      </div>
-      <p style="font-size:1.2rem;font-weight:700;margin:16px 0;">Fill in the missing R pattern:</p>
-      <p style="font-size:1.4rem;margin:16px 0;padding:16px;background:#f3f4f6;border-radius:12px;font-family:'Fredoka One',cursive;letter-spacing:2px;">
-        <span id="fill-before"></span><span style="background:yellow;padding:4px 8px;border-radius:6px;">__</span><span id="fill-after"></span>
-      </p>
-      <div id="fill-choices" style="text-align:center;"></div>
-      <div class="score-badge">✅ <span id="fill-correct">0</span>/<span id="fill-total">0</span> correct</div>
-      <div class="btn-row">
-        <button class="btn btn-accent" id="btn-fill-next">Next →</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="mode-toggle" style="margin-top:24px;">
-    <button class="mode-btn active" data-mode="browse">👀 Learn</button>
-    <button class="mode-btn" data-mode="sort">🎯 Sort Quiz</button>
-    <button class="mode-btn" data-mode="fill">✏️ Fill Blank</button>
   </div>
 </main>
 <script src="js/config.js"></script>
@@ -105,172 +70,105 @@
 <script src="js/ui.js"></script>
 <script>
 const R_VOWELS = [
-  { pair:'AR', sound:'ar (like car)',    words:['car','star','farm','park','dart'],   emoji:'🚗' },
-  { pair:'ER', sound:'er (like her)',    words:['her','fern','verb','stern','clerk'],  emoji:'🌿' },
-  { pair:'IR', sound:'ir (like bird)',   words:['bird','girl','shirt','stir','sir'],   emoji:'🐦' },
-  { pair:'OR', sound:'or (like corn)',   words:['corn','fork','storm','short','horn'], emoji:'🌽' },
-  { pair:'UR', sound:'ur (like fur)',    words:['fur','burn','curl','turn','purse'],   emoji:'🐱' },
+  { pair:'AR', sound:'ar (like car)',    words:['car','star','farm','park','dart','barn'],   emoji:'🚗' },
+  { pair:'ER', sound:'er (like her)',    words:['her','fern','verb','stern','clerk','term'],  emoji:'🌿' },
+  { pair:'IR', sound:'ir (like bird)',   words:['bird','girl','shirt','stir','sir','dirt'],   emoji:'🐦' },
+  { pair:'OR', sound:'or (like corn)',   words:['corn','fork','storm','short','horn','cord'], emoji:'🌽' },
+  { pair:'UR', sound:'ur (like fur)',    words:['fur','burn','curl','turn','purse','hurt'],   emoji:'🐱' },
 ];
-const colors = ['#ef4444','#f97316','#eab308','#22c55e','#6366f1'];
+const COLORS = ['#ef4444','#f97316','#eab308','#22c55e','#6366f1'];
 
-// ═══════════════════════════════════════════ BROWSE MODE ═══════════════════════════════════════════
+// Build all quiz words from all patterns
+const QUIZ_WORDS = R_VOWELS.flatMap(rv =>
+  rv.words.map(w => ({ word: w, pair: rv.pair, emoji: rv.emoji, sound: rv.sound }))
+);
+
+// Browse mode
 const grid = document.getElementById('r-grid');
 R_VOWELS.forEach((rv, i) => {
   const card = document.createElement('div');
   card.className = 'r-card';
-  card.innerHTML = `<div class="r-big" style="color:${colors[i]}">${rv.pair}</div><div style="font-size:2rem;margin:4px 0">${rv.emoji}</div><div class="r-words">${rv.words.slice(0,4).join(' · ')}</div>`;
+  card.innerHTML = `<div class="r-big" style="color:${COLORS[i]}">${rv.pair}</div><div style="font-size:2rem;margin:4px 0">${rv.emoji}</div><div class="r-words">${rv.words.slice(0,4).join(' · ')}</div>`;
   card.addEventListener('click', () => {
     AudioManager.speak(`${rv.pair}. ${rv.sound}. For example: ${rv.words.slice(0,3).join(', ')}`, {rate:.8});
-    card.style.borderColor = colors[i];
+    card.style.borderColor = COLORS[i];
     setTimeout(()=>card.style.borderColor='transparent',2000);
   });
   grid.appendChild(card);
 });
 
-// ═══════════════════════════════════════════ MODE TOGGLE ═══════════════════════════════════════════
-let currentMode = 'browse';
-document.querySelectorAll('.mode-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const mode = btn.dataset.mode;
-    if (mode === currentMode) return;
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(`mode-${mode}`).classList.add('active');
-    currentMode = mode;
-    if (mode === 'sort' && sortIdx === 0) loadSortWord();
-    if (mode === 'fill' && fillIdx === 0) loadFillWord();
-  });
-});
+// Quiz mode
+let qIdx = 0, qScore = 0, qTotal = 0, qAnswered = false;
+const shuffledQ = UI.shuffle(QUIZ_WORDS).slice(0, 10);
 
-// ═══════════════════════════════════════════ SORT QUIZ MODE ═══════════════════════════════════════════
-let sortIdx = 0, sortCorrect = 0, sortTotal = 0;
-const allWords = R_VOWELS.flatMap(rv => rv.words);
+function loadQuizQ() {
+  if (qIdx >= shuffledQ.length) { endQuiz(); return; }
+  qAnswered = false;
+  const q = shuffledQ[qIdx];
+  document.getElementById('q-label').textContent = `Question ${qIdx+1} of ${shuffledQ.length}`;
+  UI.updateProgress(document.getElementById('q-bar'), qIdx+1, shuffledQ.length);
+  document.getElementById('q-emoji').textContent = q.emoji;
+  // Show word with blank where pair would be
+  const blank = q.word.replace(q.pair.toLowerCase(), '<span class="quiz-blank">__</span>');
+  document.getElementById('q-word').innerHTML = blank === q.word
+    ? q.word.slice(0, -2) + '<span class="quiz-blank">__</span>'
+    : blank;
+  document.getElementById('q-speak').onclick = () => AudioManager.speak(q.word, {rate:.75});
 
-function loadSortWord() {
-  if (sortIdx >= allWords.length) {
-    sortIdx = 0;
-    UI.toast(`Sort quiz done! ${sortCorrect}/${sortTotal} correct 🎉`);
-    sortCorrect = 0;
-    sortTotal = 0;
-    return;
-  }
-  
-  const word = allWords[sortIdx];
-  const answer = R_VOWELS.find(rv => rv.words.includes(word));
-  
-  document.getElementById('sort-count').textContent = `Word ${sortIdx+1} of ${allWords.length}`;
-  document.getElementById('sort-word').textContent = word;
-  document.getElementById('sort-prog-bar').style.width = ((sortIdx+1)/allWords.length)*100 + '%';
-  document.getElementById('sort-total').textContent = sortTotal;
-  document.getElementById('sort-correct').textContent = sortCorrect;
-  
-  const choices = [answer.pair, ...R_VOWELS.filter(rv => rv !== answer).map(rv => rv.pair)];
-  UI.shuffle(choices);
-  
-  const choicesDiv = document.getElementById('sort-choices');
-  choicesDiv.innerHTML = '';
-  choices.forEach(pair => {
-    const btn = document.createElement('div');
-    btn.className = 'quiz-choice';
-    btn.textContent = pair;
-    btn.style.background = colors[R_VOWELS.findIndex(rv => rv.pair === pair)];
-    btn.style.color = 'white';
-    btn.style.borderColor = colors[R_VOWELS.findIndex(rv => rv.pair === pair)];
-    btn.addEventListener('click', () => {
-      sortTotal++;
-      if (pair === answer.pair) {
-        btn.classList.add('correct');
-        sortCorrect++;
-        UI.toast('✅ Correct!');
-      } else {
-        btn.classList.add('incorrect');
-        UI.toast('❌ Try again!');
-      }
-      document.querySelectorAll('#sort-choices .quiz-choice').forEach(b => b.style.pointerEvents = 'none');
-      setTimeout(() => { sortIdx++; loadSortWord(); }, 800);
+  const wrongs = UI.shuffle(R_VOWELS.filter(rv=>rv.pair!==q.pair)).slice(0,3);
+  const correct = R_VOWELS.find(rv=>rv.pair===q.pair);
+  const opts = UI.shuffle([correct, ...wrongs]);
+  const rc = document.getElementById('r-choices');
+  rc.innerHTML='';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className='r-choice'; btn.textContent=opt.pair;
+    btn.addEventListener('click', ()=>{
+      if(qAnswered) return; qAnswered=true; qTotal++;
+      const right = opt.pair===q.pair;
+      btn.classList.add(right?'correct':'wrong');
+      if(right){qScore++;AudioManager.playTone('correct');UI.showFeedback(true);}
+      else{AudioManager.playTone('wrong');rc.querySelectorAll('.r-choice').forEach(b=>{if(b.textContent===q.pair)b.classList.add('correct');});}
+      document.getElementById('q-score').textContent=qScore;
+      document.getElementById('q-total').textContent=qTotal;
+      rc.querySelectorAll('.r-choice').forEach(b=>b.style.pointerEvents='none');
+      qIdx++;setTimeout(loadQuizQ,1400);
     });
-    choicesDiv.appendChild(btn);
+    rc.appendChild(btn);
   });
+  AudioManager.speak(q.word,{rate:.75});
 }
 
-document.getElementById('btn-sort-replay').addEventListener('click', () => {
-  AudioManager.speak(allWords[sortIdx], {rate:.75});
-});
-document.getElementById('btn-sort-next').addEventListener('click', () => {
-  sortIdx++;
-  loadSortWord();
-});
-
-// ═══════════════════════════════════════════ FILL BLANK MODE ═══════════════════════════════════════════
-let fillIdx = 0, fillCorrect = 0, fillTotal = 0;
-
-function loadFillWord() {
-  if (fillIdx >= allWords.length) {
-    fillIdx = 0;
-    UI.toast(`Fill quiz done! ${fillCorrect}/${fillTotal} correct 🎉`);
-    fillCorrect = 0;
-    fillTotal = 0;
-    return;
-  }
-  
-  const word = allWords[fillIdx];
-  const answer = R_VOWELS.find(rv => rv.words.includes(word));
-  const pairPos = word.search(/[aeiou]r/i);
-  
-  if (pairPos === -1) { fillIdx++; loadFillWord(); return; }
-  
-  const before = word.substring(0, pairPos);
-  const after = word.substring(pairPos + 2);
-  
-  document.getElementById('fill-count').textContent = `Word ${fillIdx+1} of ${allWords.length}`;
-  document.getElementById('fill-before').textContent = before.toUpperCase();
-  document.getElementById('fill-after').textContent = after.toUpperCase();
-  document.getElementById('fill-prog-bar').style.width = ((fillIdx+1)/allWords.length)*100 + '%';
-  document.getElementById('fill-total').textContent = fillTotal;
-  document.getElementById('fill-correct').textContent = fillCorrect;
-  
-  const choices = [answer.pair, ...R_VOWELS.filter(rv => rv !== answer).map(rv => rv.pair)];
-  UI.shuffle(choices);
-  
-  const choicesDiv = document.getElementById('fill-choices');
-  choicesDiv.innerHTML = '';
-  choices.forEach(pair => {
-    const btn = document.createElement('div');
-    btn.className = 'quiz-choice';
-    btn.textContent = pair;
-    btn.style.background = colors[R_VOWELS.findIndex(rv => rv.pair === pair)];
-    btn.style.color = 'white';
-    btn.style.borderColor = colors[R_VOWELS.findIndex(rv => rv.pair === pair)];
-    btn.addEventListener('click', () => {
-      fillTotal++;
-      if (pair === answer.pair) {
-        btn.classList.add('correct');
-        fillCorrect++;
-        UI.toast('✅ Correct!');
-      } else {
-        btn.classList.add('incorrect');
-        UI.toast('❌ Try again!');
-      }
-      document.querySelectorAll('#fill-choices .quiz-choice').forEach(b => b.style.pointerEvents = 'none');
-      setTimeout(() => { fillIdx++; loadFillWord(); }, 800);
-    });
-    choicesDiv.appendChild(btn);
-  });
+function endQuiz() {
+  const pct=Math.round((qScore/shuffledQ.length)*100);
+  document.getElementById('quiz-section').innerHTML=`
+    <div class="quiz-card">
+      <div style="font-size:4rem;margin-bottom:16px">${pct>=80?'🏆':'⭐'}</div>
+      <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${pct>=80?'R-Vowel Master!':'Keep Practising!'}</h2>
+      <p style="color:#666;margin-bottom:24px">Score: ${qScore}/${shuffledQ.length} (${pct}%)</p>
+      <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>
+      <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>
+    </div>`;
+  if(typeof analytics!=='undefined') analytics.trackActivityComplete('r-controlled-vowels',qScore,shuffledQ.length);
 }
 
-document.getElementById('btn-fill-next').addEventListener('click', () => {
-  fillIdx++;
-  loadFillWord();
+document.getElementById('mode-browse').addEventListener('click',()=>{
+  document.getElementById('mode-browse').classList.add('active');
+  document.getElementById('mode-quiz').classList.remove('active');
+  document.getElementById('browse-section').style.display='block';
+  document.getElementById('quiz-section').style.display='none';
+});
+document.getElementById('mode-quiz').addEventListener('click',()=>{
+  document.getElementById('mode-quiz').classList.add('active');
+  document.getElementById('mode-browse').classList.remove('active');
+  document.getElementById('browse-section').style.display='none';
+  document.getElementById('quiz-section').style.display='block';
+  if(qIdx===0) loadQuizQ();
 });
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("r-controlled-vowels");
 window.addEventListener('beforeunload', function() {
-  if(typeof analytics!=="undefined") {
-    var s = sortCorrect + fillCorrect || 0;
-    var t = sortTotal + fillTotal || 10;
-    analytics.trackActivityComplete("r-controlled-vowels", s, t);
-  }
+  if(typeof analytics!=="undefined") analytics.trackActivityComplete("r-controlled-vowels", 0, 10);
 });</script>
 </body>
 </html>

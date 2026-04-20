@@ -4,36 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Phonics Hub – Learn to Read Interactively</title>
-
 <meta name="description" content="Phonics Hub: Interactive phonics learning app for kids ages 3-7. Free + premium activities. Offline-first, privacy-safe, parent-friendly.">
-<meta name="keywords" content="phonics learning app, teach kids to read, interactive phonics games, reading practice, phonics for children">
 <meta name="author" content="Athish Sreeram">
-<meta name="robots" content="index, follow">
-
 <meta property="og:title" content="Phonics Hub - Learn to Read Interactively">
-<meta property="og:description" content="Master letter sounds, blending, and reading with 19+ games. Free + Premium. Start learning today!">
-<meta property="og:url" content="https://athishsreeram.github.io/phonics77-app/">
+<meta property="og:description" content="Master letter sounds, blending, and reading with 19+ games. Free + Premium.">
 <meta property="og:type" content="website">
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "Phonics Hub",
-  "description": "Interactive phonics learning app for children ages 3-7",
-  "url": "https://athishsreeram.github.io/phonics77-app/",
-  "applicationCategory": "EducationalApplication",
-  "offers": { "@type":"Offer", "price":"0", "priceCurrency":"USD" },
-  "author": { "@type":"Person", "name":"Athish Sreeram" }
-}
-</script>
-
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/payment.css">
 </head>
 <body>
-
-<!-- Navigation -->
 <nav class="navbar">
   <a href="index.html" class="logo">📚 Phonics Hub</a>
   <div style="display:flex;align-items:center;gap:10px">
@@ -42,51 +21,37 @@
   </div>
 </nav>
 
-<!-- Main container -->
 <div class="container">
-
-  <!-- Progress widget (injected by progress.js for returning users) -->
   <div id="progress-widget-slot"></div>
 
-  <!-- Hero -->
   <div class="hero">
     <h1 id="hero-headline">Master Phonics with Interactive Games</h1>
     <p>Learn letter sounds, blending, and reading with our fun activities</p>
-
-    <!-- Social proof -->
     <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin:16px 0;opacity:.92">
-      <div style="display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700">
-        <span>⭐⭐⭐⭐⭐</span> <span>Loved by parents</span>
-      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700"><span>⭐⭐⭐⭐⭐</span> <span>Loved by parents</span></div>
       <div style="width:1px;height:16px;background:rgba(255,255,255,.3)"></div>
       <div style="font-size:.85rem;font-weight:700">🔒 No ads · No tracking</div>
       <div style="width:1px;height:16px;background:rgba(255,255,255,.3)"></div>
       <div style="font-size:.85rem;font-weight:700">📴 Works offline</div>
     </div>
-
     <div class="pricing-badge">
       <span class="price">$9.99/month</span>
       <span style="opacity:.7">or</span>
       <button onclick="analytics.trackUpgradeClick('hero');paymentManager.initiateSubscription()">Start 7-Day Free Trial</button>
     </div>
-    <p style="margin-top:12px;font-size:.85rem;opacity:.85">Start free with 3 activities · Unlock 16+ premium activities · Cancel anytime</p>
+    <p style="margin-top:12px;font-size:.85rem;opacity:.85">Start free with 3 activities · Unlock premium activities · Cancel anytime</p>
   </div>
 
-  <!-- Curriculum Learning Path -->
   <div class="section-header">🎯 Learning Path</div>
   <div id="curriculum-root"></div>
 
   <script>
-  // Render curriculum after page scripts load to ensure CurriculumManager is available.
   (function initCurriculumRender(){
     function renderCurriculum(){
       const root = document.getElementById('curriculum-root');
       if (!root) return;
       const mgr = window.CurriculumManager;
-      if (!mgr) {
-        root.innerHTML = '<p>Error loading curriculum.</p>';
-        return;
-      }
+      if (!mgr) { root.innerHTML = '<p>Error loading curriculum.</p>'; return; }
       const stages = mgr.STAGES || [];
       const container = document.createElement('div');
       container.className = 'curriculum-container';
@@ -94,7 +59,6 @@
       stages.forEach((s, idx) => {
         const unlocked = mgr.isStageUnlocked(idx);
         const prog = mgr.getStageProgress(idx);
-
         const card = document.createElement('div');
         card.className = 'stage-card' + (unlocked ? '' : ' locked');
         card.dataset.stageIndex = idx;
@@ -104,13 +68,12 @@
         head.innerHTML = `
           <div>
             <h2 style="margin:0">${idx+1}. ${s.name}</h2>
-            <div style="opacity:.85; margin-top:6px">${s.description}</div>
+            <div style="opacity:.85;margin-top:6px">${s.description}</div>
           </div>
-          <div class="stage-controls" style="margin-top:10px; display:flex; gap:10px; align-items:center; justify-content:center">
+          <div class="stage-controls" style="margin-top:10px;display:flex;gap:10px;align-items:center;justify-content:center">
             <div class="stage-progress">${prog.completed}/${prog.total}</div>
             <button class="expand-btn">Open</button>
-          </div>
-        `;
+          </div>`;
 
         const activitiesWrap = document.createElement('div');
         activitiesWrap.className = 'stage-activities';
@@ -140,12 +103,10 @@
 
       root.appendChild(container);
 
-      // Initialize gating on the newly-created activity cards (if gating is available)
       if (window.activityGating && typeof window.activityGating.initializeActivityGating === 'function') {
         setTimeout(() => activityGating.initializeActivityGating(), 50);
       }
 
-      // Update UI when a stage unlocks
       window.addEventListener('ph:stage-unlocked', (e) => {
         const idx = e.detail && e.detail.stageIndex;
         const card = container.querySelector(`.stage-card[data-stage-index="${idx}"]`);
@@ -154,33 +115,19 @@
       });
     }
 
-    // If CurriculumManager already exists, render immediately, otherwise wait for window load
-    if (window.CurriculumManager) {
-      renderCurriculum();
-    } else {
-      window.addEventListener('load', () => {
-        if (window.CurriculumManager) renderCurriculum();
-        else setTimeout(() => { if (window.CurriculumManager) renderCurriculum(); }, 200);
-      });
-    }
+    if (window.CurriculumManager) { renderCurriculum(); }
+    else { window.addEventListener('load', () => { if (window.CurriculumManager) renderCurriculum(); else setTimeout(() => { if (window.CurriculumManager) renderCurriculum(); }, 200); }); }
   })();
   </script>
-
-  
 </div>
-
-  <!-- Quick-access list removed — activities are now integrated into Learning Path -->
-
 
 <footer class="site-footer">
   <p>© 2026 Phonics Hub · Built with ❤️ for little readers ·
     <a href="mailto:startdreamhere123@gmail.com">Contact</a> ·
-    <a href="pages/progress.html">My Progress</a> ·
-    <a href="pages/founder-dash.html" style="color:#ccc;font-size:.8rem">📊</a>
+    <a href="pages/progress.html">My Progress</a>
   </p>
 </footer>
 
-<!-- Scripts — order matters -->
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/payment.js"></script>
@@ -191,42 +138,25 @@
 <script src="js/progress.js"></script>
 <script>
 window.addEventListener('load', async () => {
-  // 1. Wire activity gating + unlock if premium
   await activityGating.initializeActivityGating();
-  if (paymentManager.isPremium()) {
-    paymentManager.unlockPremiumCards();
-  }
+  if (paymentManager.isPremium()) paymentManager.unlockPremiumCards();
 
-      // React to background sync result
-    window.addEventListener('ph:subscription-sync', (e) => {
-      const { active } = e.detail || {};
-      if (active && !PhonicsAPI.isPremium()) paymentManager.unlockPremiumCards();
-      if (!active && localStorage.getItem('ph_premium') === 'true') window.location.reload();
-    });
+  window.addEventListener('ph:subscription-sync', (e) => {
+    const { active } = e.detail || {};
+    if (active && !paymentManager.isPremium()) paymentManager.unlockPremiumCards();
+  });
 
-  // 2. Render progress widget for returning users
   progressWidget.render();
 
-  // 3. Personalise hero headline for returning users
   const profile = analytics.getProfile();
-  if (profile.childName) {
-    const h = document.getElementById('hero-headline');
-    if (h) h.textContent = `Ready to learn, ${profile.childName}? 🌟`;
-  }
+  if (profile.childName) { const h = document.getElementById('hero-headline'); if (h) h.textContent = `Ready to learn, ${profile.childName}? 🌟`; }
 
-  // 4. Show onboarding for new users
-  setTimeout(() => {
-    if (onboarding.shouldShow()) onboarding.start();
-  }, 600);
+  setTimeout(() => { if (onboarding.shouldShow()) onboarding.start(); }, 600);
 
-  // 5. Show email capture for returning non-premium users who haven't given email
   if (!onboarding.shouldShow() && !analytics.isPremium() && !analytics.getProfile().email) {
     setTimeout(() => analytics.showEmailCapture('returning_free'), 20000);
   }
-
-  console.log('✅ Phonics Hub | premium:', analytics.isPremium(), '| newUser:', onboarding.shouldShow());
 });
 </script>
-
 </body>
 </html>

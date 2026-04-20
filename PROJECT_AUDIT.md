@@ -360,7 +360,7 @@ const ACTIVITY_MAP = {
   'assessment-level-2':'word-explore.html',
   'story-time':        'story.html',
   'parent-dashboard':  'parent-dashboard.html',
-  'progress-tracker':  'trace.html',
+  'alphabet-trace':  'trace.html',
   'alphabet-balloon':  'alphabet-ballon-pop.html',
   'read-advanced':     'read2.html',
 };

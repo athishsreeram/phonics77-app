@@ -1,37 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎵 Vowel Teams · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.vowel-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:16px; margin:24px 0; }
-.vowel-card {
-  background:white; border-radius:20px; padding:20px 14px; text-align:center;
-  box-shadow:var(--shadow-sm); cursor:pointer; border:4px solid transparent;
-  transition:all .2s;
-}
-.vowel-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
-.vowel-card.short-v { border-color:#ff6b6b; }
-.vowel-card.long-v  { border-color:#667eea; }
-.vowel-big { font-family:'Fredoka One',cursive; font-size:3rem; line-height:1; }
-.vowel-type { font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; margin:4px 0; }
-.vowel-example { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); }
-.section-lbl { font-family:'Fredoka One',cursive; font-size:1.4rem; margin:28px 0 8px; }
+.vowel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;margin:24px 0}
+.vowel-card{background:white;border-radius:20px;padding:20px 14px;text-align:center;box-shadow:var(--shadow-sm);cursor:pointer;border:4px solid transparent;transition:all .2s}
+.vowel-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+.vowel-card.short-v{border-color:#ff6b6b}
+.vowel-card.long-v{border-color:#667eea}
+.vowel-big{font-family:'Fredoka One',cursive;font-size:3rem;line-height:1}
+.vowel-type{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin:4px 0}
+.vowel-example{font-size:.9rem;font-weight:700;color:var(--clr-text-soft)}
+.section-lbl{font-family:'Fredoka One',cursive;font-size:1.4rem;margin:28px 0 8px}
 </style>
 </head>
 <body>
-<nav class="top-nav">
-  <div class="nav-left">
-    <a href="index.html" class="nav-home-btn">🏠</a>
-    <span class="nav-title">Vowel Teams</span>
-  </div>
-</nav>
-<div class="page-header" style="background:linear-gradient(135deg,#ec4899,#be185d)">
-  <h1>🎵 Vowel Teams</h1>
-  <p>Two vowels working together</p>
-</div>
+<nav class="top-nav"><div class="nav-left"><a href="index.html" class="nav-home-btn">🏠</a><span class="nav-title">Vowel Teams</span></div></nav>
+<div class="page-header" style="background:linear-gradient(135deg,#ec4899,#be185d)"><h1>🎵 Vowel Teams</h1><p>Two vowels working together</p></div>
 <main>
   <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-top:24px">Tap a card to hear the sound!</p>
   <div class="section-lbl" style="color:#dc2626">🔴 Short Vowels</div>
@@ -41,71 +28,12 @@
   <div class="section-lbl" style="color:#10b981">🟢 Vowel Teams</div>
   <div class="vowel-grid" id="teams-grid"></div>
 </main>
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/analytics.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/materials.js"></script>
-<script src="js/ui.js"></script>
+<script src="js/config.js"></script><script src="js/api.js"></script><script src="js/analytics.js"></script><script src="js/audio.js"></script><script src="js/materials.js"></script><script src="js/ui.js"></script>
 <script>
-PHONICS_DATA.vowels.forEach(v => {
-  ['short', 'long'].forEach(type => {
-    const grid = document.getElementById(`${type}-grid`);
-    const d    = v[type];
-    const card = document.createElement('div');
-    card.className = `vowel-card ${type==='short'?'short-v':'long-v'}`;
-    const color = type === 'short' ? '#dc2626' : '#667eea';
-    card.innerHTML = `
-      <div class="vowel-big" style="color:${color}">${v.letter}</div>
-      <div class="vowel-type" style="color:${color}">${type} /  ${d.sound}</div>
-      <div style="font-size:2.5rem;margin:6px 0">${d.emoji}</div>
-      <div class="vowel-example">${d.word}</div>`;
-    card.addEventListener('click', () => {
-      AudioManager.speak(`${type} ${v.letter}. ${d.sound}. ${d.word}`, {rate:.8});
-      AudioManager.playTone('click');
-      card.style.animation = 'pop .3s ease';
-      setTimeout(()=>card.style.animation='',400);
-    });
-    grid.appendChild(card);
-  });
-});
-
-// Vowel team examples
-const vowelTeams = [
-  { letters:'ai', emoji:'🦕', sound:'ay' },
-  { letters:'ay', emoji:'☀️', sound:'ay' },
-  { letters:'ee', emoji:'👁️', sound:'ee' },
-  { letters:'ea', emoji:'🍃', sound:'ee' },
-  { letters:'oa', emoji:'🚣', sound:'oh' },
-  { letters:'ow', emoji:'🐚', sound:'oh' },
-];
-
-const teamsGrid = document.getElementById('teams-grid');
-vowelTeams.forEach(team => {
-  const card = document.createElement('div');
-  card.className = 'vowel-card';
-  card.style.borderColor = '#10b981';
-  card.innerHTML = `
-    <div class="vowel-big" style="color:#10b981">${team.letters}</div>
-    <div class="vowel-type" style="color:#10b981">/${team.sound}/</div>
-    <div style="font-size:2.5rem;margin:6px 0">${team.emoji}</div>
-    <div class="vowel-example">Vowel Team</div>`;
-  card.addEventListener('click', () => {
-    AudioManager.speak(`${team.letters}. ${team.sound}`, {rate:.8});
-    AudioManager.playTone('click');
-    card.style.animation = 'pop .3s ease';
-    setTimeout(()=>card.style.animation='',400);
-  });
-  teamsGrid.appendChild(card);
-});
+PHONICS_DATA.vowels.forEach(v=>{['short','long'].forEach(type=>{const grid=document.getElementById(`${type}-grid`);const d=v[type];const card=document.createElement('div');card.className=`vowel-card ${type==='short'?'short-v':'long-v'}`;const color=type==='short'?'#dc2626':'#667eea';card.innerHTML=`<div class="vowel-big" style="color:${color}">${v.letter}</div><div class="vowel-type" style="color:${color}">${type} / ${d.sound}</div><div style="font-size:2.5rem;margin:6px 0">${d.emoji}</div><div class="vowel-example">${d.word}</div>`;card.addEventListener('click',()=>{AudioManager.speak(`${type} ${v.letter}. ${d.sound}. ${d.word}`,{rate:.8});AudioManager.playTone('click');card.style.animation='pop .3s ease';setTimeout(()=>card.style.animation='',400);});grid.appendChild(card);});});
+const vowelTeams=[{letters:'ai',emoji:'🌧️',sound:'ay'},{letters:'ay',emoji:'☀️',sound:'ay'},{letters:'ee',emoji:'🐝',sound:'ee'},{letters:'ea',emoji:'🍃',sound:'ee'},{letters:'oa',emoji:'⛵',sound:'oh'},{letters:'ow',emoji:'🐚',sound:'oh'}];
+const teamsGrid=document.getElementById('teams-grid');
+vowelTeams.forEach(team=>{const card=document.createElement('div');card.className='vowel-card';card.style.borderColor='#10b981';card.innerHTML=`<div class="vowel-big" style="color:#10b981">${team.letters}</div><div class="vowel-type" style="color:#10b981">/${team.sound}/</div><div style="font-size:2.5rem;margin:6px 0">${team.emoji}</div><div class="vowel-example">Vowel Team</div>`;card.addEventListener('click',()=>{AudioManager.speak(`${team.letters}. ${team.sound}`,{rate:.8});AudioManager.playTone('click');card.style.animation='pop .3s ease';setTimeout(()=>card.style.animation='',400);});teamsGrid.appendChild(card);});
 </script>
-<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("vowel-teams");
-window.addEventListener('beforeunload', function() {
-  if(typeof analytics!=="undefined") {
-    var s = typeof score!=="undefined" ? score : 0;
-    var t = typeof TOTAL!=="undefined" ? TOTAL : 10;
-    analytics.trackActivityComplete("vowel-teams", s, t);
-  }
-});</script>
-</body>
-</html>
+<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("vowel-teams");window.addEventListener('beforeunload',function(){if(typeof analytics!=="undefined")analytics.trackActivityComplete("vowel-teams",0,10);});</script>
+</body></html>

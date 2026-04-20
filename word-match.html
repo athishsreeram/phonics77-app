@@ -1,99 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📊 Word Match · Phonics Hub</title>
-<link rel="stylesheet" href="css/shared.css">
-<style>
-.match-card { background:white; border-radius:28px; padding:32px 20px; text-align:center; box-shadow:var(--shadow-md); max-width:500px; margin:28px auto; }
-.target-emoji { font-size:clamp(4rem,14vw,7rem); display:block; margin-bottom:8px; }
-.match-choices { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px; }
-.match-btn { background:#f3f4f6; border:3px solid transparent; border-radius:16px; padding:16px 10px; font-family:'Fredoka One',cursive; font-size:1.5rem; cursor:pointer; transition:all .15s; }
-.match-btn:hover { background:#e0e7ff; border-color:var(--clr-blue); }
-.match-btn.correct { background:#dcfce7; border-color:var(--clr-green); }
-.match-btn.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
-.round-label { font-weight:700; color:var(--clr-text-soft); margin-bottom:12px; }
-</style>
-</head>
-<body>
-<nav class="top-nav">
-  <div class="nav-left">
-    <a href="index.html" class="nav-home-btn">🏠</a>
-    <span class="nav-title">Word Match</span>
-  </div>
-</nav>
-<div class="page-header" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
-  <h1>📊 Word Match</h1>
-  <p>Match the picture to its word!</p>
-</div>
-<main>
-<div class="match-card" id="match-card">
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>📊 Word Match · Phonics Hub</title><link rel="stylesheet" href="css/shared.css">
+<style>.match-card{background:white;border-radius:28px;padding:32px 20px;text-align:center;box-shadow:var(--shadow-md);max-width:500px;margin:28px auto}.target-emoji{font-size:clamp(4rem,14vw,7rem);display:block;margin-bottom:8px}.match-choices{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.match-btn{background:#f3f4f6;border:3px solid transparent;border-radius:16px;padding:16px 10px;font-family:'Fredoka One',cursive;font-size:1.5rem;cursor:pointer;transition:all .15s}.match-btn:hover{background:#e0e7ff;border-color:var(--clr-blue)}.match-btn.correct{background:#dcfce7;border-color:var(--clr-green)}.match-btn.wrong{background:#fee2e2;border-color:var(--clr-primary)}.round-label{font-weight:700;color:var(--clr-text-soft);margin-bottom:12px}</style>
+</head><body>
+<nav class="top-nav"><div class="nav-left"><a href="index.html" class="nav-home-btn">🏠</a><span class="nav-title">Word Match</span></div></nav>
+<div class="page-header" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><h1>📊 Word Match</h1><p>Match the picture to its word!</p></div>
+<main><div class="match-card" id="match-card">
   <p class="round-label" id="round-label">Round 1 of 12</p>
-  <div class="progress-wrap" style="margin-bottom:20px">
-    <div class="progress-bar" id="prog-bar" style="width:8%"></div>
-  </div>
+  <div class="progress-wrap" style="margin-bottom:20px"><div class="progress-bar" id="prog-bar" style="width:8%"></div></div>
   <span class="target-emoji" id="target-emoji">🐱</span>
   <p style="font-size:.95rem;font-weight:700;color:var(--clr-text-soft)">Which word matches this picture?</p>
   <div class="match-choices" id="match-choices"></div>
   <p style="margin-top:16px;font-weight:700;color:var(--clr-text-soft)">⭐ <span id="mscore">0</span> / <span id="mtotal">0</span></p>
-</div>
-</main>
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/analytics.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/materials.js"></script>
-<script src="js/ui.js"></script>
+</div></main>
+<script src="js/config.js"></script><script src="js/api.js"></script><script src="js/analytics.js"></script><script src="js/audio.js"></script><script src="js/materials.js"></script><script src="js/ui.js"></script>
 <script>
-const ITEMS = UI.shuffle(PHONICS_DATA.cvc).slice(0,12);
-const TOTAL = ITEMS.length;
-let idx=0, mscore=0;
-
-function loadRound() {
-  if(idx>=TOTAL){ endGame(); return; }
-  const item = ITEMS[idx];
-  document.getElementById('round-label').textContent = `Round ${idx+1} of ${TOTAL}`;
-  document.getElementById('target-emoji').textContent = item.emoji;
-  UI.updateProgress(document.getElementById('prog-bar'), idx+1, TOTAL);
-
-  const pool = UI.shuffle(ITEMS.filter(x=>x.word!==item.word)).slice(0,3);
-  const opts  = UI.shuffle([item, ...pool]);
-  const ch    = document.getElementById('match-choices');
-  ch.innerHTML='';
-  opts.forEach(o => {
-    const btn = document.createElement('button');
-    btn.className='match-btn'; btn.textContent=o.word;
-    btn.addEventListener('click', () => {
-      const right = o.word===item.word;
-      btn.classList.add(right?'correct':'wrong');
-      if(right){ mscore++; AudioManager.playTone('correct'); UI.showFeedback(true); }
-      else { AudioManager.playTone('wrong'); ch.querySelectorAll('.match-btn').forEach(x=>{if(x.textContent===item.word)x.classList.add('correct');}); }
-      document.getElementById('mscore').textContent=mscore;
-      document.getElementById('mtotal').textContent=idx+1;
-      ch.querySelectorAll('.match-btn').forEach(x=>x.style.pointerEvents='none');
-      AudioManager.speak(item.word, {rate:.8});
-      idx++; setTimeout(loadRound,1500);
-    });
-    ch.appendChild(btn);
-  });
-}
-
-function endGame(){
-  document.querySelector('main').innerHTML=`
-    <div class="match-card">
-      <div style="font-size:4rem;margin-bottom:16px">${mscore>=9?'🏆':'⭐'}</div>
-      <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${mscore>=9?'Excellent!':'Nice work!'}</h2>
-      <p style="font-size:1.1rem;color:#666;margin-bottom:24px">Score: ${mscore}/${TOTAL}</p>
-      <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Play Again</button>
-      <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>
-    </div>`;
-  UI.setScore('word-match',{stars:mscore,total:TOTAL});
-  if(typeof analytics !== 'undefined') analytics.trackActivityComplete('word-match', mscore, TOTAL);
-  if(typeof analytics!=='undefined') analytics.trackActivityComplete('word-match', mscore, TOTAL);
-}
+const ITEMS=UI.shuffle(PHONICS_DATA.cvc).slice(0,12);const TOTAL=ITEMS.length;let idx=0,mscore=0;
+function loadRound(){if(idx>=TOTAL){endGame();return;}const item=ITEMS[idx];document.getElementById('round-label').textContent=`Round ${idx+1} of ${TOTAL}`;document.getElementById('target-emoji').textContent=item.emoji;UI.updateProgress(document.getElementById('prog-bar'),idx+1,TOTAL);const pool=UI.shuffle(ITEMS.filter(x=>x.word!==item.word)).slice(0,3);const opts=UI.shuffle([item,...pool]);const ch=document.getElementById('match-choices');ch.innerHTML='';opts.forEach(o=>{const btn=document.createElement('button');btn.className='match-btn';btn.textContent=o.word;btn.addEventListener('click',()=>{const right=o.word===item.word;btn.classList.add(right?'correct':'wrong');if(right){mscore++;AudioManager.playTone('correct');UI.showFeedback(true);}else{AudioManager.playTone('wrong');ch.querySelectorAll('.match-btn').forEach(x=>{if(x.textContent===item.word)x.classList.add('correct');});}document.getElementById('mscore').textContent=mscore;document.getElementById('mtotal').textContent=idx+1;ch.querySelectorAll('.match-btn').forEach(x=>x.style.pointerEvents='none');AudioManager.speak(item.word,{rate:.8});idx++;setTimeout(loadRound,1500);});ch.appendChild(btn);});}
+function endGame(){document.querySelector('main').innerHTML=`<div class="match-card"><div style="font-size:4rem;margin-bottom:16px">${mscore>=9?'🏆':'⭐'}</div><h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${mscore>=9?'Excellent!':'Nice work!'}</h2><p style="font-size:1.1rem;color:#666;margin-bottom:24px">Score: ${mscore}/${TOTAL}</p><button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Play Again</button><br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a></div>`;UI.setScore('word-match',{stars:mscore,total:TOTAL});if(typeof analytics!=='undefined')analytics.trackActivityComplete('word-match',mscore,TOTAL);if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('word-match');}
 loadRound();
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("word-match");</script>
-</body>
-</html>
+</body></html>

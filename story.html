@@ -1,159 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📚 Fluency Practice · Phonics Hub</title>
-<link rel="stylesheet" href="css/shared.css">
-<style>
-.read2-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:580px; margin:28px auto; }
-.passage { font-size:clamp(1.1rem,3.5vw,1.4rem); font-weight:700; line-height:2; color:var(--clr-text); text-align:left; margin:20px 0; }
-.passage .phonics-word { color:var(--clr-primary); cursor:pointer; border-bottom:2px dotted var(--clr-primary); }
-.passage .phonics-word:hover { background:#fff0f0; border-radius:4px; }
-.passage-title { font-family:'Fredoka One',cursive; font-size:1.8rem; color:var(--clr-primary); margin-bottom:8px; }
-.passage-emoji { font-size:3rem; display:block; margin-bottom:8px; }
-.level-badge { display:inline-block; background:#fef3c7; color:#92400e; border-radius:8px; padding:4px 12px; font-size:.8rem; font-weight:800; margin-bottom:16px; }
-.timer-display { font-family:'Fredoka One',cursive; font-size:1.4rem; color:var(--clr-primary); font-weight:800; margin:12px 0; }
-.timer-label { font-size:.8rem; color:var(--clr-text-soft); font-weight:700; }
-.btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
-.tab-row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
-.tab-btn { background:#f3f4f6; border:3px solid transparent; border-radius:10px; padding:8px 14px; font-weight:800; font-size:.85rem; cursor:pointer; transition:all .2s; }
-.tab-btn.active { background:var(--clr-primary); color:white; }
-</style>
-</head>
-<body>
-<nav class="top-nav">
-  <div class="nav-left">
-    <a href="index.html" class="nav-home-btn">🏠</a>
-    <span class="nav-title">Fluency Practice</span>
-  </div>
-</nav>
-<div class="page-header" style="background:linear-gradient(135deg,#0891b2,#0e7490)">
-  <h1>📚 Fluency Practice</h1>
-  <p>Build reading speed and confidence!</p>
-</div>
-<main>
-<div class="read2-card">
-  <div class="tab-row" id="tab-row"></div>
-  <span class="passage-emoji" id="p-emoji">🦆</span>
-  <h2 class="passage-title" id="p-title">The Duck Pond</h2>
-  <div class="level-badge">Level 2 · Blends &amp; Digraphs</div>
-  <div class="timer-display">
-    <div class="timer-label">⏱️ Reading Time</div>
-    <div id="timer">0:00</div>
-  </div>
-  <div class="passage" id="p-body"></div>
-  <div class="btn-row">
-    <button class="btn btn-primary btn-lg" id="btn-read">🔊 Read Aloud</button>
-    <button class="btn btn-accent" id="btn-repeat">🔁 Repeat</button>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>📖 Story Time · Phonics Hub</title><link rel="stylesheet" href="css/shared.css">
+<style>.story-card{background:white;border-radius:28px;padding:32px 24px;box-shadow:var(--shadow-md);max-width:600px;margin:28px auto}.story-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}.stab{background:#f3f4f6;border:3px solid transparent;border-radius:12px;padding:10px 16px;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s}.stab.active{background:var(--clr-primary);color:white}.story-emoji{font-size:4rem;text-align:center;display:block;margin:12px 0}.story-title{font-family:'Fredoka One',cursive;font-size:2rem;text-align:center;color:var(--clr-primary);margin-bottom:20px}.story-body{font-size:1.15rem;line-height:2;font-weight:600;color:#2d2d2d}.story-body .phonics-word{color:var(--clr-primary);font-weight:800;cursor:pointer;border-bottom:2px dotted var(--clr-primary)}.read-controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}</style>
+</head><body>
+<nav class="top-nav"><div class="nav-left"><a href="index.html" class="nav-home-btn">🏠</a><span class="nav-title">Story Time</span></div></nav>
+<div class="page-header" style="background:linear-gradient(135deg,#f97316,#ea580c)"><h1>📖 Story Time</h1><p>Read along — tap words to hear them!</p></div>
+<main><div class="story-card">
+  <div class="story-tabs" id="story-tabs"></div>
+  <span class="story-emoji" id="story-emoji">⏳</span>
+  <h2 class="story-title" id="story-title">Loading stories…</h2>
+  <div class="story-body" id="story-body"><p style="text-align:center;color:#888">Fetching stories…</p></div>
+  <div class="read-controls">
+    <button class="btn btn-primary btn-lg" id="btn-read">🔊 Read Story</button>
     <button class="btn btn-secondary" id="btn-stop">⏹ Stop</button>
   </div>
-</div>
-</main>
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/analytics.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/ui.js"></script>
+</div></main>
+<script src="js/config.js"></script><script src="js/api.js"></script><script src="js/analytics.js"></script><script src="js/audio.js"></script><script src="js/ui.js"></script>
 <script>
-const PASSAGES = [
-  {
-    title:'The Duck Pond',
-    emoji:'🦆',
-    phonics:['duck','pond','swim','quick','splash','thick','when','that','then','them'],
-    text:'A duck lived at the pond. The duck liked to swim in the thick green pond. When the sun came up, the duck would splash and swim. Then the other ducks came to swim with them. They were quick in the water. That was their best time of day.'
-  },
-  {
-    title:'The Sheep and the Ship',
-    emoji:'🐑',
-    phonics:['sheep','ship','shore','shallow','shade','white','while','there'],
-    text:'A white sheep stood on the shore. A big ship was far out at sea. The sheep watched the ship while it floated there. The water was shallow near the shore. The sheep found some shade under a tree. There it rested while the ship sailed away.'
-  },
-  {
-    title:'Clark and the Dark Cave',
-    emoji:'🦇',
-    phonics:['clark','dark','cave','stars','far','bar','park','card','hard','sharp'],
-    text:'Clark hiked far into the park. He found a dark cave in the hard rock. Inside, he saw sharp rocks and a card left by an old explorer. Clark looked at the stars on the card. It was a map! He was not far from a hidden garden bar. Clark smiled and followed the stars on the card.'
-  },
-];
-
-let cur = 0;
-let timerInterval = null;
-let elapsedSeconds = 0;
-
-function updateTimer() {
-  const mins = Math.floor(elapsedSeconds / 60);
-  const secs = elapsedSeconds % 60;
-  document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2,'0')}`;
-}
-
-function startTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    elapsedSeconds++;
-    updateTimer();
-  }, 1000);
-}
-
-function stopTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-}
-
-function renderPassage() {
-  const p = PASSAGES[cur];
-  document.getElementById('p-emoji').textContent  = p.emoji;
-  document.getElementById('p-title').textContent  = p.title;
-  const body = document.getElementById('p-body');
-  body.innerHTML = p.text.split(/\b/).map(w => {
-    const clean = w.toLowerCase().replace(/[^a-z]/g,'');
-    if(p.phonics.includes(clean)) return `<span class="phonics-word" onclick="AudioManager.speak('${clean}',{rate:.7})">${w}</span>`;
-    return w;
-  }).join('');
-  document.querySelectorAll('.tab-btn').forEach((t,i) => t.classList.toggle('active',i===cur));
-  elapsedSeconds = 0;
-  updateTimer();
-  stopTimer();
-}
-
-function buildTabs() {
-  const row = document.getElementById('tab-row');
-  row.innerHTML = '';
-  PASSAGES.forEach((p,i) => {
-    const btn = document.createElement('button');
-    btn.className=`tab-btn${i===0?' active':''}`;
-    btn.textContent = p.emoji+' '+p.title.split(' ').slice(0,2).join(' ');
-    btn.addEventListener('click',()=>{ cur=i; renderPassage(); });
-    row.appendChild(btn);
-  });
-}
-
-document.getElementById('btn-read').addEventListener('click', () => {
-  startTimer();
-  AudioManager.speak(PASSAGES[cur].text, {rate:.82});
-  // Curriculum: mark read-advanced (fluency) when user triggers read
-  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
-    window.CurriculumManager.markActivityComplete('read-advanced');
-  }
-});
-
-document.getElementById('btn-repeat').addEventListener('click', () => {
-  AudioManager.speak(PASSAGES[cur].text, {rate:.82});
-});
-
-document.getElementById('btn-stop').addEventListener('click', () => {
-  stopTimer();
-  AudioManager.stop();
-});
-
-buildTabs(); renderPassage();
+const FALLBACK_STORIES=[{id:'f1',title:'Mac and Tab',emoji:'🐱',phonics:['mac','tab','cat','sad','mad','pal','rat','nap'],text:'Tab is a sad cat. Tab has a pal. His pal is Mac. Mac is a rat. "I got mad at Mac," said Tab. "I ate Mac up." "I did like Mac," said Tab. "I am a bad cat." Tab ran to get the vet. "I can save Mac," said the vet. Mac gave Tab a hug. "I like Tab," said Mac. Mac and Tab ran home.'},{id:'f2',title:'The Bee',emoji:'🐝',phonics:['bee','black','yellow','flower','busy'],text:'A bee was in the grass. The bee was black and yellow. The bee went up in the air. A cat saw the bee. "I will get the bee," said the cat. The bee went up high. The bee went to a flower. A kid watched the bee. The bee was busy.'},{id:'f3',title:'Slide',emoji:'🛝',phonics:['slide','slid','fast','kid'],text:'A kid had a slide. The slide was big and red. The kid slid on the slide. "Look at me," said the kid. "I can slide fast." A pig ran up. "I can slide," said the pig. They slid and slid. They had a nap.'}];
+let STORIES=[],curStory=0;
+function renderTabs(){const tabs=document.getElementById('story-tabs');tabs.innerHTML='';STORIES.forEach((s,i)=>{const btn=document.createElement('button');btn.className=`stab${i===curStory?' active':''}`;btn.textContent=(s.emoji||'📖')+' '+(s.title||'').split(' ').slice(0,2).join(' ');btn.addEventListener('click',()=>{curStory=i;renderStory();renderTabs();});tabs.appendChild(btn);});}
+function renderStory(){const s=STORIES[curStory];if(!s)return;document.getElementById('story-emoji').textContent=s.emoji||'📖';document.getElementById('story-title').textContent=s.title;const storyText=s.content||s.text||'';const phonicsWords=new Set((s.words||s.phonics||[]).map(w=>w.toLowerCase()));const body=document.getElementById('story-body');body.innerHTML=storyText.split(/\b/).map(w=>{const clean=w.toLowerCase().replace(/[^a-z]/g,'');if(phonicsWords.has(clean))return`<span class="phonics-word" onclick="AudioManager.speak('${clean}',{rate:.7})">${w}</span>`;return w;}).join('');}
+async function loadStories(){try{const api=await PhonicsAPI.getStories();STORIES=api&&api.length>0?api:FALLBACK_STORIES;}catch(e){STORIES=FALLBACK_STORIES;}curStory=0;renderTabs();renderStory();}
+document.getElementById('btn-read').addEventListener('click',()=>{const s=STORIES[curStory];if(s)AudioManager.speak(s.content||s.text||'',{rate:.8});if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('story-time');});
+document.getElementById('btn-stop').addEventListener('click',()=>AudioManager.stop());
+loadStories();
 </script>
-<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("read-advanced");
-window.addEventListener('beforeunload', function() {
-  if(typeof analytics!=="undefined") {
-    var s = typeof score!=="undefined" ? score : 0;
-    var t = typeof total!=="undefined" ? total : (typeof ROUNDS!=="undefined" ? ROUNDS : 10);
-    analytics.trackActivityComplete("reading-level-2", s, t);
-  }
-});</script>
-</body>
-</html>
+<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("story-time");</script>
+</body></html>

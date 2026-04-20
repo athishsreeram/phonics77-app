@@ -3,7 +3,8 @@
 
 const activityGating = (() => {
 
-  /* Map from data-activity-id  →  HTML page filename */
+  /* Map from data-activity-id  →  HTML page filename
+     REMOVED: diphthongs, vowel-variants, read-advanced (read2) — merged/cut per cleanup plan */
   const ACTIVITY_MAP = {
     /* FREE */
     'sound-matching':    'listen-choose.html',
@@ -23,11 +24,11 @@ const activityGating = (() => {
     'vowel-digraphs':    'digraph_fill.html',
     'syllables':         'syllables.html',
     'phonics-review':    'phkids.html',
-    'assessment-level-1':'word-match.html',
-    'assessment-level-2':'word-explore.html',
+    'word-match':        'word-match.html',
+    'word-explore':      'word-explore.html',
     'story-time':        'story.html',
     'parent-dashboard':  'parent-dashboard.html',
-    'progress-tracker':  'trace.html',
+    'alphabet-trace':  'trace.html',
     'alphabet-balloon':  'alphabet-ballon-pop.html',
     'ai-reading-tutor':  'pages/ai-reading-tutor.html',
   };
@@ -49,8 +50,6 @@ const activityGating = (() => {
       if (!btn || !page) return;
 
       const isFree    = FREE_ACTIVITIES.has(id);
-
-      // If CurriculumManager is available, check stage unlock state for this activity
       const stageIndex = (window.CurriculumManager && typeof window.CurriculumManager.getStageIndexForActivity === 'function')
         ? window.CurriculumManager.getStageIndexForActivity(id)
         : -1;
@@ -76,10 +75,9 @@ const activityGating = (() => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           if (!stageUnlocked) {
-            alert('This activity is locked. Complete the previous stage to unlock.');
+            alert('Complete the previous stage to unlock this activity.');
             return;
           }
-          // otherwise it's premium-locked
           paymentManager.initiateSubscription();
         });
       }

@@ -6,63 +6,69 @@
 <title>🔤 Blending Intro · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.blend-card {
-  background: white; border-radius: 28px; padding: 36px 24px;
-  text-align: center; box-shadow: var(--shadow-md);
-  max-width: 560px; margin: 28px auto;
-}
-.word-display {
-  font-family: 'Fredoka One', cursive;
-  font-size: clamp(3rem, 12vw, 6rem);
-  letter-spacing: 0.15em;
-  margin: 16px 0;
-  color: var(--clr-text);
-}
-.word-emoji { font-size: clamp(3rem, 10vw, 5rem); margin-bottom: 12px; display: block; }
-.letters-row {
-  display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
-  margin: 20px 0;
-}
-.letter-tile {
-  width: 64px; height: 64px; border-radius: 16px;
-  background: #f3f4f6; border: 3px solid #e5e7eb;
-  font-family: 'Fredoka One', cursive; font-size: 1.8rem;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: transform .15s, background .15s, border-color .15s;
-}
-.letter-tile:hover { background: #e0e7ff; border-color: var(--clr-blue); transform: translateY(-3px); }
+.blend-card { background: white; border-radius: 28px; padding: 36px 24px; text-align: center; box-shadow: var(--shadow-md); max-width: 560px; margin: 28px auto; }
+.word-display { font-family: 'Fredoka One', cursive; font-size: clamp(3rem,12vw,6rem); letter-spacing: 0.15em; margin: 16px 0; color: var(--clr-text); }
+.word-emoji { font-size: clamp(3rem,10vw,5rem); margin-bottom: 12px; display: block; }
+.letters-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 20px 0; }
+.letter-tile { width: 64px; height: 64px; border-radius: 16px; background: #f3f4f6; border: 3px solid #e5e7eb; font-family: 'Fredoka One', cursive; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .15s, background .15s, border-color .15s; }
+.letter-tile.c-tile { border-color: #6bcb77; }
+.letter-tile.v-tile { border-color: #ff6b6b; background: #fff0f0; }
 .letter-tile.highlight { background: #dbeafe; border-color: var(--clr-blue); transform: scale(1.1); }
 .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
 .progress-label { font-size: .9rem; font-weight: 700; color: var(--clr-text-soft); margin-bottom: 8px; }
+.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:16px; }
+.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 16px; font-weight:800; font-size:.9rem; cursor:pointer; }
+.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
+/* Quiz mode */
+.quiz-prompt { font-weight:800; color:var(--clr-text-soft); margin-bottom:12px; }
+.quiz-choices { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
+.qbtn { background:#f3f4f6; border:3px solid transparent; border-radius:14px; padding:12px 20px; font-family:'Fredoka One',cursive; font-size:1.4rem; cursor:pointer; transition:all .15s; }
+.qbtn.correct { background:#dcfce7; border-color:var(--clr-green); }
+.qbtn.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
+.vowel-tip { font-size:.85rem; font-weight:700; background:#eef2ff; color:#4338ca; border-radius:8px; padding:8px 12px; margin-top:8px; }
 </style>
 </head>
 <body>
-
 <nav class="top-nav">
   <div class="nav-left">
     <a href="index.html" class="nav-home-btn">🏠</a>
     <span class="nav-title">Blending Intro</span>
   </div>
 </nav>
-
 <div class="page-header" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">
   <h1>🔤 Blending Intro</h1>
   <p>Tap each letter, then blend them together!</p>
 </div>
-
 <main>
   <div class="blend-card">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mode-browse">🔤 Blend</button>
+      <button class="mode-btn" id="mode-quiz">🎯 Quiz</button>
+    </div>
     <p class="progress-label" id="progress-label">Word 1 of 10</p>
     <div class="progress-wrap" style="margin-bottom:20px">
       <div class="progress-bar" id="progress-bar" style="width:10%"></div>
     </div>
-    <span class="word-emoji" id="word-emoji">🐱</span>
-    <div class="letters-row" id="letters-row"></div>
-    <div class="word-display" id="word-display" style="opacity:.2">???</div>
-    <div class="btn-row">
-      <button class="btn btn-primary btn-lg" id="btn-blend">🔊 Blend!</button>
-      <button class="btn btn-green btn-lg" id="btn-reveal">👁 Reveal</button>
-      <button class="btn btn-secondary" id="btn-next">➡️ Next</button>
+
+    <!-- Browse mode -->
+    <div id="browse-mode">
+      <span class="word-emoji" id="word-emoji">🐱</span>
+      <div class="letters-row" id="letters-row"></div>
+      <div id="vowel-tip-area"></div>
+      <div class="word-display" id="word-display" style="opacity:.2">???</div>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-lg" id="btn-blend">🔊 Blend!</button>
+        <button class="btn btn-green btn-lg" id="btn-reveal">👁 Reveal</button>
+        <button class="btn btn-secondary" id="btn-next">➡️ Next</button>
+      </div>
+    </div>
+
+    <!-- Quiz mode: see emoji, pick word -->
+    <div id="quiz-mode" style="display:none">
+      <span class="word-emoji" id="quiz-emoji">🐱</span>
+      <p class="quiz-prompt">Which word matches this picture?</p>
+      <div class="quiz-choices" id="quiz-choices"></div>
+      <p style="font-weight:700;margin-top:12px;color:var(--clr-text-soft)">Score: <span id="q-score">0</span>/<span id="q-total">0</span></p>
     </div>
   </div>
 </main>
@@ -75,38 +81,45 @@
 <script src="js/ui.js"></script>
 <script>
 const WORDS = UI.shuffle(PHONICS_DATA.cvc).slice(0, 10);
+const VOWELS_SET = new Set(['a','e','i','o','u']);
 let idx = 0, revealed = false, score = 0;
+let qIdx = 0, qScore = 0, qTotal = 0, qAnswered = false;
+let quizMode = false;
 
 function loadWord() {
-  if (idx >= WORDS.length) { endGame(); return; }
+  if (idx >= WORDS.length) { endBrowse(); return; }
   revealed = false;
   const item = WORDS[idx];
   const letters = item.word.split('');
 
-  document.getElementById('progress-label').textContent = `Word ${idx + 1} of ${WORDS.length}`;
-  UI.updateProgress(document.getElementById('progress-bar'), idx + 1, WORDS.length);
+  document.getElementById('progress-label').textContent = `Word ${idx+1} of ${WORDS.length}`;
+  UI.updateProgress(document.getElementById('progress-bar'), idx+1, WORDS.length);
   document.getElementById('word-emoji').textContent = item.emoji;
   document.getElementById('word-display').textContent = '???';
   document.getElementById('word-display').style.opacity = '.2';
   document.getElementById('word-display').style.color = 'var(--clr-text)';
+  document.getElementById('vowel-tip-area').innerHTML = '';
+
+  const vowelLetter = letters.find(c => VOWELS_SET.has(c));
+  if (vowelLetter) {
+    document.getElementById('vowel-tip-area').innerHTML = `<div class="vowel-tip">🔴 Middle vowel: <strong>${vowelLetter.toUpperCase()}</strong> — says "${vowelLetter === 'a' ? 'aah' : vowelLetter === 'e' ? 'eh' : vowelLetter === 'i' ? 'ih' : vowelLetter === 'o' ? 'oh' : 'uh'}"</div>`;
+  }
 
   const row = document.getElementById('letters-row');
   row.innerHTML = '';
-  letters.forEach((ch, i) => {
+  letters.forEach((ch) => {
     const tile = document.createElement('div');
-    tile.className = 'letter-tile';
+    const isVowel = VOWELS_SET.has(ch);
+    tile.className = `letter-tile ${isVowel ? 'v-tile' : 'c-tile'}`;
     tile.textContent = ch.toUpperCase();
-    tile.addEventListener('click', () => {
-      tile.classList.toggle('highlight');
-      AudioManager.speak(ch, { rate: 0.7 });
-    });
+    tile.addEventListener('click', () => { tile.classList.toggle('highlight'); AudioManager.speak(ch, {rate:.7}); });
     row.appendChild(tile);
   });
 }
 
 document.getElementById('btn-blend').addEventListener('click', () => {
   const item = WORDS[idx];
-  AudioManager.speak(item.word, { rate: 0.6 });
+  AudioManager.speak(item.word, {rate:.6});
   if (!revealed) {
     revealed = true;
     document.getElementById('word-display').textContent = item.word.toUpperCase();
@@ -115,30 +128,75 @@ document.getElementById('btn-blend').addEventListener('click', () => {
     score++;
   }
 });
-
 document.getElementById('btn-reveal').addEventListener('click', () => {
   const item = WORDS[idx];
   revealed = true;
   document.getElementById('word-display').textContent = item.word.toUpperCase();
   document.getElementById('word-display').style.opacity = '1';
-  AudioManager.speak(item.word, { rate: 0.7 });
+  AudioManager.speak(item.word, {rate:.7});
 });
-
 document.getElementById('btn-next').addEventListener('click', () => { idx++; loadWord(); });
 
-function endGame() {
-  document.querySelector('main').innerHTML = `
-    <div class="blend-card">
-      <div style="font-size:4rem;margin-bottom:16px">🎉</div>
-      <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">Great blending!</h2>
-      <p style="font-size:1.1rem;color:#666;margin-bottom:24px">You blended ${score} words!</p>
-      <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>
-      <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>
-    </div>`;
-  UI.setScore('blending-intro', { stars: score, total: WORDS.length });
-  if(typeof analytics !== 'undefined') analytics.trackActivityComplete('blending-intro', score, WORDS.length);
-  if(typeof analytics!=='undefined') analytics.trackActivityComplete('blending-intro', score, WORDS.length);
+function endBrowse() {
+  document.getElementById('browse-mode').innerHTML = `<div style="font-size:3rem;margin-bottom:12px">🎉</div><h2 style="font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:8px">Great blending!</h2><p style="color:#666;margin-bottom:20px">You blended ${score} words! Try the Quiz mode!</p><button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>`;
+  UI.setScore('blending-intro',{stars:score,total:WORDS.length});
+  if(typeof analytics!=='undefined') analytics.trackActivityComplete('blending-intro',score,WORDS.length);
+  if(window.CurriculumManager) window.CurriculumManager.markActivityComplete('blending-intro');
 }
+
+// Quiz mode
+const QUIZ_WORDS = UI.shuffle(PHONICS_DATA.cvc).slice(0,10);
+
+function loadQuizQ() {
+  if (qIdx >= QUIZ_WORDS.length) { endQuiz(); return; }
+  qAnswered = false;
+  const q = QUIZ_WORDS[qIdx];
+  document.getElementById('quiz-emoji').textContent = q.emoji;
+  AudioManager.speak(q.word,{rate:.75});
+
+  const wrongs = UI.shuffle(PHONICS_DATA.cvc.filter(x=>x.word!==q.word)).slice(0,3);
+  const opts = UI.shuffle([q,...wrongs]);
+  const qc = document.getElementById('quiz-choices');
+  qc.innerHTML='';
+  opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='qbtn';btn.textContent=opt.word;
+    btn.addEventListener('click',()=>{
+      if(qAnswered)return;qAnswered=true;qTotal++;
+      const right=opt.word===q.word;
+      btn.classList.add(right?'correct':'wrong');
+      if(right){qScore++;AudioManager.playTone('correct');UI.showFeedback(true);}
+      else{AudioManager.playTone('wrong');qc.querySelectorAll('.qbtn').forEach(b=>{if(b.textContent===q.word)b.classList.add('correct');});}
+      document.getElementById('q-score').textContent=qScore;
+      document.getElementById('q-total').textContent=qTotal;
+      qc.querySelectorAll('.qbtn').forEach(b=>b.style.pointerEvents='none');
+      qIdx++;setTimeout(loadQuizQ,1400);
+    });
+    qc.appendChild(btn);
+  });
+}
+function endQuiz(){
+  const pct=Math.round((qScore/QUIZ_WORDS.length)*100);
+  document.getElementById('quiz-mode').innerHTML=`<div style="font-size:3rem;margin-bottom:12px">${pct>=80?'🏆':'⭐'}</div><h2 style="font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:8px">${pct>=80?'Word Master!':'Nice work!'}</h2><p style="color:#666;margin-bottom:20px">${qScore}/${QUIZ_WORDS.length}</p><button class="btn btn-primary" onclick="location.reload()">🔄 Try Again</button>`;
+  if(typeof analytics!=='undefined') analytics.trackActivityComplete('blending-intro',qScore,QUIZ_WORDS.length);
+  if(window.CurriculumManager) window.CurriculumManager.markActivityComplete('blending-intro');
+}
+
+document.getElementById('mode-browse').addEventListener('click',()=>{
+  quizMode=false;
+  document.getElementById('mode-browse').classList.add('active');
+  document.getElementById('mode-quiz').classList.remove('active');
+  document.getElementById('browse-mode').style.display='block';
+  document.getElementById('quiz-mode').style.display='none';
+});
+document.getElementById('mode-quiz').addEventListener('click',()=>{
+  quizMode=true;
+  document.getElementById('mode-quiz').classList.add('active');
+  document.getElementById('mode-browse').classList.remove('active');
+  document.getElementById('browse-mode').style.display='none';
+  document.getElementById('quiz-mode').style.display='block';
+  if(qIdx===0) loadQuizQ();
+});
 
 loadWord();
 </script>

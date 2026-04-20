@@ -40,8 +40,6 @@ const PHONICS_DATA = {
     { pair:'CK', word:'Clock',   emoji:'🕐', example:'cl-ock', sound:'kuh'  },
     { pair:'NG', word:'Ring',    emoji:'💍', example:'ri-ng',  sound:'ng'   },
     { pair:'QU', word:'Queen',   emoji:'👑', example:'qu-een', sound:'kwuh' },
-    { pair:'KN', word:'Knee',    emoji:'🦵', example:'k-nee',  sound:'nuh'  },
-    { pair:'WR', word:'Wrist',   emoji:'🤚', example:'wr-ist', sound:'r'    },
   ],
 
   cvc: [
@@ -51,9 +49,6 @@ const PHONICS_DATA = {
     { word:'bit', emoji:'🦷' }, { word:'red', emoji:'🔴' }, { word:'wet', emoji:'💧' },
     { word:'lip', emoji:'💋' }, { word:'log', emoji:'🪵' }, { word:'mud', emoji:'🟤' },
     { word:'nut', emoji:'🌰' }, { word:'rob', emoji:'👨' }, { word:'tip', emoji:'💡' },
-    { word:'jam', emoji:'🍓' }, { word:'fox', emoji:'🦊' }, { word:'bed', emoji:'🛏️' },
-    { word:'mix', emoji:'🧪' }, { word:'yak', emoji:'🐂' }, { word:'zip', emoji:'📦' },
-    { word:'cab', emoji:'🚕' }, { word:'jar', emoji:'🍯' }, { word:'sap', emoji:'🌲' },
   ],
 
   sightWords: [
@@ -63,7 +58,6 @@ const PHONICS_DATA = {
     'all','were','we','when','your','can','said','there','use','an',
     'each','which','she','do','how','their','if','will','up','other',
     'about','out','many','then','them','these','so','some','her','would',
-    'who','when','where','why','all','very','more','most','been','get',
   ],
 
   vowels: [
@@ -97,10 +91,6 @@ const PHONICS_DATA = {
     { cvc:'man', magic:'mane', emoji1:'👨', emoji2:'🦁' },
     { cvc:'rid', magic:'ride', emoji1:'😤', emoji2:'🚲' },
     { cvc:'fad', magic:'fade', emoji1:'😐', emoji2:'🌅' },
-    { cvc:'tap', magic:'tape', emoji1:'🛠️', emoji2:'🏷️' },
-    { cvc:'mad', magic:'made', emoji1:'😡', emoji2:'✅' },
-    { cvc:'pan', magic:'pane', emoji1:'🍳', emoji2:'🪟' },
-    { cvc:'nod', magic:'node', emoji1:'🤏', emoji2:'🔗' },
   ],
 
   rhymes: [
@@ -110,13 +100,41 @@ const PHONICS_DATA = {
     { family:'og', words:['bog','dog','fog','hog','log','cog','tog','frog'] },
     { family:'un', words:['bun','fun','gun','nun','pun','run','sun','nun'] },
     { family:'ip', words:['dip','hip','lip','nip','rip','sip','tip','zip'] },
-    { family:'ake', words:['cake','lake','make','rake','sake','take','wake','fake'] },
-    { family:'op', words:['hop','mop','pop','top','cop','shop','stop'] },
   ],
 
-  diphthongs: [],
-
-  vowelVariants: [],
+  // Consolidated: vowel digraphs + former diphthongs + former vowelVariants
+  vowelDigraphs: [
+    // Classic vowel digraphs
+    { pair:'ai', word:'rain',    emoji:'🌧️', sound:'long-ay',   sounds:['long-ay'],              category:'digraph' },
+    { pair:'ay', word:'play',    emoji:'🎮', sound:'long-ay',   sounds:['long-ay'],              category:'digraph' },
+    { pair:'ee', word:'bee',     emoji:'🐝', sound:'long-ee',   sounds:['long-ee'],              category:'digraph' },
+    { pair:'ie', word:'pie',     emoji:'🥧', sound:'long-eye',  sounds:['long-eye'],             category:'digraph' },
+    { pair:'oa', word:'boat',    emoji:'⛵', sound:'long-oh',   sounds:['long-oh'],              category:'digraph' },
+    { pair:'ue', word:'blue',    emoji:'🔵', sound:'long-oo',   sounds:['long-oo'],              category:'digraph' },
+    { pair:'igh', word:'light',  emoji:'💡', sound:'long-eye',  sounds:['long-eye'],             category:'digraph' },
+    // Multi-sound digraphs (ea, oo)
+    { pair:'ea', word:'bread',   emoji:'🍞', sound:'short-eh',  sounds:['short-eh','long-ee'],   category:'variant' },
+    { pair:'ea', word:'leaf',    emoji:'🍃', sound:'long-ee',   sounds:['short-eh','long-ee'],   category:'variant' },
+    { pair:'ea', word:'head',    emoji:'🦴', sound:'short-eh',  sounds:['short-eh','long-ee'],   category:'variant' },
+    { pair:'ea', word:'read',    emoji:'📖', sound:'long-ee',   sounds:['short-eh','long-ee'],   category:'variant' },
+    { pair:'oo', word:'book',    emoji:'📕', sound:'short-oo',  sounds:['short-oo','long-oo'],   category:'variant' },
+    { pair:'oo', word:'moon',    emoji:'🌙', sound:'long-oo',   sounds:['short-oo','long-oo'],   category:'variant' },
+    { pair:'oo', word:'foot',    emoji:'🦶', sound:'short-oo',  sounds:['short-oo','long-oo'],   category:'variant' },
+    { pair:'oo', word:'food',    emoji:'🍕', sound:'long-oo',   sounds:['short-oo','long-oo'],   category:'variant' },
+    // Diphthongs (formerly separate file)
+    { pair:'oi', word:'coin',    emoji:'🪙', sound:'oy-sound',  sounds:['oy-sound'],             category:'diphthong' },
+    { pair:'oi', word:'boil',    emoji:'💧', sound:'oy-sound',  sounds:['oy-sound'],             category:'diphthong' },
+    { pair:'oi', word:'foil',    emoji:'🌿', sound:'oy-sound',  sounds:['oy-sound'],             category:'diphthong' },
+    { pair:'oy', word:'toy',     emoji:'🧸', sound:'oy-sound',  sounds:['oy-sound'],             category:'diphthong' },
+    { pair:'oy', word:'boy',     emoji:'👦', sound:'oy-sound',  sounds:['oy-sound'],             category:'diphthong' },
+    { pair:'oy', word:'joy',     emoji:'😊', sound:'oy-sound',  sounds:['oy-sound'],             category:'diphthong' },
+    { pair:'ou', word:'house',   emoji:'🏠', sound:'ow-sound',  sounds:['ow-sound'],             category:'diphthong' },
+    { pair:'ou', word:'mouse',   emoji:'🐭', sound:'ow-sound',  sounds:['ow-sound'],             category:'diphthong' },
+    { pair:'ou', word:'cloud',   emoji:'☁️', sound:'ow-sound',  sounds:['ow-sound'],             category:'diphthong' },
+    { pair:'ow', word:'cow',     emoji:'🐄', sound:'ow-sound',  sounds:['ow-sound'],             category:'diphthong' },
+    { pair:'ow', word:'owl',     emoji:'🦉', sound:'ow-sound',  sounds:['ow-sound'],             category:'diphthong' },
+    { pair:'ow', word:'bow',     emoji:'🏹', sound:'ow-sound',  sounds:['ow-sound'],             category:'diphthong' },
+  ],
 
   syllables: [
     { word:'cat',      type:'closed',    syllables:1, emoji:'🐱', breakdown:'cat' },
@@ -129,84 +147,5 @@ const PHONICS_DATA = {
     { word:'ocean',    type:'vowel-team',syllables:2, emoji:'🌊', breakdown:'o·cean' },
     { word:'rabbit',   type:'closed',    syllables:2, emoji:'🐰', breakdown:'rab·bit' },
     { word:'table',    type:'open',      syllables:2, emoji:'🪑', breakdown:'ta·ble' },
-    { word:'banana',   type:'open',      syllables:3, emoji:'🍌', breakdown:'ba·na·na' },
-    { word:'elephant', type:'closed',    syllables:3, emoji:'🐘', breakdown:'el·e·phant' },
-    { word:'chocolate',type:'closed',    syllables:3, emoji:'🍫', breakdown:'choc·o·late' },
   ],
-
-  vowelDigraphs: [
-    { pair:'ea', word:'bread',   emoji:'🍞', sound:'short-eh', sounds:['short-eh','long-ay'] },
-    { pair:'ea', word:'leaf',    emoji:'🍃', sound:'long-ay', sounds:['short-eh','long-ay'] },
-    { pair:'ea', word:'head',    emoji:'🦴', sound:'short-eh', sounds:['short-eh','long-ay'] },
-    { pair:'ea', word:'read',    emoji:'📖', sound:'long-ay', sounds:['short-eh','long-ay'] },
-    { pair:'oo', word:'book',    emoji:'📕', sound:'short-oo', sounds:['short-oo','long-oo'] },
-    { pair:'oo', word:'moon',    emoji:'🌙', sound:'long-oo', sounds:['short-oo','long-oo'] },
-    { pair:'oo', word:'foot',    emoji:'🦶', sound:'short-oo', sounds:['short-oo','long-oo'] },
-    { pair:'oo', word:'food',    emoji:'🍕', sound:'long-oo', sounds:['short-oo','long-oo'] },
-    { pair:'ai', word:'rain',    emoji:'🌧️', sound:'long-ay', sounds:['long-ay'] },
-    { pair:'ay', word:'play',    emoji:'🎮', sound:'long-ay', sounds:['long-ay'] },
-    { pair:'ee', word:'bee',     emoji:'🐝', sound:'long-ee', sounds:['long-ee'] },
-    { pair:'ie', word:'pie',     emoji:'🥧', sound:'long-eye', sounds:['long-eye'] },
-    { pair:'oa', word:'boat',    emoji:'⛵', sound:'long-oh', sounds:['long-oh'] },
-    { pair:'ue', word:'blue',    emoji:'🔵', sound:'long-oo', sounds:['long-oo'] },
-    { pair:'igh', word:'light',  emoji:'💡', sound:'long-eye', sounds:['long-eye'] },
-    { pair:'aw', word:'saw',     emoji:'🪓', sound:'aw', sounds:['aw'] },
-    { pair:'au', word:'haul',    emoji:'🚛', sound:'aw', sounds:['aw'] },
-    { pair:'ew', word:'new',     emoji:'🆕', sound:'long-oo', sounds:['long-oo'] },
-    { pair:'oi', word:'coin',    emoji:'🪙', sound:'oy-sound', sounds:['oy-sound'] },
-    { pair:'oi', word:'boil',    emoji:'💧', sound:'oy-sound', sounds:['oy-sound'] },
-    { pair:'oi', word:'foil',    emoji:'🌿', sound:'oy-sound', sounds:['oy-sound'] },
-    { pair:'oy', word:'toy',     emoji:'🧸', sound:'oy-sound', sounds:['oy-sound'] },
-    { pair:'oy', word:'boy',     emoji:'👦', sound:'oy-sound', sounds:['oy-sound'] },
-    { pair:'oy', word:'joy',     emoji:'😊', sound:'oy-sound', sounds:['oy-sound'] },
-    { pair:'ou', word:'house',   emoji:'🏠', sound:'ow-sound', sounds:['ow-sound'] },
-    { pair:'ou', word:'mouse',   emoji:'🐭', sound:'ow-sound', sounds:['ow-sound'] },
-    { pair:'ou', word:'cloud',   emoji:'☁️', sound:'ow-sound', sounds:['ow-sound'] },
-    { pair:'ow', word:'cow',     emoji:'🐄', sound:'ow-sound', sounds:['ow-sound'] },
-    { pair:'ow', word:'owl',     emoji:'🦉', sound:'ow-sound', sounds:['ow-sound'] },
-    { pair:'ow', word:'bow',     emoji:'🏹', sound:'ow-sound', sounds:['ow-sound'] },
-  ],
-
-  // Activities metadata used by the curriculum UI and activity-gating
-  activities: [
-    { id:'letter-recognition', title:'Alphabet: Letter Recognition', description:'Recognize letters and hear their sounds', file:'alphabet.html', emoji:'🔤', stageIndex:0, premium:false, difficulty:'easy', ttsHint:'letters' },
-    { id:'sound-matching', title:'Sound Matching', description:'Match sounds to letters and words', file:'listen-choose.html', emoji:'🎧', stageIndex:0, premium:false, difficulty:'easy' },
-    { id:'alphabet-balloon', title:'Alphabet Balloon Pop', description:'Pop balloons to identify letters', file:'alphabet-ballon-pop.html', emoji:'🎈', stageIndex:0, premium:true, difficulty:'easy' },
-    { id:'blending-intro', title:'Intro to Blending', description:'Blend sounds to form simple words', file:'phonic-set1.html', emoji:'🧩', stageIndex:0, premium:false, difficulty:'easy' },
-
-    { id:'cvc-words', title:'CVC Word Blending', description:'Blend consonant-vowel-consonant words', file:'cvc.html', emoji:'🐱', stageIndex:1, premium:true, difficulty:'easy' },
-    { id:'progress-tracker', title:'Progress Tracker', description:'Track learning progress and achievements', file:'trace.html', emoji:'📈', stageIndex:1, premium:true, difficulty:'n/a', parentFacing:true },
-    { id:'silent-e-words', title:'Magic E (Silent-e)', description:'Change short vowels to long with Magic E', file:'magic-e.html', emoji:'🪄', stageIndex:1, premium:true, difficulty:'medium' },
-    { id:'syllables', title:'Syllable Types', description:'Identify syllable types and break words apart', file:'syllables.html', emoji:'🔡', stageIndex:1, premium:true, difficulty:'medium' },
-
-    { id:'digraph-practice', title:'Digraph Practice', description:'Practice digraphs like SH, CH, TH', file:'digraphs.html', emoji:'🦈', stageIndex:2, premium:true, difficulty:'medium' },
-    { id:'vowel-digraphs', title:'Vowel Digraphs', description:'Explore vowel pairs like EA, OO, and vowel sounds (oi/oy, ou/ow)', file:'digraph_fill.html', emoji:'🍞', stageIndex:2, premium:true, difficulty:'medium' },
-    { id:'vowel-teams', title:'Vowel Teams', description:'Learn vowel team sounds (ea, ai, oa)', file:'vowels.html', emoji:'🍃', stageIndex:2, premium:true, difficulty:'medium' },
-    { id:'sight-words', title:'Sight Words', description:'Recognize high-frequency sight words', file:'sight-words.html', emoji:'✨', stageIndex:2, premium:true, difficulty:'easy' },
-    { id:'word-families', title:'Word Families (Rhymes)', description:'Practice rhyming families and word patterns', file:'rhyme.html', emoji:'🎵', stageIndex:2, premium:true, difficulty:'easy' },
-
-    { id:'story-time', title:'Story Time', description:'Listen to simple stories and answer questions', file:'story.html', emoji:'📚', stageIndex:3, premium:true, difficulty:'medium' },
-    { id:'consonant-blends', title:'Consonant Blends', description:'Practice blends like bl, st, tr', file:'consonant-blend.html', emoji:'🥁', stageIndex:3, premium:true, difficulty:'medium' },
-    { id:'sentence-reading', title:'Sentence Reading', description:'Read and comprehend short sentences', file:'read.html', emoji:'📝', stageIndex:3, premium:true, difficulty:'medium' },
-    { id:'phonics-review', title:'Phonics Review', description:'Mixed practice across phonics skills', file:'phkids.html', emoji:'🔁', stageIndex:3, premium:true, difficulty:'varied' },
-    { id:'assessment-level-1', title:'Assessment Level 1', description:'Adaptive assessment for core skills', file:'word-match.html', emoji:'🧾', stageIndex:3, premium:true, difficulty:'assessment' },
-    { id:'assessment-level-2', title:'Assessment Level 2', description:'Extended assessment with open tasks', file:'word-explore.html', emoji:'🔎', stageIndex:3, premium:true, difficulty:'assessment' },
-    { id:'parent-dashboard', title:'Parent Dashboard', description:'Parent tools and printable resources', file:'parent-dashboard.html', emoji:'👨‍👩‍👧', stageIndex:3, premium:true, difficulty:'n/a', parentFacing:true },
-    { id:'ai-reading-tutor', title:'AI Reading Tutor', description:'Interactive AI-guided fluency practice and phonics coach', file:'pages/ai-reading-tutor.html', emoji:'🦉', stageIndex:3, premium:true, difficulty:'medium' },
-  ],
-
-  // Simple runtime validator to ensure CurriculumManager.STAGES activities are present here.
-  validateActivities: function() {
-    if (typeof window === 'undefined' || !window.CurriculumManager) {
-      console.warn('PHONICS_DATA.validateActivities: CurriculumManager not available yet. Run after page load.');
-      return;
-    }
-    const known = (PHONICS_DATA.activities || []).map(a => a.id);
-    const missing = [];
-    window.CurriculumManager.STAGES.forEach((s, idx) => {
-      (s.activities || []).forEach(id => { if (!known.includes(id)) missing.push({ id, stage: idx, stageName: s.name }); });
-    });
-    if (missing.length) console.warn('PHONICS_DATA: missing activity metadata for:', missing);
-    else console.log('PHONICS_DATA: all curriculum activities present.');
-  },
 };

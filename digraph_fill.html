@@ -15,17 +15,22 @@
 .choice.correct { background:#dcfce7; border-color:var(--clr-green); }
 .choice.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
 .score-info { font-weight:700; color:var(--clr-text-soft); margin-top:16px; }
-.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:20px; }
-.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 14px; font-weight:700; font-size:.9rem; cursor:pointer; transition:all .2s; }
+.mode-toggle { display:flex; gap:6px; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
+.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:7px 12px; font-weight:800; font-size:.82rem; cursor:pointer; transition:all .2s; }
 .mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
-.multi-sound-badge { display:inline-block; background:#fef3c7; color:#92400e; border-radius:6px; padding:4px 10px; font-size:.8rem; font-weight:800; margin-top:8px; }
+.category-badge { display:inline-block; border-radius:6px; padding:3px 10px; font-size:.75rem; font-weight:800; margin-bottom:8px; }
+.cat-digraph    { background:#dbeafe; color:#1d4ed8; }
+.cat-variant    { background:#fef3c7; color:#92400e; }
+.cat-diphthong  { background:#fce7f3; color:#9d174d; }
+.example-sentence { background:#f9fafb; border-left:4px solid var(--clr-accent); border-radius:8px; padding:10px 14px; font-size:.9rem; font-weight:700; color:#444; margin-top:16px; text-align:left; }
+.example-sentence .highlight { color:var(--clr-primary); font-weight:900; }
 </style>
 </head>
 <body>
 <nav class="top-nav">
   <div class="nav-left">
     <a href="index.html" class="nav-home-btn">🏠</a>
-    <span class="nav-title">Digraph Fill</span>
+    <span class="nav-title">Vowel Digraphs</span>
   </div>
 </nav>
 <div class="page-header" style="background:linear-gradient(135deg,#14b8a6,#0d9488)">
@@ -35,14 +40,17 @@
 <main>
 <div class="fill-card" id="fill-card">
   <div class="mode-toggle" id="mode-toggle">
-    <button class="mode-btn active" id="mode-basic">🎯 Basic</button>
-    <button class="mode-btn" id="mode-mixed">🎲 Mixed</button>
+    <button class="mode-btn active" id="mode-all">🎲 All Types</button>
+    <button class="mode-btn" id="mode-digraph">🔵 Digraphs</button>
+    <button class="mode-btn" id="mode-variant">🟡 Multi-sound</button>
+    <button class="mode-btn" id="mode-diphthong">🩷 Diphthongs</button>
   </div>
+  <div class="category-badge cat-digraph" id="cat-badge">Digraph</div>
   <p class="fill-prompt" id="fill-prompt">Which digraph completes the word?</p>
   <div class="blank-word" id="blank-word">__ark</div>
   <div style="font-size:3rem;margin:12px 0" id="fill-emoji">🦈</div>
-  <div id="multi-info" style="display:none"></div>
   <div class="choices" id="choices"></div>
+  <div id="example-area"></div>
   <div class="score-info">Score: <span id="fscore">0</span> / <span id="ftotal">0</span></div>
 </div>
 </main>
@@ -53,71 +61,110 @@
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-const VD = PHONICS_DATA.vowelDigraphs;
-let fscore=0, ftotal=0, answered=false, correct_dg=null, mixedMode=false;
+const ALL_VD = PHONICS_DATA.vowelDigraphs;
+let currentCategory = 'all';
+let fscore=0, ftotal=0, answered=false, correct_dg=null;
+
+// Example sentences for context
+const SENTENCES = {
+  'rain': 'The <b>rain</b> fell on the window.',
+  'play': 'We love to <b>play</b> outside.',
+  'bee':  'The <b>bee</b> buzzed around the flower.',
+  'pie':  'She ate a slice of <b>pie</b>.',
+  'boat': 'The <b>boat</b> sailed on the sea.',
+  'blue': 'The sky is <b>blue</b> today.',
+  'light':'Turn on the <b>light</b>.',
+  'bread':'She buttered the <b>bread</b>.',
+  'leaf': 'A green <b>leaf</b> fell down.',
+  'head': 'He nodded his <b>head</b>.',
+  'read': 'I love to <b>read</b> books.',
+  'book': 'That is a great <b>book</b>.',
+  'moon': 'The <b>moon</b> shines at night.',
+  'foot': 'She hurt her <b>foot</b>.',
+  'food': 'The <b>food</b> smells delicious.',
+  'coin': 'He found a <b>coin</b> on the floor.',
+  'toy':  'The <b>toy</b> was bright and colorful.',
+  'house':'They live in a big <b>house</b>.',
+  'cow':  'The <b>cow</b> says "moo".',
+};
+
+const CAT_LABELS = { digraph:'Digraph', variant:'Multi-sound (ea/oo)', diphthong:'Diphthong (oi/oy/ou/ow)' };
+const CAT_CLASSES = { digraph:'cat-digraph', variant:'cat-variant', diphthong:'cat-diphthong' };
+
+function getPool() {
+  if (currentCategory === 'all') return ALL_VD;
+  return ALL_VD.filter(d => d.category === currentCategory);
+}
 
 function loadQ() {
   answered = false;
-  const idx = Math.floor(Math.random() * VD.length);
-  correct_dg = VD[idx];
+  document.getElementById('example-area').innerHTML = '';
+  const pool = getPool();
+  const idx = Math.floor(Math.random() * pool.length);
+  correct_dg = pool[idx];
   const word = correct_dg.word.toLowerCase();
   const blank = word.replace(correct_dg.pair.toLowerCase(), '__');
+
   document.getElementById('blank-word').textContent = blank;
-  document.getElementById('fill-emoji').textContent = correct_dg.emoji;
-  document.getElementById('fill-prompt').textContent = `Which digraph completes: "${blank}"?`;
-  
-  // Show multi-sound indicator in mixed mode
-  const multiInfo = document.getElementById('multi-info');
-  if (mixedMode && correct_dg.sounds && correct_dg.sounds.length > 1) {
-    multiInfo.innerHTML = `<div class="multi-sound-badge">This digraph has multiple sounds! 🔊</div>`;
-    multiInfo.style.display = 'block';
-  } else {
-    multiInfo.style.display = 'none';
-  }
-  
+  document.getElementById('fill-emoji').textContent = correct_dg.emoji || '📖';
+  document.getElementById('fill-prompt').textContent = `Which letters complete: "${blank}"?`;
+
+  // Category badge
+  const badge = document.getElementById('cat-badge');
+  badge.textContent = CAT_LABELS[correct_dg.category] || correct_dg.category;
+  badge.className = `category-badge ${CAT_CLASSES[correct_dg.category] || 'cat-digraph'}`;
+
   AudioManager.speak(correct_dg.word, {rate:.75});
 
-  const pool = UI.shuffle(VD.filter(d=>d.pair!==correct_dg.pair)).slice(0,3);
-  const opts = UI.shuffle([correct_dg, ...pool]);
-  const ch   = document.getElementById('choices');
-  ch.innerHTML='';
+  // Get distractors from same pool (different pair)
+  const distractors = UI.shuffle(pool.filter(d => d.pair !== correct_dg.pair))
+    .filter((d, i, arr) => arr.findIndex(x => x.pair === d.pair) === i) // unique pairs
+    .slice(0, 3);
+  const opts = UI.shuffle([correct_dg, ...distractors]);
+
+  const ch = document.getElementById('choices');
+  ch.innerHTML = '';
   opts.forEach(o => {
     const btn = document.createElement('button');
-    btn.className='choice'; btn.textContent=o.pair;
+    btn.className = 'choice'; btn.textContent = o.pair;
     btn.addEventListener('click', () => {
-      if(answered) return; answered=true; ftotal++;
-      const right = o.pair===correct_dg.pair;
-      btn.classList.add(right?'correct':'wrong');
-      if(right){ fscore++; AudioManager.playTone('correct'); UI.showFeedback(true); }
-      else { AudioManager.playTone('wrong'); ch.querySelectorAll('.choice').forEach(x=>{ if(x.textContent===correct_dg.pair)x.classList.add('correct'); }); }
-      document.getElementById('fscore').textContent=fscore;
-      document.getElementById('ftotal').textContent=ftotal;
-      ch.querySelectorAll('.choice').forEach(x=>x.style.pointerEvents='none');
-      setTimeout(loadQ, 1400);
+      if (answered) return; answered = true; ftotal++;
+      const right = o.pair === correct_dg.pair;
+      btn.classList.add(right ? 'correct' : 'wrong');
+      if (right) {
+        fscore++;
+        AudioManager.playTone('correct');
+        UI.showFeedback(true);
+        // Show example sentence
+        const sentence = SENTENCES[correct_dg.word.toLowerCase()];
+        if (sentence) {
+          document.getElementById('example-area').innerHTML =
+            `<div class="example-sentence">💬 ${sentence.replace(/<b>(.*?)<\/b>/g, '<span class="highlight">$1</span>')}</div>`;
+        }
+      } else {
+        AudioManager.playTone('wrong');
+        ch.querySelectorAll('.choice').forEach(x => { if (x.textContent === correct_dg.pair) x.classList.add('correct'); });
+      }
+      document.getElementById('fscore').textContent = fscore;
+      document.getElementById('ftotal').textContent = ftotal;
+      ch.querySelectorAll('.choice').forEach(x => x.style.pointerEvents = 'none');
+      setTimeout(loadQ, 1800);
     });
     ch.appendChild(btn);
   });
 }
 
 // Mode toggle
-document.getElementById('mode-basic').addEventListener('click', () => {
-  mixedMode = false;
-  document.getElementById('mode-basic').classList.add('active');
-  document.getElementById('mode-mixed').classList.remove('active');
-  fscore = 0; ftotal = 0;
-  document.getElementById('fscore').textContent = '0';
-  document.getElementById('ftotal').textContent = '0';
-  loadQ();
-});
-
-document.getElementById('mode-mixed').addEventListener('click', () => {
-  mixedMode = true;
-  document.getElementById('mode-mixed').classList.add('active');
-  document.getElementById('mode-basic').classList.remove('active');
-  fscore = 0; ftotal = 0;
-  document.getElementById('fscore').textContent = '0';
-  document.getElementById('ftotal').textContent = '0';
-  loadQ();
+['all','digraph','variant','diphthong'].forEach(cat => {
+  document.getElementById(`mode-${cat}`).addEventListener('click', () => {
+    currentCategory = cat;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`mode-${cat}`).classList.add('active');
+    fscore = 0; ftotal = 0;
+    document.getElementById('fscore').textContent = '0';
+    document.getElementById('ftotal').textContent = '0';
+    loadQ();
+  });
 });
 
 loadQ();
@@ -125,9 +172,7 @@ loadQ();
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("vowel-digraphs");
 window.addEventListener('beforeunload', function() {
   if(typeof analytics!=="undefined") {
-    var s = typeof fscore!=="undefined" ? fscore : 0;
-    var t = typeof ftotal!=="undefined" ? ftotal : 10;
-    analytics.trackActivityComplete("vowel-digraphs", s, t);
+    analytics.trackActivityComplete("vowel-digraphs", typeof fscore!=="undefined"?fscore:0, typeof ftotal!=="undefined"?ftotal:10);
   }
 });</script>
 </body>

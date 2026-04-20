@@ -6,9 +6,6 @@
 <title>📝 CVC Words · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.mode-toggle { display:flex; gap:10px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
-.mode-btn { padding:8px 16px; border:2px solid #ddd; border-radius:12px; background:#f0f0f0; cursor:pointer; font-weight:700; transition:all .2s; }
-.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
 .cvc-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:500px; margin:28px auto; }
 .cvc-emoji { font-size:clamp(3.5rem,12vw,6rem); display:block; margin-bottom:12px; }
 .cvc-slots { display:flex; justify-content:center; gap:12px; margin:20px 0; }
@@ -19,26 +16,24 @@
 }
 .cvc-slot.c-slot { border-color:#6bcb77; color:#16a34a; }
 .cvc-slot.v-slot { border-color:#ff6b6b; color:#dc2626; }
+.cvc-slot.blank  { border-color:#f59e0b; background:#fffbeb; color:#f59e0b; font-size:2rem; }
 .cvc-slot.active { transform:scale(1.12); box-shadow:0 6px 16px rgba(0,0,0,.15); }
-.cvc-slot.empty { background:#fef3c7; border-style:dashed; }
-.cvc-slot.dragging-over { background:#e0e7ff; }
 .label-row { display:flex; justify-content:center; gap:12px; margin-bottom:20px; }
 .label-pill { width:72px; text-align:center; font-size:.8rem; font-weight:800; padding:3px 0; border-radius:6px; }
 .label-c { background:#dcfce7; color:#15803d; }
 .label-v { background:#fee2e2; color:#b91c1c; }
 .btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 .score-badge { font-family:'Fredoka One',cursive; font-size:1.4rem; color:var(--clr-primary); margin-top:16px; }
-.quiz-choice { display:inline-flex; align-items:center; justify-content:center; width:70px; height:70px; border-radius:14px; font-size:2rem; background:#f0f0f0; cursor:pointer; border:3px solid #ddd; transition:all .2s; margin:8px; }
-.quiz-choice:hover { transform:scale(1.08); background:#e8e8e8; }
-.quiz-choice.correct { background:#86efac; border-color:#22c55e; }
-.quiz-choice.incorrect { background:#fca5a5; border-color:#ef4444; }
-.letter-bank { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:20px 0; }
-.letter-chip { display:inline-flex; align-items:center; justify-content:center; width:60px; height:60px; padding:10px; border-radius:12px; font-size:1.8rem; font-weight:700; background:#dbeafe; border:2px solid #3b82f6; cursor:grab; user-select:none; }
-.letter-chip:active { cursor:grabbing; }
-.letter-chip.placed { opacity:.4; }
-.mastery-text { font-size:0.9rem; color:var(--clr-text-soft); margin-top:12px; }
-.mode-section { display:none; }
-.mode-section.active { display:block; }
+.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:20px; }
+.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 16px; font-weight:800; font-size:.9rem; cursor:pointer; }
+.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
+.vowel-choices { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
+.vowel-btn { width:64px; height:64px; border-radius:14px; border:3px solid #e5e7eb; background:#f3f4f6;
+  font-family:'Fredoka One',cursive; font-size:1.8rem; cursor:pointer; transition:all .15s; }
+.vowel-btn:hover { background:#ffe4e1; border-color:var(--clr-primary); }
+.vowel-btn.correct { background:#dcfce7; border-color:var(--clr-green); }
+.vowel-btn.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
+.mastered-chip { display:inline-block; background:#dcfce7; color:#15803d; border-radius:8px; padding:3px 10px; font-size:.75rem; font-weight:800; margin-left:6px; }
 </style>
 </head>
 <body>
@@ -55,68 +50,32 @@
 <main>
 <div class="cvc-card" id="cvc-card">
   <div class="mode-toggle">
-    <button class="mode-btn active" data-mode="browse">👀 Browse</button>
-    <button class="mode-btn" data-mode="quiz">❓ Quiz</button>
-    <button class="mode-btn" data-mode="build">🧩 Build</button>
+    <button class="mode-btn active" id="mode-browse">👀 Browse</button>
+    <button class="mode-btn" id="mode-quiz">🎯 Quiz</button>
   </div>
-
-  <!-- BROWSE MODE -->
-  <div class="mode-section active" id="mode-browse">
-    <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:8px" id="word-count">Word 1 of 18</p>
-    <div class="progress-wrap" style="margin-bottom:20px">
-      <div class="progress-bar" id="prog-bar" style="width:5.5%"></div>
-    </div>
-    <span class="cvc-emoji" id="cvc-emoji">🐱</span>
-    <div class="cvc-slots" id="cvc-slots"></div>
-    <div class="label-row">
-      <div class="label-pill label-c">C</div>
-      <div class="label-pill label-v">V</div>
-      <div class="label-pill label-c">C</div>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary btn-lg" id="btn-speak">🔊 Hear Word</button>
-      <button class="btn btn-accent" id="btn-next">Next →</button>
-    </div>
-    <div class="score-badge">⭐ <span id="seen">0</span> seen</div>
+  <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:8px" id="word-count">Word 1 of 18</p>
+  <div class="progress-wrap" style="margin-bottom:20px">
+    <div class="progress-bar" id="prog-bar" style="width:5.5%"></div>
   </div>
-
-  <!-- QUIZ MODE -->
-  <div class="mode-section" id="mode-quiz">
-    <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:8px" id="quiz-count">Word 1 of 18</p>
-    <div class="progress-wrap" style="margin-bottom:20px">
-      <div class="progress-bar" id="quiz-prog-bar" style="width:5.5%"></div>
-    </div>
-    <span class="cvc-emoji" id="quiz-emoji">🐱</span>
-    <p style="font-size:1.2rem;font-weight:700;margin:16px 0;" id="quiz-prompt">Pick the missing vowel:</p>
-    <div id="quiz-choices"></div>
-    <div class="score-badge">✅ <span id="quiz-correct">0</span>/<span id="quiz-total">0</span> correct</div>
-    <div class="btn-row" style="margin-top:20px;">
-      <button class="btn btn-accent" id="btn-next-quiz">Next →</button>
-    </div>
+  <span class="cvc-emoji" id="cvc-emoji">🐱</span>
+  <div class="cvc-slots" id="cvc-slots"></div>
+  <div class="label-row" id="label-row">
+    <div class="label-pill label-c">C</div>
+    <div class="label-pill label-v">V</div>
+    <div class="label-pill label-c">C</div>
   </div>
-
-  <!-- BUILD MODE -->
-  <div class="mode-section" id="mode-build">
-    <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:8px" id="build-count">Word 1 of 18</p>
-    <div class="progress-wrap" style="margin-bottom:20px">
-      <div class="progress-bar" id="build-prog-bar" style="width:5.5%"></div>
-    </div>
-    <span class="cvc-emoji" id="build-emoji">🐱</span>
-    <p style="font-size:1rem;font-weight:700;margin:12px 0;">Drag letters to build the word:</p>
-    <div class="cvc-slots" id="build-slots"></div>
-    <div class="label-row">
-      <div class="label-pill label-c">C</div>
-      <div class="label-pill label-v">V</div>
-      <div class="label-pill label-c">C</div>
-    </div>
-    <p style="font-size:0.9rem;font-weight:700;color:var(--clr-text-soft);margin:16px 0 8px 0;">Available letters:</p>
-    <div class="letter-bank" id="letter-bank"></div>
-    <div id="build-feedback" style="font-size:1.1rem;font-weight:700;margin:16px 0;min-height:24px;"></div>
-    <div class="btn-row">
-      <button class="btn btn-primary" id="btn-build-skip">Skip</button>
-      <button class="btn btn-accent" id="btn-build-next" style="display:none;">Next →</button>
-    </div>
+  <!-- Quiz vowel choices (hidden in browse mode) -->
+  <div id="quiz-area" style="display:none">
+    <p style="font-weight:800;color:var(--clr-text-soft);margin-bottom:8px">Which vowel completes the word?</p>
+    <div class="vowel-choices" id="vowel-choices"></div>
   </div>
+  <div class="btn-row" id="browse-btns">
+    <button class="btn btn-primary btn-lg" id="btn-speak">🔊 Hear Word</button>
+    <button class="btn btn-accent" id="btn-next">Next →</button>
+    <button class="btn btn-green btn-sm" id="btn-mastered" style="padding:10px 14px;font-size:.85rem">✅ Mastered</button>
+  </div>
+  <div class="score-badge">⭐ <span id="seen">0</span> seen · ✅ <span id="mastered-count">0</span> mastered</div>
+</div>
 </main>
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
@@ -127,194 +86,127 @@
 <script>
 const WORDS = UI.shuffle(PHONICS_DATA.cvc);
 const VOWELS_SET = new Set(['a','e','i','o','u']);
-const VOWELS_ARR = ['a','e','i','o','u'];
-let currentMode = 'browse';
-let browseIdx = 0, quizIdx = 0, buildIdx = 0;
-let quizCorrect = 0, quizTotal = 0;
-let mastered = new Set(); // Track mastered words
+const ALL_VOWELS = ['a','e','i','o','u'];
+let idx = 0, quizMode = false, quizAnswered = false;
+let masteredWords = new Set(JSON.parse(localStorage.getItem('ph_cvc_mastered') || '[]'));
 
-// Storage
-const STORAGE_KEY = 'ph_cvc_mastered';
-try { mastered = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); } catch(e) {}
+function saveMastered() {
+  localStorage.setItem('ph_cvc_mastered', JSON.stringify([...masteredWords]));
+  document.getElementById('mastered-count').textContent = masteredWords.size;
+}
 
-function saveMastery() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mastered))); } catch(e) {}
+function loadWord() {
+  if (idx >= WORDS.length) { idx = 0; UI.toast('All done! Shuffling 🔀'); }
+  quizAnswered = false;
+  const item = WORDS[idx];
+  const letters = item.word.split('');
+  const vowelIdx = letters.findIndex(c => VOWELS_SET.has(c));
+
+  document.getElementById('word-count').textContent = `Word ${idx+1} of ${WORDS.length}`;
+  document.getElementById('cvc-emoji').textContent = item.emoji;
+  UI.updateProgress(document.getElementById('prog-bar'), idx+1, WORDS.length);
+  document.getElementById('seen').textContent = idx;
+
+  const slots = document.getElementById('cvc-slots');
+  slots.innerHTML = '';
+  letters.forEach((ch, i) => {
+    const slot = document.createElement('div');
+    const isVowel = VOWELS_SET.has(ch);
+    if (quizMode && i === vowelIdx) {
+      slot.className = 'cvc-slot blank';
+      slot.textContent = '?';
+    } else {
+      slot.className = `cvc-slot ${isVowel ? 'v-slot' : 'c-slot'}`;
+      slot.textContent = ch.toUpperCase();
+      slot.addEventListener('click', () => {
+        AudioManager.speak(ch, {rate:.7});
+        slot.classList.add('active');
+        setTimeout(()=>slot.classList.remove('active'), 400);
+      });
+    }
+    slots.appendChild(slot);
+  });
+
+  // Quiz mode: show vowel choices
+  const quizArea = document.getElementById('quiz-area');
+  if (quizMode) {
+    quizArea.style.display = 'block';
+    document.getElementById('browse-btns').style.display = 'none';
+    const correctVowel = letters[vowelIdx];
+    const wrongVowels = ALL_VOWELS.filter(v => v !== correctVowel);
+    const choices = UI.shuffle([correctVowel, ...UI.shuffle(wrongVowels).slice(0,2)]);
+    const vc = document.getElementById('vowel-choices');
+    vc.innerHTML = '';
+    choices.forEach(v => {
+      const btn = document.createElement('button');
+      btn.className = 'vowel-btn';
+      btn.textContent = v.toUpperCase();
+      btn.addEventListener('click', () => {
+        if (quizAnswered) return;
+        quizAnswered = true;
+        const correct = v === correctVowel;
+        btn.classList.add(correct ? 'correct' : 'wrong');
+        if (correct) {
+          AudioManager.playTone('correct');
+          UI.showFeedback(true);
+          // Reveal the blank
+          const blankSlot = slots.querySelector('.blank');
+          if (blankSlot) { blankSlot.textContent = v.toUpperCase(); blankSlot.className = 'cvc-slot v-slot'; }
+          AudioManager.speak(item.word, {rate:.75});
+        } else {
+          AudioManager.playTone('wrong');
+          vc.querySelectorAll('.vowel-btn').forEach(b => { if(b.textContent===correctVowel.toUpperCase()) b.classList.add('correct'); });
+        }
+        vc.querySelectorAll('.vowel-btn').forEach(b => b.style.pointerEvents='none');
+        setTimeout(() => { idx++; loadWord(); }, 1400);
+      });
+      vc.appendChild(btn);
+    });
+    AudioManager.speak(item.word.replace(letters[vowelIdx], '___'), {rate:.75});
+  } else {
+    quizArea.style.display = 'none';
+    document.getElementById('browse-btns').style.display = 'flex';
+  }
+
+  // Mastered chip
+  const wc = document.getElementById('word-count');
+  wc.innerHTML = `Word ${idx+1} of ${WORDS.length}${masteredWords.has(item.word)?'<span class="mastered-chip">✅ Mastered</span>':''}`;
 }
 
 // Mode toggle
-document.querySelectorAll('.mode-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
-    btn.classList.add('active');
-    currentMode = btn.dataset.mode;
-    document.getElementById(`mode-${currentMode}`).classList.add('active');
-    if (currentMode === 'quiz' && quizTotal === 0) { loadQuizWord(); }
-    if (currentMode === 'build' && buildIdx === 0) { loadBuildWord(); }
-  });
+document.getElementById('mode-browse').addEventListener('click', () => {
+  quizMode = false;
+  document.getElementById('mode-browse').classList.add('active');
+  document.getElementById('mode-quiz').classList.remove('active');
+  loadWord();
+});
+document.getElementById('mode-quiz').addEventListener('click', () => {
+  quizMode = true;
+  document.getElementById('mode-quiz').classList.add('active');
+  document.getElementById('mode-browse').classList.remove('active');
+  loadWord();
 });
 
-// ═══════════════════════════════════════════ BROWSE MODE ═══════════════════════════════════════════
-function loadBrowseWord() {
-  if (browseIdx >= WORDS.length) { browseIdx = 0; UI.toast('All done! Shuffling... 🔀'); }
-  const item = WORDS[browseIdx];
-  const letters = item.word.split('');
-  document.getElementById('word-count').textContent = `Word ${browseIdx+1} of ${WORDS.length}`;
-  document.getElementById('cvc-emoji').textContent = item.emoji;
-  UI.updateProgress(document.getElementById('prog-bar'), browseIdx+1, WORDS.length);
-  document.getElementById('seen').textContent = browseIdx;
-  const slots = document.getElementById('cvc-slots');
-  slots.innerHTML = '';
-  letters.forEach((ch) => {
-    const slot = document.createElement('div');
-    slot.className = `cvc-slot ${VOWELS_SET.has(ch) ? 'v-slot' : 'c-slot'}`;
-    slot.textContent = ch.toUpperCase();
-    slot.addEventListener('click', () => { AudioManager.speak(ch, {rate:.7}); slot.classList.add('active'); setTimeout(()=>slot.classList.remove('active'), 400); });
-    slots.appendChild(slot);
-  });
-}
+document.getElementById('btn-speak').addEventListener('click', () => { AudioManager.speak(WORDS[idx].word, {rate:.75}); });
+document.getElementById('btn-next').addEventListener('click', () => { idx++; loadWord(); });
+document.getElementById('btn-mastered').addEventListener('click', () => {
+  masteredWords.add(WORDS[idx].word);
+  saveMastered();
+  AudioManager.playTone('star');
+  UI.showFeedback(true);
+  UI.toast(`✅ ${WORDS[idx].word} mastered!`);
+  if (window.CurriculumManager) window.CurriculumManager.markActivityComplete('cvc-words');
+  idx++;
+  loadWord();
+});
 
-document.getElementById('btn-speak').addEventListener('click', () => { AudioManager.speak(WORDS[browseIdx].word, {rate:.75}); });
-document.getElementById('btn-next').addEventListener('click', () => { browseIdx++; loadBrowseWord(); });
-
-// ═══════════════════════════════════════════ QUIZ MODE ═══════════════════════════════════════════
-function loadQuizWord() {
-  if (quizIdx >= WORDS.length) { quizIdx = 0; UI.toast('Quiz done! ' + quizCorrect + '/' + quizTotal + ' correct 🎉'); quizCorrect = 0; quizTotal = 0; }
-  const item = WORDS[quizIdx];
-  const answer = item.word[1]; // middle vowel
-  document.getElementById('quiz-count').textContent = `Word ${quizIdx+1} of ${WORDS.length}`;
-  document.getElementById('quiz-emoji').textContent = item.emoji;
-  UI.updateProgress(document.getElementById('quiz-prog-bar'), quizIdx+1, WORDS.length);
-  document.getElementById('quiz-total').textContent = quizTotal;
-  document.getElementById('quiz-correct').textContent = quizCorrect;
-  
-  // Create choices: answer + 2 random wrong
-  const choices = [answer];
-  while (choices.length < 3) {
-    const v = VOWELS_ARR[Math.floor(Math.random() * VOWELS_ARR.length)];
-    if (!choices.includes(v)) choices.push(v);
-  }
-  UI.shuffle(choices);
-  
-  const choicesDiv = document.getElementById('quiz-choices');
-  choicesDiv.innerHTML = '';
-  choices.forEach(v => {
-    const btn = document.createElement('div');
-    btn.className = 'quiz-choice';
-    btn.textContent = v.toUpperCase();
-    btn.addEventListener('click', () => {
-      quizTotal++;
-      if (v === answer) {
-        btn.classList.add('correct');
-        quizCorrect++;
-        mastered.add(item.word);
-        saveMastery();
-        UI.toast('✅ Correct!');
-      } else {
-        btn.classList.add('incorrect');
-        UI.toast('❌ Try again!');
-      }
-      document.querySelectorAll('.quiz-choice').forEach(b => b.style.pointerEvents = 'none');
-      setTimeout(() => { quizIdx++; loadQuizWord(); }, 800);
-    });
-    choicesDiv.appendChild(btn);
-  });
-}
-
-document.getElementById('btn-next-quiz').addEventListener('click', () => { quizIdx++; loadQuizWord(); });
-
-// ═══════════════════════════════════════════ BUILD MODE ═══════════════════════════════════════════
-let currentBuildWord = null;
-let buildSlots = [];
-
-function loadBuildWord() {
-  if (buildIdx >= WORDS.length) { buildIdx = 0; UI.toast('Build round done! 🏗️'); }
-  currentBuildWord = WORDS[buildIdx];
-  const letters = currentBuildWord.word.split('');
-  document.getElementById('build-count').textContent = `Word ${buildIdx+1} of ${WORDS.length}`;
-  document.getElementById('build-emoji').textContent = currentBuildWord.emoji;
-  UI.updateProgress(document.getElementById('build-prog-bar'), buildIdx+1, WORDS.length);
-  
-  // Build empty slots
-  const slots = document.getElementById('build-slots');
-  slots.innerHTML = '';
-  buildSlots = [];
-  letters.forEach((ch, i) => {
-    const slot = document.createElement('div');
-    slot.className = `cvc-slot empty ${VOWELS_SET.has(ch) ? 'v-slot' : 'c-slot'}`;
-    slot.textContent = '';
-    slot.dataset.index = i;
-    slot.dataset.answer = ch;
-    slot.addEventListener('dragover', (e) => { e.preventDefault(); slot.classList.add('dragging-over'); });
-    slot.addEventListener('dragleave', () => { slot.classList.remove('dragging-over'); });
-    slot.addEventListener('drop', (e) => { e.preventDefault(); handleDrop(slot); });
-    slots.appendChild(slot);
-    buildSlots[i] = { slot, answer: ch, filled: false };
-  });
-  
-  // Create letter bank (shuffled)
-  const bank = document.getElementById('letter-bank');
-  bank.innerHTML = '';
-  UI.shuffle(letters).forEach((ch, idx) => {
-    const chip = document.createElement('div');
-    chip.className = 'letter-chip';
-    chip.textContent = ch.toUpperCase();
-    chip.draggable = true;
-    chip.dataset.letter = ch;
-    chip.dataset.chipIdx = idx;
-    chip.addEventListener('dragstart', (e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('letter', ch); });
-    bank.appendChild(chip);
-  });
-  
-  document.getElementById('build-feedback').innerHTML = '';
-  document.getElementById('btn-build-next').style.display = 'none';
-  document.getElementById('btn-build-skip').style.display = 'block';
-}
-
-function handleDrop(slot) {
-  slot.classList.remove('dragging-over');
-  const letter = event.dataTransfer.getData('letter');
-  if (!letter) return;
-  
-  if (slot.textContent) return; // already filled
-  
-  const answer = slot.dataset.answer;
-  if (letter === answer) {
-    slot.textContent = letter.toUpperCase();
-    slot.classList.remove('empty');
-    document.querySelector(`.letter-chip[data-letter="${letter}"]`).classList.add('placed');
-    
-    // Check if all filled
-    if (buildSlots.every(s => s.slot.textContent)) {
-      mastered.add(currentBuildWord.word);
-      saveMastery();
-      document.getElementById('build-feedback').innerHTML = '✅ Perfect! Word built correctly!';
-      document.getElementById('build-feedback').style.color = '#16a34a';
-      document.getElementById('btn-build-next').style.display = 'block';
-      document.getElementById('btn-build-skip').style.display = 'none';
-    }
-  } else {
-    document.getElementById('build-feedback').innerHTML = '❌ That letter doesn\'t fit here!';
-    document.getElementById('build-feedback').style.color = '#dc2626';
-  }
-}
-
-document.getElementById('btn-build-skip').addEventListener('click', () => { buildIdx++; loadBuildWord(); });
-document.getElementById('btn-build-next').addEventListener('click', () => { buildIdx++; loadBuildWord(); });
-
-// Start
-loadBrowseWord();
+saveMastered();
+loadWord();
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("cvc-words");
 window.addEventListener('beforeunload', function() {
-  if(typeof analytics!=="undefined") {
-    var s = quizCorrect || 0;
-    var t = quizTotal || 10;
-    analytics.trackActivityComplete("cvc-words", s, t);
-  }
-  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
-    window.CurriculumManager.markActivityComplete('cvc-words');
-  }
+  if(typeof analytics!=="undefined") analytics.trackActivityComplete("cvc-words", 0, 18);
+  if (window.CurriculumManager) window.CurriculumManager.markActivityComplete('cvc-words');
 });</script>
 </body>
 </html>

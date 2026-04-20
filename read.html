@@ -7,12 +7,31 @@
 <link rel="stylesheet" href="css/shared.css">
 <style>
 .read-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:560px; margin:28px auto; }
-.sentence-display { font-size:clamp(1.4rem,5vw,2.2rem); font-weight:800; line-height:1.7; color:var(--clr-text); margin:20px 0; min-height:100px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px; }
+.sentence-display { font-size:clamp(1.4rem,5vw,2.2rem); font-weight:800; line-height:1.7; color:var(--clr-text); margin:20px 0; min-height:80px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px; }
 .word-token { cursor:pointer; padding:4px 8px; border-radius:8px; transition:background .15s; }
 .word-token:hover { background:#fff0f0; color:var(--clr-primary); }
 .sentence-emoji { font-size:3.5rem; display:block; margin-bottom:12px; }
 .sentence-index { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:8px; }
 .btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
+.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:16px; }
+.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 16px; font-weight:800; font-size:.9rem; cursor:pointer; }
+.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
+/* Comprehension quiz */
+.comp-section { background:#f9fafb; border-radius:16px; padding:16px; margin-top:16px; border:3px solid var(--clr-secondary); }
+.comp-q { font-weight:800; font-size:1rem; margin-bottom:12px; }
+.comp-choices { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.comp-btn { background:white; border:3px solid #e5e7eb; border-radius:12px; padding:10px 16px; font-weight:800; font-size:.9rem; cursor:pointer; transition:all .15s; }
+.comp-btn.correct { background:#dcfce7; border-color:var(--clr-green); }
+.comp-btn.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
+/* Builder mode */
+.builder-pool { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:12px 0; min-height:52px; }
+.builder-answer { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; min-height:52px; background:#f0fdf4; border-radius:14px; padding:10px; border:3px dashed #bbf7d0; margin-bottom:12px; }
+.word-chip { background:#e0e7ff; color:#3730a3; border:none; border-radius:10px; padding:8px 14px; font-family:'Fredoka One',cursive; font-size:1.1rem; cursor:pointer; transition:all .15s; }
+.word-chip:hover { transform:translateY(-2px); }
+.word-chip.placed { background:#dcfce7; color:#15803d; }
+.word-chip.in-answer { background:#667eea; color:white; }
+.stats-row { display:flex; gap:12px; justify-content:center; margin-top:12px; font-weight:700; font-size:.9rem; }
+.stat-p { background:#f3f4f6; border-radius:8px; padding:5px 12px; }
 </style>
 </head>
 <body>
@@ -24,20 +43,49 @@
 </nav>
 <div class="page-header" style="background:linear-gradient(135deg,#0284c7,#0369a1)">
   <h1>📚 Sentence Reading</h1>
-  <p>Tap each word to hear it — then read the whole sentence!</p>
+  <p>Read, understand, and build sentences!</p>
 </div>
 <main>
 <div class="read-card">
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="mode-read">📖 Read & Listen</button>
+    <button class="mode-btn" id="mode-build">🔨 Build It</button>
+  </div>
   <p class="sentence-index" id="sent-idx">Sentence 1 of 12</p>
   <div class="progress-wrap" style="margin-bottom:20px">
     <div class="progress-bar" id="prog-bar" style="width:8%"></div>
   </div>
   <span class="sentence-emoji" id="sent-emoji">🐱</span>
-  <div class="sentence-display" id="sent-display"></div>
-  <div class="btn-row">
-    <button class="btn btn-primary btn-lg" id="btn-read">🔊 Read Sentence</button>
-    <button class="btn btn-secondary" id="btn-prev">← Prev</button>
-    <button class="btn btn-accent"    id="btn-next">Next →</button>
+
+  <!-- Read mode -->
+  <div id="read-mode">
+    <div class="sentence-display" id="sent-display"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary btn-lg" id="btn-read">🔊 Read Sentence</button>
+      <button class="btn btn-secondary" id="btn-prev">← Prev</button>
+      <button class="btn btn-accent" id="btn-next-read">Next →</button>
+    </div>
+    <!-- Comprehension section -->
+    <div class="comp-section" id="comp-section" style="display:none">
+      <div class="comp-q" id="comp-q"></div>
+      <div class="comp-choices" id="comp-choices"></div>
+    </div>
+  </div>
+
+  <!-- Build mode -->
+  <div id="build-mode" style="display:none">
+    <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:8px">Tap words in the right order to build the sentence!</p>
+    <div class="builder-answer" id="builder-answer"></div>
+    <div class="builder-pool" id="builder-pool"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="btn-clear-build">🗑 Clear</button>
+      <button class="btn btn-primary" id="btn-check-build">✅ Check</button>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-p">📖 Read: <span id="read-count">0</span></div>
+    <div class="stat-p">✅ Comp: <span id="comp-count">0</span></div>
   </div>
 </div>
 </main>
@@ -48,50 +96,156 @@
 <script src="js/ui.js"></script>
 <script>
 const SENTENCES = [
-  { text:'The cat sat on the mat.',       emoji:'🐱' },
-  { text:'A dog ran in the park.',         emoji:'🐶' },
-  { text:'The big red bus went fast.',     emoji:'🚌' },
-  { text:'She has a pet fish.',            emoji:'🐟' },
-  { text:'The sun is hot and bright.',     emoji:'☀️' },
-  { text:'A frog can hop on a log.',       emoji:'🐸' },
-  { text:'The hen sits on her eggs.',      emoji:'🐔' },
-  { text:'He can run and jump.',           emoji:'🏃' },
-  { text:'The pig digs in the mud.',       emoji:'🐷' },
-  { text:'A bird can sing and fly.',       emoji:'🐦' },
-  { text:'The cup of milk is cold.',       emoji:'🥛' },
-  { text:'They play in the sand.',         emoji:'🏖️' },
+  { text:'The cat sat on the mat.',      emoji:'🐱', question:'Where did the cat sit?', options:['On the mat','In the tree','Under the bed'], answer:'On the mat' },
+  { text:'A dog ran in the park.',        emoji:'🐶', question:'What did the dog do?', options:['Slept','Ran','Swam'], answer:'Ran' },
+  { text:'The big red bus went fast.',    emoji:'🚌', question:'What colour was the bus?', options:['Blue','Red','Green'], answer:'Red' },
+  { text:'She has a pet fish.',           emoji:'🐟', question:'What pet does she have?', options:['A fish','A cat','A bird'], answer:'A fish' },
+  { text:'The sun is hot and bright.',    emoji:'☀️', question:'How is the sun described?', options:['Cold and dark','Hot and bright','Wet and heavy'], answer:'Hot and bright' },
+  { text:'A frog can hop on a log.',      emoji:'🐸', question:'What can the frog hop on?', options:['A log','A rock','A leaf'], answer:'A log' },
+  { text:'The hen sits on her eggs.',     emoji:'🐔', question:'What does the hen sit on?', options:['A nest','Her eggs','The ground'], answer:'Her eggs' },
+  { text:'He can run and jump.',          emoji:'🏃', question:'What two things can he do?', options:['Swim and fly','Run and jump','Sing and dance'], answer:'Run and jump' },
+  { text:'The pig digs in the mud.',      emoji:'🐷', question:'Where does the pig dig?', options:['In the sand','In the mud','In the snow'], answer:'In the mud' },
+  { text:'A bird can sing and fly.',      emoji:'🐦', question:'What can the bird do?', options:['Run and swim','Sing and fly','Hop and skip'], answer:'Sing and fly' },
+  { text:'The cup of milk is cold.',      emoji:'🥛', question:'How is the milk?', options:['Hot','Cold','Warm'], answer:'Cold' },
+  { text:'They play in the sand.',        emoji:'🏖️', question:'Where do they play?', options:['In the sand','In the mud','In the snow'], answer:'In the sand' },
 ];
-let idx = 0;
 
-function render() {
+let idx = 0, readMode = true, readCount = 0, compCount = 0;
+let compAnswered = false, buildPlaced = [];
+
+function updateStats() {
+  document.getElementById('read-count').textContent = readCount;
+  document.getElementById('comp-count').textContent = compCount;
+}
+
+function renderSentence() {
   const s = SENTENCES[idx];
-  document.getElementById('sent-idx').textContent  = `Sentence ${idx+1} of ${SENTENCES.length}`;
+  document.getElementById('sent-idx').textContent = `Sentence ${idx+1} of ${SENTENCES.length}`;
   document.getElementById('sent-emoji').textContent = s.emoji;
   UI.updateProgress(document.getElementById('prog-bar'), idx+1, SENTENCES.length);
-  const disp = document.getElementById('sent-display');
-  disp.innerHTML = '';
-  s.text.split(' ').forEach(word => {
-    const span = document.createElement('span');
-    span.className = 'word-token';
-    span.textContent = word;
-    span.addEventListener('click', () => AudioManager.speak(word.replace(/[^a-zA-Z]/g,''), {rate:.7}));
-    disp.appendChild(span);
+
+  if (readMode) {
+    document.getElementById('comp-section').style.display = 'none';
+    compAnswered = false;
+    const disp = document.getElementById('sent-display');
+    disp.innerHTML = '';
+    s.text.split(' ').forEach(word => {
+      const span = document.createElement('span');
+      span.className = 'word-token';
+      span.textContent = word;
+      span.addEventListener('click', () => AudioManager.speak(word.replace(/[^a-zA-Z]/g,''), {rate:.7}));
+      disp.appendChild(span);
+    });
+  } else {
+    renderBuilder(s);
+  }
+}
+
+function showComprehension() {
+  if (compAnswered) return;
+  const s = SENTENCES[idx];
+  const comp = document.getElementById('comp-section');
+  comp.style.display = 'block';
+  document.getElementById('comp-q').textContent = s.question;
+  const cc = document.getElementById('comp-choices');
+  cc.innerHTML = '';
+  UI.shuffle(s.options).forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'comp-btn'; btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      if (compAnswered) return; compAnswered = true;
+      const right = opt === s.answer;
+      btn.classList.add(right ? 'correct' : 'wrong');
+      if (right) { compCount++; AudioManager.playTone('correct'); UI.showFeedback(true); updateStats(); }
+      else { AudioManager.playTone('wrong'); cc.querySelectorAll('.comp-btn').forEach(b=>{if(b.textContent===s.answer)b.classList.add('correct');}); }
+      cc.querySelectorAll('.comp-btn').forEach(b => b.style.pointerEvents='none');
+    });
+    cc.appendChild(btn);
   });
 }
 
-document.getElementById('btn-read').addEventListener('click', () => AudioManager.speak(SENTENCES[idx].text, {rate:.8}));
-document.getElementById('btn-prev').addEventListener('click', () => { idx=(idx-1+SENTENCES.length)%SENTENCES.length; render(); });
-document.getElementById('btn-next').addEventListener('click', () => { idx=(idx+1)%SENTENCES.length; render(); });
+function renderBuilder(s) {
+  buildPlaced = [];
+  const words = s.text.replace(/\./g,'').split(' ');
+  const shuffled = UI.shuffle([...words]);
 
-render();
+  const answer = document.getElementById('builder-answer');
+  const pool = document.getElementById('builder-pool');
+  answer.innerHTML = '<span style="color:#aaa;font-size:.85rem;font-weight:700">Tap words to place them here…</span>';
+  pool.innerHTML = '';
+
+  const answerWords = [];
+
+  shuffled.forEach(word => {
+    const chip = document.createElement('button');
+    chip.className = 'word-chip'; chip.textContent = word; chip.dataset.word = word;
+    chip.addEventListener('click', () => {
+      if (chip.disabled) return;
+      chip.disabled = true; chip.classList.add('placed');
+      answerWords.push(word);
+
+      // Update answer area
+      if (answerWords.length === 1) answer.innerHTML = '';
+      const placed = document.createElement('button');
+      placed.className = 'word-chip in-answer'; placed.textContent = word;
+      placed.addEventListener('click', () => {
+        // Remove from answer
+        const aidx = answerWords.indexOf(word);
+        if (aidx !== -1) answerWords.splice(aidx, 1);
+        placed.remove();
+        chip.disabled = false; chip.classList.remove('placed');
+        if (answerWords.length === 0) answer.innerHTML = '<span style="color:#aaa;font-size:.85rem;font-weight:700">Tap words to place them here…</span>';
+      });
+      answer.appendChild(placed);
+    });
+    pool.appendChild(chip);
+  });
+
+  document.getElementById('btn-clear-build').onclick = () => renderBuilder(s);
+  document.getElementById('btn-check-build').onclick = () => {
+    const correct = answerWords.join(' ') === words.join(' ');
+    if (correct) {
+      AudioManager.playTone('correct'); UI.showFeedback(true);
+      UI.toast('🎉 Correct!');
+      readCount++; updateStats();
+      setTimeout(() => { idx = (idx+1)%SENTENCES.length; renderSentence(); }, 1500);
+    } else {
+      AudioManager.playTone('wrong'); UI.showFeedback(false);
+      UI.toast('Almost! Try again.');
+    }
+  };
+}
+
+document.getElementById('btn-read').addEventListener('click', () => {
+  AudioManager.speak(SENTENCES[idx].text, {rate:.8});
+  readCount++; updateStats();
+  setTimeout(showComprehension, 2500);
+});
+document.getElementById('btn-prev').addEventListener('click', () => { idx=(idx-1+SENTENCES.length)%SENTENCES.length; renderSentence(); });
+document.getElementById('btn-next-read').addEventListener('click', () => { idx=(idx+1)%SENTENCES.length; renderSentence(); });
+
+document.getElementById('mode-read').addEventListener('click', () => {
+  readMode = true;
+  document.getElementById('mode-read').classList.add('active');
+  document.getElementById('mode-build').classList.remove('active');
+  document.getElementById('read-mode').style.display = 'block';
+  document.getElementById('build-mode').style.display = 'none';
+  renderSentence();
+});
+document.getElementById('mode-build').addEventListener('click', () => {
+  readMode = false;
+  document.getElementById('mode-build').classList.add('active');
+  document.getElementById('mode-read').classList.remove('active');
+  document.getElementById('read-mode').style.display = 'none';
+  document.getElementById('build-mode').style.display = 'block';
+  renderSentence();
+});
+
+renderSentence();
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("sentence-reading");
 window.addEventListener('beforeunload', function() {
-  if(typeof analytics!=="undefined") {
-    var s = typeof score!=="undefined" ? score : 0;
-    var t = typeof SENTENCES.length!=="undefined" ? SENTENCES.length : 10;
-    analytics.trackActivityComplete("sentence-reading", s, t);
-  }
+  if(typeof analytics!=="undefined") analytics.trackActivityComplete("sentence-reading", 0, 12);
 });</script>
 </body>
 </html>

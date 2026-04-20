@@ -17,6 +17,7 @@
 .cbtn.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
 .score-bar { display:flex; gap:20px; justify-content:center; margin-top:16px; font-weight:800; }
 .score-pill { background:#f3f4f6; border-radius:10px; padding:6px 16px; font-size:1rem; }
+.weak-badge { display:inline-block; padding:3px 10px; border-radius:6px; font-size:.75rem; font-weight:800; background:#fee2e2; color:#b91c1c; margin:2px; }
 </style>
 </head>
 <body>
@@ -55,42 +56,70 @@
 <script>
 const TOTAL = 20;
 let qNum = 0, correct = 0, wrong = 0, answered = false;
+// Track per-category performance
+const catStats = { Letters:0, Digraphs:0, 'CVC Words':0, Blends:0, 'Vowel Digraphs':0 };
+const catAttempts = { Letters:0, Digraphs:0, 'CVC Words':0, Blends:0, 'Vowel Digraphs':0 };
 
-// Build a mixed question pool
+// Load previous weakness data from localStorage
+const prevWeak = JSON.parse(localStorage.getItem('ph_review_weak') || '{}');
+
 function buildPool() {
   const pool = [];
+
+  // Adjust weights: double-weight weak categories
+  function weight(cat) { return prevWeak[cat] === true ? 2 : 1; }
+
   // Letter sound questions
-  UI.shuffle(PHONICS_DATA.alphabet).slice(0,7).forEach(l => {
+  const letterCount = 5 * weight('Letters');
+  UI.shuffle(PHONICS_DATA.alphabet).slice(0, letterCount).forEach(l => {
     pool.push({
       category:'Letters', emoji:'', text:`What sound does "${l.l}" make?`,
       answer: l.sound,
       options: UI.shuffle(PHONICS_DATA.alphabet.filter(x=>x.l!==l.l)).slice(0,3).map(x=>x.sound).concat(l.sound),
     });
   });
+
   // Digraph questions
-  UI.shuffle(PHONICS_DATA.digraphs).slice(0,5).forEach(d => {
+  const digCount = 4 * weight('Digraphs');
+  UI.shuffle(PHONICS_DATA.digraphs).slice(0, digCount).forEach(d => {
     pool.push({
       category:'Digraphs', emoji: d.emoji, text:`"${d.word}" starts with which digraph?`,
       answer: d.pair,
       options: UI.shuffle(PHONICS_DATA.digraphs.filter(x=>x.pair!==d.pair)).slice(0,3).map(x=>x.pair).concat(d.pair),
     });
   });
+
   // CVC word questions
-  UI.shuffle(PHONICS_DATA.cvc).slice(0,5).forEach(w => {
+  const cvcCount = 4 * weight('CVC Words');
+  UI.shuffle(PHONICS_DATA.cvc).slice(0, cvcCount).forEach(w => {
     pool.push({
       category:'CVC Words', emoji: w.emoji, text:`What word matches this picture?`,
       answer: w.word,
       options: UI.shuffle(PHONICS_DATA.cvc.filter(x=>x.word!==w.word)).slice(0,3).map(x=>x.word).concat(w.word),
     });
   });
+
   // Blend questions
-  UI.shuffle(PHONICS_DATA.consonantBlends).slice(0,3).forEach(b => {
+  const blendCount = 4 * weight('Blends');
+  UI.shuffle(PHONICS_DATA.consonantBlends).slice(0, blendCount).forEach(b => {
     pool.push({
       category:'Blends', emoji: b.emoji, text:`"${b.word}" starts with which blend?`,
       answer: b.blend.toUpperCase(),
       options: UI.shuffle(PHONICS_DATA.consonantBlends.filter(x=>x.blend!==b.blend)).slice(0,3).map(x=>x.blend.toUpperCase()).concat(b.blend.toUpperCase()),
     });
   });
+
+  // Vowel digraph questions
+  const vdPool = PHONICS_DATA.vowelDigraphs.filter((d,i,arr) => arr.findIndex(x=>x.word===d.word)===i);
+  const vdCount = 3 * weight('Vowel Digraphs');
+  UI.shuffle(vdPool).slice(0, vdCount).forEach(vd => {
+    pool.push({
+      category:'Vowel Digraphs', emoji: vd.emoji, text:`"${vd.word}" contains which vowel pair?`,
+      answer: vd.pair,
+      options: UI.shuffle(vdPool.filter(x=>x.pair!==vd.pair)).filter((x,i,a)=>a.findIndex(y=>y.pair===x.pair)===i).slice(0,3).map(x=>x.pair).concat(vd.pair),
+    });
+  });
+
   return UI.shuffle(pool).slice(0, TOTAL);
 }
 
@@ -117,8 +146,16 @@ function loadQ() {
       if (answered) return; answered = true;
       const isRight = opt === q.answer;
       btn.classList.add(isRight ? 'correct' : 'wrong');
-      if (isRight) { correct++; AudioManager.playTone('correct'); UI.showFeedback(true); }
-      else { wrong++; AudioManager.playTone('wrong'); UI.showFeedback(false); ch.querySelectorAll('.cbtn').forEach(b=>{ if(b.textContent===q.answer) b.classList.add('correct'); }); }
+      catAttempts[q.category] = (catAttempts[q.category]||0) + 1;
+      if (isRight) {
+        correct++;
+        catStats[q.category] = (catStats[q.category]||0) + 1;
+        AudioManager.playTone('correct'); UI.showFeedback(true);
+      } else {
+        wrong++;
+        AudioManager.playTone('wrong'); UI.showFeedback(false);
+        ch.querySelectorAll('.cbtn').forEach(b => { if (b.textContent === q.answer) b.classList.add('correct'); });
+      }
       document.getElementById('correct-count').textContent = correct;
       document.getElementById('wrong-count').textContent   = wrong;
       ch.querySelectorAll('.cbtn').forEach(b => b.style.pointerEvents='none');
@@ -130,15 +167,38 @@ function loadQ() {
 
 function endGame() {
   const pct = Math.round((correct/TOTAL)*100);
+
+  // Identify weak categories (< 60% accuracy)
+  const weakCats = Object.keys(catAttempts).filter(cat => {
+    const attempts = catAttempts[cat];
+    if (!attempts) return false;
+    const acc = (catStats[cat]||0) / attempts;
+    return acc < 0.6;
+  });
+
+  // Save weakness for next session weighting
+  const newWeak = {};
+  Object.keys(catAttempts).forEach(cat => {
+    const acc = catAttempts[cat] ? (catStats[cat]||0)/catAttempts[cat] : 1;
+    newWeak[cat] = acc < 0.6;
+  });
+  localStorage.setItem('ph_review_weak', JSON.stringify(newWeak));
+
+  const weakHtml = weakCats.length
+    ? `<div style="margin:12px 0"><p style="font-size:.85rem;color:#888;font-weight:700;margin-bottom:6px">Focus areas for next time:</p>${weakCats.map(c=>`<span class="weak-badge">⚠️ ${c}</span>`).join('')}</div>`
+    : `<p style="font-size:.85rem;color:#22c55e;font-weight:700;margin:12px 0">✅ Strong across all topics!</p>`;
+
   document.getElementById('review-card').innerHTML = `
     <div style="font-size:4rem;margin-bottom:16px">${pct>=80?'🏆':pct>=60?'⭐':'💪'}</div>
     <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${pct>=80?'Excellent!':pct>=60?'Good work!':'Keep practising!'}</h2>
-    <p style="font-size:1.2rem;color:#666;margin-bottom:24px">Score: ${correct}/${TOTAL} (${pct}%)</p>
+    <p style="font-size:1.2rem;color:#666;margin-bottom:8px">Score: ${correct}/${TOTAL} (${pct}%)</p>
+    ${weakHtml}
     <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>
     <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>`;
+
   UI.setScore('phonics-review', {stars:correct, total:TOTAL});
   if(typeof analytics !== 'undefined') analytics.trackActivityComplete('phonics-review', correct, TOTAL);
-  if(typeof analytics!=='undefined') analytics.trackActivityComplete('phonics-review', correct, TOTAL);
+  if(window.CurriculumManager) window.CurriculumManager.markActivityComplete('phonics-review');
 }
 
 loadQ();
