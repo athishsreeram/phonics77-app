@@ -6,7 +6,14 @@
 <title>📝 CVC Words · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.cvc-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:500px; margin:28px auto; }
+/* ── Mode tabs ── */
+.mode-bar { display:flex; gap:6px; justify-content:center; margin:16px 0 20px; flex-wrap:wrap; }
+.mode-tab { background:#f3f4f6; border:3px solid transparent; border-radius:14px; padding:10px 18px;
+  font-family:'Fredoka One',cursive; font-size:1rem; cursor:pointer; transition:all .2s; }
+.mode-tab.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); transform:scale(1.05); }
+
+/* ── EXPLORE mode (original) ── */
+.cvc-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:500px; margin:0 auto 28px; }
 .cvc-emoji { font-size:clamp(3.5rem,12vw,6rem); display:block; margin-bottom:12px; }
 .cvc-slots { display:flex; justify-content:center; gap:12px; margin:20px 0; }
 .cvc-slot {
@@ -16,24 +23,120 @@
 }
 .cvc-slot.c-slot { border-color:#6bcb77; color:#16a34a; }
 .cvc-slot.v-slot { border-color:#ff6b6b; color:#dc2626; }
-.cvc-slot.blank  { border-color:#f59e0b; background:#fffbeb; color:#f59e0b; font-size:2rem; }
 .cvc-slot.active { transform:scale(1.12); box-shadow:0 6px 16px rgba(0,0,0,.15); }
 .label-row { display:flex; justify-content:center; gap:12px; margin-bottom:20px; }
 .label-pill { width:72px; text-align:center; font-size:.8rem; font-weight:800; padding:3px 0; border-radius:6px; }
 .label-c { background:#dcfce7; color:#15803d; }
 .label-v { background:#fee2e2; color:#b91c1c; }
-.btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+/* ── WORD BUILDER mode ── */
+.builder-card { background:white; border-radius:28px; padding:32px 20px; text-align:center; box-shadow:var(--shadow-md); max-width:540px; margin:0 auto 28px; }
+.builder-emoji-big { font-size:clamp(4rem,14vw,7rem); display:block; margin-bottom:8px; animation:pop .3s ease; }
+.builder-hint { font-size:1rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:20px; }
+
+/* Drop zone */
+.drop-zone { display:flex; justify-content:center; gap:10px; margin:0 auto 20px; }
+.drop-slot {
+  width:72px; height:82px; border-radius:16px; border:3px dashed #d1d5db; background:#fafafa;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Fredoka One',cursive; font-size:2rem; transition:all .2s;
+  position:relative;
+}
+.drop-slot.c-drop { border-color:#86efac; background:#f0fdf4; }
+.drop-slot.v-drop { border-color:#fca5a5; background:#fef2f2; }
+.drop-slot.filled { border-style:solid; background:white; box-shadow:0 4px 12px rgba(0,0,0,.1); }
+.drop-slot.filled.c-drop { border-color:#22c55e; color:#16a34a; }
+.drop-slot.filled.v-drop { border-color:#ef4444; color:#dc2626; }
+.drop-slot.wrong-shake { animation:wiggle .3s ease; }
+.drop-slot.correct-pop { animation:pop .3s ease; }
+.drop-slot .remove-btn {
+  position:absolute; top:-8px; right:-8px; width:22px; height:22px;
+  background:#ef4444; color:white; border:none; border-radius:50%;
+  font-size:.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-weight:900; line-height:1;
+}
+.slot-label-mini { font-size:.65rem; font-weight:900; text-transform:uppercase; letter-spacing:.05em;
+  position:absolute; bottom:4px; width:100%; text-align:center; }
+.drop-slot.c-drop .slot-label-mini { color:#16a34a; }
+.drop-slot.v-drop .slot-label-mini { color:#dc2626; }
+
+/* Tile bank */
+.tile-bank { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:0 auto 20px; max-width:440px; }
+.letter-tile {
+  width:62px; height:70px; border-radius:14px; background:white;
+  border:3px solid #e5e7eb; box-shadow:0 3px 8px rgba(0,0,0,.1);
+  font-family:'Fredoka One',cursive; font-size:1.8rem;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .15s; user-select:none;
+  touch-action:none;
+}
+.letter-tile:hover { transform:translateY(-4px); box-shadow:0 6px 16px rgba(0,0,0,.15); border-color:var(--clr-blue); background:#eff6ff; }
+.letter-tile.used { opacity:.3; pointer-events:none; }
+.letter-tile.selected { background:var(--clr-blue); color:white; border-color:var(--clr-blue); transform:scale(1.1); }
+.letter-tile.c-tile { border-color:#86efac; }
+.letter-tile.v-tile { border-color:#fca5a5; }
+
+/* Result flash */
+.result-banner {
+  border-radius:20px; padding:16px 20px; text-align:center; margin:12px 0;
+  font-family:'Fredoka One',cursive; font-size:1.4rem; display:none;
+  animation:fadeIn .3s ease;
+}
+.result-banner.correct { background:#dcfce7; color:#15803d; border:3px solid #22c55e; display:block; }
+.result-banner.wrong   { background:#fee2e2; color:#991b1b; border:3px solid #ef4444; display:block; }
+
+.builder-score { font-weight:700; color:var(--clr-text-soft); margin-top:8px; }
+.builder-btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+
+/* Scramble mode */
+.scramble-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:500px; margin:0 auto 28px; }
+.scramble-letters { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin:20px 0; }
+.scramble-tile {
+  width:64px; height:72px; border-radius:14px; background:linear-gradient(135deg,#667eea,#764ba2);
+  color:white; font-family:'Fredoka One',cursive; font-size:2rem;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .15s; box-shadow:0 4px 10px rgba(102,126,234,.35);
+}
+.scramble-tile:hover { transform:translateY(-3px) rotate(5deg); }
+.scramble-tile.picked { opacity:.3; transform:scale(.8); }
+.scramble-answer { display:flex; justify-content:center; gap:10px; margin:16px 0; min-height:72px; flex-wrap:wrap; }
+.answer-slot {
+  width:64px; height:72px; border-radius:14px; border:3px dashed #cbd5e1;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Fredoka One',cursive; font-size:2rem; color:var(--clr-primary);
+  cursor:pointer; transition:all .2s; background:#f8fafc;
+}
+.answer-slot.filled { border-style:solid; border-color:var(--clr-primary); background:white; box-shadow:0 3px 10px rgba(0,0,0,.1); }
+.answer-slot:hover { background:#fff0f0; }
+.scramble-input { font-family:'Fredoka One',cursive; font-size:2rem; text-align:center; width:200px;
+  border:3px solid #e5e7eb; border-radius:14px; padding:10px; outline:none; margin:16px 0; }
+.scramble-input:focus { border-color:var(--clr-primary); }
+
+/* ── DRAW mode ── */
+.draw-card { background:white; border-radius:28px; padding:28px 20px; text-align:center; box-shadow:var(--shadow-md); max-width:520px; margin:0 auto 28px; }
+.draw-prompt { font-family:'Fredoka One',cursive; font-size:clamp(1.4rem,5vw,2rem); color:var(--clr-primary); margin-bottom:8px; }
+.draw-hint { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:16px; }
+.draw-canvas-wrap { position:relative; display:inline-block; margin:0 auto 16px; }
+#draw-canvas { border:3px solid #e5e7eb; border-radius:20px; cursor:crosshair; touch-action:none;
+  display:block; background:white; }
+.draw-tools { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+.color-swatch { width:36px; height:36px; border-radius:50%; border:3px solid transparent; cursor:pointer;
+  transition:all .2s; }
+.color-swatch.active { border-color:#1f2937; transform:scale(1.2); }
+.brush-slider { width:120px; accent-color:var(--clr-primary); }
+.draw-btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+/* Common */
+.btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
 .score-badge { font-family:'Fredoka One',cursive; font-size:1.4rem; color:var(--clr-primary); margin-top:16px; }
-.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:20px; }
-.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 16px; font-weight:800; font-size:.9rem; cursor:pointer; }
-.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
-.vowel-choices { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
-.vowel-btn { width:64px; height:64px; border-radius:14px; border:3px solid #e5e7eb; background:#f3f4f6;
-  font-family:'Fredoka One',cursive; font-size:1.8rem; cursor:pointer; transition:all .15s; }
-.vowel-btn:hover { background:#ffe4e1; border-color:var(--clr-primary); }
-.vowel-btn.correct { background:#dcfce7; border-color:var(--clr-green); }
-.vowel-btn.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
-.mastered-chip { display:inline-block; background:#dcfce7; color:#15803d; border-radius:8px; padding:3px 10px; font-size:.75rem; font-weight:800; margin-left:6px; }
+.progress-label { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:6px; }
+
+.panel { display:none; }
+.panel.active { display:block; animation:fadeIn .3s ease; }
+
+/* Completion */
+.completion-card { background:white; border-radius:28px; padding:48px 28px; text-align:center;
+  box-shadow:var(--shadow-md); max-width:480px; margin:0 auto; }
 </style>
 </head>
 <body>
@@ -48,35 +151,122 @@
   <p>Consonant – Vowel – Consonant patterns</p>
 </div>
 <main>
-<div class="cvc-card" id="cvc-card">
-  <div class="mode-toggle">
-    <button class="mode-btn active" id="mode-browse">👀 Browse</button>
-    <button class="mode-btn" id="mode-quiz">🎯 Quiz</button>
-  </div>
-  <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:8px" id="word-count">Word 1 of 18</p>
+
+<!-- Mode tabs -->
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('explore')">🔍 Explore</button>
+  <button class="mode-tab" onclick="switchMode('builder')">🧱 Build It!</button>
+  <button class="mode-tab" onclick="switchMode('scramble')">🔀 Scramble!</button>
+  <button class="mode-tab" onclick="switchMode('draw')">🎨 Draw It!</button>
+</div>
+
+<!-- ═══════════════════════════════ EXPLORE MODE ═══════════════════════════════ -->
+<div id="panel-explore" class="panel active">
+<div class="cvc-card">
+  <p class="progress-label" id="word-count">Word 1 of 18</p>
   <div class="progress-wrap" style="margin-bottom:20px">
     <div class="progress-bar" id="prog-bar" style="width:5.5%"></div>
   </div>
   <span class="cvc-emoji" id="cvc-emoji">🐱</span>
   <div class="cvc-slots" id="cvc-slots"></div>
-  <div class="label-row" id="label-row">
+  <div class="label-row">
     <div class="label-pill label-c">C</div>
     <div class="label-pill label-v">V</div>
     <div class="label-pill label-c">C</div>
   </div>
-  <!-- Quiz vowel choices (hidden in browse mode) -->
-  <div id="quiz-area" style="display:none">
-    <p style="font-weight:800;color:var(--clr-text-soft);margin-bottom:8px">Which vowel completes the word?</p>
-    <div class="vowel-choices" id="vowel-choices"></div>
-  </div>
-  <div class="btn-row" id="browse-btns">
+  <div class="btn-row">
     <button class="btn btn-primary btn-lg" id="btn-speak">🔊 Hear Word</button>
     <button class="btn btn-accent" id="btn-next">Next →</button>
-    <button class="btn btn-green btn-sm" id="btn-mastered" style="padding:10px 14px;font-size:.85rem">✅ Mastered</button>
   </div>
-  <div class="score-badge">⭐ <span id="seen">0</span> seen · ✅ <span id="mastered-count">0</span> mastered</div>
+  <div class="score-badge">⭐ <span id="seen">0</span> seen</div>
 </div>
+</div>
+
+<!-- ═══════════════════════════════ BUILDER MODE ═══════════════════════════════ -->
+<div id="panel-builder" class="panel">
+<div class="builder-card">
+  <p class="progress-label" id="b-progress">Word 1 of 10</p>
+  <div class="progress-wrap" style="margin-bottom:16px">
+    <div class="progress-bar" id="b-prog-bar" style="width:10%"></div>
+  </div>
+  <span class="builder-emoji-big" id="b-emoji">🐱</span>
+  <p class="builder-hint">Tap the letters in order to spell the word!</p>
+
+  <!-- Drop zone -->
+  <div class="drop-zone" id="b-drop-zone">
+    <div class="drop-slot c-drop" data-pos="0"><span class="slot-label-mini">C</span></div>
+    <div class="drop-slot v-drop" data-pos="1"><span class="slot-label-mini">V</span></div>
+    <div class="drop-slot c-drop" data-pos="2"><span class="slot-label-mini">C</span></div>
+  </div>
+
+  <div class="result-banner" id="b-result"></div>
+
+  <!-- Tile bank -->
+  <div class="tile-bank" id="b-tile-bank"></div>
+
+  <div class="builder-score">✅ <span id="b-correct">0</span> correct &nbsp;·&nbsp; ❌ <span id="b-wrong">0</span> wrong</div>
+  <div class="builder-btn-row">
+    <button class="btn btn-primary" id="b-hear">🔊 Hear Word</button>
+    <button class="btn btn-secondary" id="b-clear">🗑 Clear</button>
+    <button class="btn btn-accent" id="b-skip">Skip →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════ SCRAMBLE MODE ═══════════════════════════════ -->
+<div id="panel-scramble" class="panel">
+<div class="scramble-card">
+  <p class="progress-label" id="sc-progress">Word 1 of 10</p>
+  <div class="progress-wrap" style="margin-bottom:16px">
+    <div class="progress-bar" id="sc-prog-bar" style="width:10%"></div>
+  </div>
+  <span class="cvc-emoji" id="sc-emoji">🐱</span>
+  <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:4px">Tap letters in the right order!</p>
+  <div class="scramble-letters" id="sc-letters"></div>
+  <div class="scramble-answer" id="sc-answer"></div>
+  <div class="result-banner" id="sc-result"></div>
+  <div class="builder-score">✅ <span id="sc-correct">0</span> &nbsp;·&nbsp; ❌ <span id="sc-wrong">0</span></div>
+  <div class="builder-btn-row">
+    <button class="btn btn-primary" id="sc-hear">🔊 Hint</button>
+    <button class="btn btn-secondary" id="sc-clear-answer">🗑 Clear</button>
+    <button class="btn btn-accent" id="sc-skip">Skip →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════ DRAW MODE ═══════════════════════════════ -->
+<div id="panel-draw" class="panel">
+<div class="draw-card">
+  <div class="draw-prompt" id="draw-prompt">🐱 Draw a CAT!</div>
+  <div class="draw-hint">Draw something that matches the word. Then tap 🔊 to hear it!</div>
+  <div class="draw-canvas-wrap">
+    <canvas id="draw-canvas" width="300" height="280"></canvas>
+  </div>
+  <div class="draw-tools">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+      <div class="color-swatch active" style="background:#1f2937" data-color="#1f2937" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#ef4444" data-color="#ef4444" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#f97316" data-color="#f97316" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#eab308" data-color="#eab308" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#22c55e" data-color="#22c55e" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#3b82f6" data-color="#3b82f6" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#a855f7" data-color="#a855f7" onclick="setColor(this)"></div>
+    </div>
+    <input type="range" class="brush-slider" id="brush-size" min="3" max="24" value="8">
+    <span style="font-size:.8rem;font-weight:700;color:#888">Size</span>
+  </div>
+  <div class="draw-btn-row">
+    <button class="btn btn-primary" id="draw-hear">🔊 Hear Word</button>
+    <button class="btn btn-secondary" id="draw-clear">🗑 Clear</button>
+    <button class="btn btn-green" id="draw-save">💾 Save Drawing</button>
+    <button class="btn btn-accent" id="draw-next-word">Next Word →</button>
+  </div>
+  <p style="margin-top:12px;font-size:.85rem;font-weight:700;color:#aaa" id="draw-word-counter">Word 1 of 18</p>
+</div>
+</div>
+
 </main>
+
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/analytics.js"></script>
@@ -84,129 +274,368 @@
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-const WORDS = UI.shuffle(PHONICS_DATA.cvc);
-const VOWELS_SET = new Set(['a','e','i','o','u']);
-const ALL_VOWELS = ['a','e','i','o','u'];
-let idx = 0, quizMode = false, quizAnswered = false;
-let masteredWords = new Set(JSON.parse(localStorage.getItem('ph_cvc_mastered') || '[]'));
+'use strict';
 
-function saveMastered() {
-  localStorage.setItem('ph_cvc_mastered', JSON.stringify([...masteredWords]));
-  document.getElementById('mastered-count').textContent = masteredWords.size;
+const VOWELS_SET = new Set(['a','e','i','o','u']);
+const ALL_WORDS  = UI.shuffle([...PHONICS_DATA.cvc]);
+let currentMode  = 'explore';
+
+/* ══════════════ MODE SWITCHING ══════════════ */
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`panel-${mode}`).classList.add('active');
+  event.target.classList.add('active');
+  if (mode === 'builder')  initBuilder();
+  if (mode === 'scramble') initScramble();
+  if (mode === 'draw')     initDraw();
 }
 
-function loadWord() {
-  if (idx >= WORDS.length) { idx = 0; UI.toast('All done! Shuffling 🔀'); }
-  quizAnswered = false;
-  const item = WORDS[idx];
-  const letters = item.word.split('');
-  const vowelIdx = letters.findIndex(c => VOWELS_SET.has(c));
-
-  document.getElementById('word-count').textContent = `Word ${idx+1} of ${WORDS.length}`;
+/* ══════════════ EXPLORE MODE ══════════════ */
+let exploreIdx = 0;
+function loadExploreWord() {
+  if (exploreIdx >= ALL_WORDS.length) exploreIdx = 0;
+  const item = ALL_WORDS[exploreIdx];
+  document.getElementById('word-count').textContent = `Word ${exploreIdx+1} of ${ALL_WORDS.length}`;
   document.getElementById('cvc-emoji').textContent = item.emoji;
-  UI.updateProgress(document.getElementById('prog-bar'), idx+1, WORDS.length);
-  document.getElementById('seen').textContent = idx;
-
+  UI.updateProgress(document.getElementById('prog-bar'), exploreIdx+1, ALL_WORDS.length);
+  document.getElementById('seen').textContent = exploreIdx;
   const slots = document.getElementById('cvc-slots');
   slots.innerHTML = '';
-  letters.forEach((ch, i) => {
+  item.word.split('').forEach((ch, i) => {
     const slot = document.createElement('div');
-    const isVowel = VOWELS_SET.has(ch);
-    if (quizMode && i === vowelIdx) {
-      slot.className = 'cvc-slot blank';
-      slot.textContent = '?';
-    } else {
-      slot.className = `cvc-slot ${isVowel ? 'v-slot' : 'c-slot'}`;
-      slot.textContent = ch.toUpperCase();
-      slot.addEventListener('click', () => {
-        AudioManager.speak(ch, {rate:.7});
-        slot.classList.add('active');
-        setTimeout(()=>slot.classList.remove('active'), 400);
-      });
-    }
+    slot.className = `cvc-slot ${VOWELS_SET.has(ch) ? 'v-slot' : 'c-slot'}`;
+    slot.textContent = ch.toUpperCase();
+    slot.addEventListener('click', () => {
+      AudioManager.speak(ch, {rate:.7});
+      slot.classList.add('active');
+      setTimeout(() => slot.classList.remove('active'), 400);
+    });
     slots.appendChild(slot);
   });
+}
+document.getElementById('btn-speak').addEventListener('click', () => AudioManager.speak(ALL_WORDS[exploreIdx].word, {rate:.75}));
+document.getElementById('btn-next').addEventListener('click', () => { exploreIdx++; loadExploreWord(); });
+loadExploreWord();
 
-  // Quiz mode: show vowel choices
-  const quizArea = document.getElementById('quiz-area');
-  if (quizMode) {
-    quizArea.style.display = 'block';
-    document.getElementById('browse-btns').style.display = 'none';
-    const correctVowel = letters[vowelIdx];
-    const wrongVowels = ALL_VOWELS.filter(v => v !== correctVowel);
-    const choices = UI.shuffle([correctVowel, ...UI.shuffle(wrongVowels).slice(0,2)]);
-    const vc = document.getElementById('vowel-choices');
-    vc.innerHTML = '';
-    choices.forEach(v => {
-      const btn = document.createElement('button');
-      btn.className = 'vowel-btn';
-      btn.textContent = v.toUpperCase();
-      btn.addEventListener('click', () => {
-        if (quizAnswered) return;
-        quizAnswered = true;
-        const correct = v === correctVowel;
-        btn.classList.add(correct ? 'correct' : 'wrong');
-        if (correct) {
-          AudioManager.playTone('correct');
-          UI.showFeedback(true);
-          // Reveal the blank
-          const blankSlot = slots.querySelector('.blank');
-          if (blankSlot) { blankSlot.textContent = v.toUpperCase(); blankSlot.className = 'cvc-slot v-slot'; }
-          AudioManager.speak(item.word, {rate:.75});
-        } else {
-          AudioManager.playTone('wrong');
-          vc.querySelectorAll('.vowel-btn').forEach(b => { if(b.textContent===correctVowel.toUpperCase()) b.classList.add('correct'); });
-        }
-        vc.querySelectorAll('.vowel-btn').forEach(b => b.style.pointerEvents='none');
-        setTimeout(() => { idx++; loadWord(); }, 1400);
-      });
-      vc.appendChild(btn);
-    });
-    AudioManager.speak(item.word.replace(letters[vowelIdx], '___'), {rate:.75});
-  } else {
-    quizArea.style.display = 'none';
-    document.getElementById('browse-btns').style.display = 'flex';
-  }
+/* ══════════════ BUILDER MODE ══════════════ */
+const BUILDER_WORDS = UI.shuffle([...PHONICS_DATA.cvc]).slice(0, 10);
+let bIdx = 0, bCorrect = 0, bWrong = 0;
+let bFilled = [null, null, null]; // what's in each slot
+let bSelectedTile = null;
 
-  // Mastered chip
-  const wc = document.getElementById('word-count');
-  wc.innerHTML = `Word ${idx+1} of ${WORDS.length}${masteredWords.has(item.word)?'<span class="mastered-chip">✅ Mastered</span>':''}`;
+function initBuilder() { bIdx = 0; bCorrect = 0; bWrong = 0; loadBuilderWord(); }
+
+function loadBuilderWord() {
+  if (bIdx >= BUILDER_WORDS.length) { showBuilderComplete(); return; }
+  bFilled = [null, null, null];
+  bSelectedTile = null;
+  const item = BUILDER_WORDS[bIdx];
+
+  document.getElementById('b-progress').textContent = `Word ${bIdx+1} of ${BUILDER_WORDS.length}`;
+  UI.updateProgress(document.getElementById('b-prog-bar'), bIdx+1, BUILDER_WORDS.length);
+  document.getElementById('b-emoji').textContent = item.emoji;
+  document.getElementById('b-result').className = 'result-banner';
+  document.getElementById('b-result').textContent = '';
+
+  // Reset drop slots
+  const dropSlots = document.querySelectorAll('.drop-slot');
+  dropSlots.forEach(slot => {
+    const pos = parseInt(slot.dataset.pos);
+    const ch = item.word[pos];
+    slot.classList.remove('filled', 'wrong-shake', 'correct-pop');
+    slot.style.fontSize = '';
+    slot.innerHTML = `<span class="slot-label-mini">${VOWELS_SET.has(ch) ? 'V' : 'C'}</span>`;
+    // Update class
+    slot.className = `drop-slot ${VOWELS_SET.has(ch) ? 'v-drop' : 'c-drop'}`;
+  });
+
+  // Build tile bank — target letters + 3 distractors
+  const targetLetters = item.word.split('');
+  const allLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const distractors = UI.shuffle(allLetters.filter(l => !targetLetters.includes(l))).slice(0, 3);
+  const tileLetters = UI.shuffle([...targetLetters, ...distractors]);
+
+  const bank = document.getElementById('b-tile-bank');
+  bank.innerHTML = '';
+  tileLetters.forEach(letter => {
+    const tile = document.createElement('div');
+    tile.className = `letter-tile ${VOWELS_SET.has(letter) ? 'v-tile' : 'c-tile'}`;
+    tile.textContent = letter.toUpperCase();
+    tile.dataset.letter = letter;
+    tile.addEventListener('click', () => handleTileTap(tile, letter, item));
+    bank.appendChild(tile);
+  });
+
+  AudioManager.speak(item.emoji + ' ' + item.word, {rate:.75});
 }
 
-// Mode toggle
-document.getElementById('mode-browse').addEventListener('click', () => {
-  quizMode = false;
-  document.getElementById('mode-browse').classList.add('active');
-  document.getElementById('mode-quiz').classList.remove('active');
-  loadWord();
-});
-document.getElementById('mode-quiz').addEventListener('click', () => {
-  quizMode = true;
-  document.getElementById('mode-quiz').classList.add('active');
-  document.getElementById('mode-browse').classList.remove('active');
-  loadWord();
+function handleTileTap(tile, letter, item) {
+  if (tile.classList.contains('used')) return;
+  // Find next empty slot
+  const nextEmpty = bFilled.findIndex(f => f === null);
+  if (nextEmpty === -1) return;
+  bFilled[nextEmpty] = letter;
+  tile.classList.add('used');
+  // Update slot UI
+  const slot = document.querySelector(`.drop-slot[data-pos="${nextEmpty}"]`);
+  slot.classList.add('filled');
+  slot.innerHTML = `<span style="font-size:2rem;font-family:'Fredoka One',cursive">${letter.toUpperCase()}</span><span class="slot-label-mini">${VOWELS_SET.has(item.word[nextEmpty]) ? 'V' : 'C'}</span>`;
+  AudioManager.speak(letter, {rate:.7});
+  // Check if all filled
+  if (!bFilled.includes(null)) {
+    checkBuilder(item);
+  }
+}
+
+function checkBuilder(item) {
+  const built = bFilled.join('');
+  const result = document.getElementById('b-result');
+  if (built === item.word) {
+    bCorrect++;
+    result.textContent = `🎉 "${item.word.toUpperCase()}" — Well done!`;
+    result.className = 'result-banner correct';
+    document.getElementById('b-correct').textContent = bCorrect;
+    AudioManager.playTone('correct');
+    UI.showFeedback(true);
+    AudioManager.speak(`Yes! ${item.word}`, {rate:.8});
+    setTimeout(() => { bIdx++; loadBuilderWord(); }, 1600);
+  } else {
+    bWrong++;
+    result.textContent = `❌ Try again! Listen and retry.`;
+    result.className = 'result-banner wrong';
+    document.getElementById('b-wrong').textContent = bWrong;
+    AudioManager.playTone('wrong');
+    // Shake filled slots
+    document.querySelectorAll('.drop-slot.filled').forEach(s => {
+      s.classList.add('wrong-shake');
+      setTimeout(() => s.classList.remove('wrong-shake'), 400);
+    });
+    // Clear after delay
+    setTimeout(() => clearBuilder(item), 1200);
+  }
+}
+
+function clearBuilder(item) {
+  bFilled = [null, null, null];
+  document.getElementById('b-result').className = 'result-banner';
+  const dropSlots = document.querySelectorAll('.drop-slot');
+  dropSlots.forEach(slot => {
+    const pos = parseInt(slot.dataset.pos);
+    const ch = item.word[pos];
+    slot.classList.remove('filled', 'wrong-shake', 'correct-pop');
+    slot.className = `drop-slot ${VOWELS_SET.has(ch) ? 'v-drop' : 'c-drop'}`;
+    slot.innerHTML = `<span class="slot-label-mini">${VOWELS_SET.has(ch) ? 'V' : 'C'}</span>`;
+  });
+  document.querySelectorAll('.letter-tile').forEach(t => t.classList.remove('used'));
+}
+
+function showBuilderComplete() {
+  const pct = Math.round((bCorrect / BUILDER_WORDS.length) * 100);
+  document.getElementById('panel-builder').innerHTML = `
+    <div class="completion-card">
+      <div style="font-size:5rem;margin-bottom:16px">${pct>=80?'🏆':pct>=60?'⭐':'💪'}</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:2rem;color:var(--clr-primary);margin-bottom:8px">
+        ${pct>=80?'Amazing Builder!':pct>=60?'Great Work!':'Keep Building!'}
+      </div>
+      <p style="font-size:1.1rem;color:#666;margin-bottom:24px">
+        You built ${bCorrect} / ${BUILDER_WORDS.length} words correctly!
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-lg" onclick="initBuilder();document.getElementById('panel-builder').innerHTML='';switchMode('builder')">🔄 Play Again</button>
+        <button class="btn btn-secondary" onclick="switchMode('explore')">🔍 Back to Explore</button>
+      </div>
+    </div>`;
+}
+
+document.getElementById('b-hear').addEventListener('click', () => { if(BUILDER_WORDS[bIdx]) AudioManager.speak(BUILDER_WORDS[bIdx].word, {rate:.7}); });
+document.getElementById('b-clear').addEventListener('click', () => { if(BUILDER_WORDS[bIdx]) clearBuilder(BUILDER_WORDS[bIdx]); });
+document.getElementById('b-skip').addEventListener('click', () => { bIdx++; if(bIdx<BUILDER_WORDS.length) loadBuilderWord(); else showBuilderComplete(); });
+
+/* ══════════════ SCRAMBLE MODE ══════════════ */
+const SCRAMBLE_WORDS = UI.shuffle([...PHONICS_DATA.cvc]).slice(0, 10);
+let scIdx = 0, scCorrect = 0, scWrong = 0;
+let scAnswer = [];
+let scScrambled = [];
+
+function initScramble() { scIdx = 0; scCorrect = 0; scWrong = 0; loadScrambleWord(); }
+
+function loadScrambleWord() {
+  if (scIdx >= SCRAMBLE_WORDS.length) { showScrambleComplete(); return; }
+  scAnswer = [];
+  const item = SCRAMBLE_WORDS[scIdx];
+  scScrambled = UI.shuffle(item.word.split(''));
+
+  document.getElementById('sc-progress').textContent = `Word ${scIdx+1} of ${SCRAMBLE_WORDS.length}`;
+  UI.updateProgress(document.getElementById('sc-prog-bar'), scIdx+1, SCRAMBLE_WORDS.length);
+  document.getElementById('sc-emoji').textContent = item.emoji;
+  document.getElementById('sc-result').className = 'result-banner';
+
+  // Build scramble tiles
+  const lettersDiv = document.getElementById('sc-letters');
+  lettersDiv.innerHTML = '';
+  scScrambled.forEach((ch, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'scramble-tile';
+    tile.textContent = ch.toUpperCase();
+    tile.dataset.idx = i;
+    tile.addEventListener('click', () => pickScrambleLetter(tile, ch, i));
+    lettersDiv.appendChild(tile);
+  });
+
+  // Answer slots
+  const answerDiv = document.getElementById('sc-answer');
+  answerDiv.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'answer-slot';
+    slot.dataset.answerPos = i;
+    slot.addEventListener('click', () => removeFromAnswer(i));
+    answerDiv.appendChild(slot);
+  }
+}
+
+function pickScrambleLetter(tile, ch, origIdx) {
+  if (tile.classList.contains('picked')) return;
+  if (scAnswer.length >= 3) return;
+  tile.classList.add('picked');
+  scAnswer.push({ ch, origIdx });
+  AudioManager.speak(ch, {rate:.7});
+
+  const pos = scAnswer.length - 1;
+  const slot = document.querySelector(`.answer-slot[data-answer-pos="${pos}"]`);
+  if (slot) { slot.textContent = ch.toUpperCase(); slot.classList.add('filled'); }
+
+  if (scAnswer.length === 3) {
+    setTimeout(() => checkScramble(), 300);
+  }
+}
+
+function removeFromAnswer(pos) {
+  if (pos >= scAnswer.length) return;
+  const removed = scAnswer.splice(pos, 1)[0];
+  // Un-pick the tile
+  const tile = document.querySelector(`.scramble-tile[data-idx="${removed.origIdx}"]`);
+  if (tile) tile.classList.remove('picked');
+  // Re-render answer slots
+  for (let i = 0; i < 3; i++) {
+    const slot = document.querySelector(`.answer-slot[data-answer-pos="${i}"]`);
+    if (slot) {
+      if (i < scAnswer.length) { slot.textContent = scAnswer[i].ch.toUpperCase(); slot.classList.add('filled'); }
+      else { slot.textContent = ''; slot.classList.remove('filled'); }
+    }
+  }
+}
+
+function checkScramble() {
+  const item = SCRAMBLE_WORDS[scIdx];
+  const built = scAnswer.map(a => a.ch).join('');
+  const result = document.getElementById('sc-result');
+  if (built === item.word) {
+    scCorrect++;
+    result.textContent = `🎉 "${item.word.toUpperCase()}" — Correct!`;
+    result.className = 'result-banner correct';
+    document.getElementById('sc-correct').textContent = scCorrect;
+    AudioManager.playTone('correct'); UI.showFeedback(true);
+    AudioManager.speak(item.word, {rate:.75});
+    setTimeout(() => { scIdx++; loadScrambleWord(); }, 1500);
+  } else {
+    scWrong++;
+    result.textContent = `❌ Not quite! The word is "${item.word.toUpperCase()}"`;
+    result.className = 'result-banner wrong';
+    document.getElementById('sc-wrong').textContent = scWrong;
+    AudioManager.playTone('wrong');
+    setTimeout(() => { scAnswer = []; loadScrambleWord(); }, 1600);
+  }
+}
+
+function showScrambleComplete() {
+  const pct = Math.round((scCorrect / SCRAMBLE_WORDS.length) * 100);
+  document.getElementById('panel-scramble').innerHTML = `
+    <div class="completion-card">
+      <div style="font-size:5rem;margin-bottom:16px">${pct>=80?'🌟':'⭐'}</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:2rem;color:var(--clr-primary);margin-bottom:8px">
+        Unscrambled ${scCorrect}/${SCRAMBLE_WORDS.length}!
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-lg" onclick="initScramble()">🔄 Try Again</button>
+        <button class="btn btn-purple" onclick="switchMode('builder')">🧱 Try Builder</button>
+      </div>
+    </div>`;
+}
+
+document.getElementById('sc-hear').addEventListener('click', () => { if(SCRAMBLE_WORDS[scIdx]) AudioManager.speak(SCRAMBLE_WORDS[scIdx].word, {rate:.65}); });
+document.getElementById('sc-clear-answer').addEventListener('click', () => { scAnswer = []; loadScrambleWord(); });
+document.getElementById('sc-skip').addEventListener('click', () => { scIdx++; if(scIdx<SCRAMBLE_WORDS.length) loadScrambleWord(); else showScrambleComplete(); });
+
+/* ══════════════ DRAW MODE ══════════════ */
+let drawIdx = 0, drawColor = '#1f2937', drawSize = 8, drawActive = false;
+const drawCanvas = document.getElementById('draw-canvas');
+const drawCtx = drawCanvas.getContext('2d');
+
+function initDraw() { drawIdx = 0; loadDrawWord(); }
+
+function loadDrawWord() {
+  const item = ALL_WORDS[drawIdx % ALL_WORDS.length];
+  document.getElementById('draw-prompt').textContent = `${item.emoji} Draw a ${item.word.toUpperCase()}!`;
+  document.getElementById('draw-word-counter').textContent = `Word ${(drawIdx % ALL_WORDS.length)+1} of ${ALL_WORDS.length}`;
+  clearDrawCanvas();
+  AudioManager.speak(`Draw a ${item.word}`, {rate:.8});
+}
+
+function clearDrawCanvas() {
+  drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+  drawCtx.fillStyle = '#ffffff';
+  drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+}
+
+function setColor(el) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  drawColor = el.dataset.color;
+}
+
+function getDrawPos(e) {
+  const rect = drawCanvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+}
+
+drawCanvas.addEventListener('mousedown',  e => { drawActive=true; const p=getDrawPos(e); drawCtx.beginPath(); drawCtx.moveTo(p.x,p.y); });
+drawCanvas.addEventListener('mousemove',  e => { if(!drawActive) return; const p=getDrawPos(e); drawCtx.lineWidth=parseInt(document.getElementById('brush-size').value); drawCtx.lineCap='round'; drawCtx.strokeStyle=drawColor; drawCtx.lineTo(p.x,p.y); drawCtx.stroke(); });
+drawCanvas.addEventListener('mouseup',    () => drawActive=false);
+drawCanvas.addEventListener('mouseleave', () => drawActive=false);
+drawCanvas.addEventListener('touchstart', e=>{ e.preventDefault(); drawActive=true; const p=getDrawPos(e); drawCtx.beginPath(); drawCtx.moveTo(p.x,p.y); },{passive:false});
+drawCanvas.addEventListener('touchmove',  e=>{ e.preventDefault(); if(!drawActive) return; const p=getDrawPos(e); drawCtx.lineWidth=parseInt(document.getElementById('brush-size').value)+2; drawCtx.lineCap='round'; drawCtx.strokeStyle=drawColor; drawCtx.lineTo(p.x,p.y); drawCtx.stroke(); },{passive:false});
+drawCanvas.addEventListener('touchend',   () => drawActive=false);
+
+document.getElementById('draw-hear').addEventListener('click', () => { const item = ALL_WORDS[drawIdx % ALL_WORDS.length]; AudioManager.speak(item.word, {rate:.7}); });
+document.getElementById('draw-clear').addEventListener('click', clearDrawCanvas);
+document.getElementById('draw-next-word').addEventListener('click', () => { drawIdx++; loadDrawWord(); });
+document.getElementById('draw-save').addEventListener('click', () => {
+  const link = document.createElement('a');
+  const item = ALL_WORDS[drawIdx % ALL_WORDS.length];
+  link.download = `my-${item.word}-drawing.png`;
+  link.href = drawCanvas.toDataURL();
+  link.click();
+  UI.toast('Drawing saved! 🎨');
 });
 
-document.getElementById('btn-speak').addEventListener('click', () => { AudioManager.speak(WORDS[idx].word, {rate:.75}); });
-document.getElementById('btn-next').addEventListener('click', () => { idx++; loadWord(); });
-document.getElementById('btn-mastered').addEventListener('click', () => {
-  masteredWords.add(WORDS[idx].word);
-  saveMastered();
-  AudioManager.playTone('star');
-  UI.showFeedback(true);
-  UI.toast(`✅ ${WORDS[idx].word} mastered!`);
-  if (window.CurriculumManager) window.CurriculumManager.markActivityComplete('cvc-words');
-  idx++;
-  loadWord();
-});
-
-saveMastered();
-loadWord();
+// Init white bg on canvas
+clearDrawCanvas();
 </script>
+
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("cvc-words");
 window.addEventListener('beforeunload', function() {
-  if(typeof analytics!=="undefined") analytics.trackActivityComplete("cvc-words", 0, 18);
-  if (window.CurriculumManager) window.CurriculumManager.markActivityComplete('cvc-words');
+  if(typeof analytics!=="undefined") {
+    var s = typeof bCorrect!=="undefined" ? bCorrect : 0;
+    var t = 10;
+    analytics.trackActivityComplete("cvc-words", s, t);
+  }
+  if (window.CurriculumManager && typeof window.CurriculumManager.markActivityComplete === 'function') {
+    window.CurriculumManager.markActivityComplete('cvc-words');
+  }
 });</script>
 </body>
 </html>

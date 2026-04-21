@@ -6,18 +6,46 @@
 <title>🔄 Phonics Review · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.review-card { background:white; border-radius:28px; padding:36px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:520px; margin:28px auto; }
-.category-badge { display:inline-block; background:#e0e7ff; color:#4338ca; border-radius:10px; padding:4px 14px; font-size:.8rem; font-weight:800; margin-bottom:16px; }
-.q-display { font-size:clamp(2rem,10vw,4.5rem); font-family:'Fredoka One',cursive; margin:16px 0; color:var(--clr-text); }
-.q-emoji   { font-size:clamp(3rem,11vw,5rem); display:block; margin-bottom:8px; }
-.choices   { display:grid; grid-template-columns:1fr 1fr; gap:14px; max-width:420px; margin:20px auto 0; }
-.cbtn { background:#f3f4f6; border:3px solid transparent; border-radius:16px; padding:16px 12px; font-family:'Fredoka One',cursive; font-size:1.5rem; cursor:pointer; transition:all .15s; min-height:70px; display:flex; align-items:center; justify-content:center; }
-.cbtn:hover  { background:#e0e7ff; border-color:var(--clr-blue); }
-.cbtn.correct { background:#dcfce7; border-color:var(--clr-green); }
-.cbtn.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
-.score-bar { display:flex; gap:20px; justify-content:center; margin-top:16px; font-weight:800; }
-.score-pill { background:#f3f4f6; border-radius:10px; padding:6px 16px; font-size:1rem; }
-.weak-badge { display:inline-block; padding:3px 10px; border-radius:6px; font-size:.75rem; font-weight:800; background:#fee2e2; color:#b91c1c; margin:2px; }
+.mode-bar{display:flex;gap:6px;justify-content:center;margin:16px 0 20px;flex-wrap:wrap}
+.mode-tab{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s}
+.mode-tab.active{background:#6366f1;color:white;border-color:#6366f1;transform:scale(1.05)}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .3s ease}
+/* QUIZ (original styles) */
+.review-card{background:white;border-radius:28px;padding:36px 24px;text-align:center;box-shadow:var(--shadow-md);max-width:520px;margin:28px auto}
+.category-badge{display:inline-block;background:#e0e7ff;color:#4338ca;border-radius:10px;padding:4px 14px;font-size:.8rem;font-weight:800;margin-bottom:16px}
+.q-display{font-size:clamp(2rem,10vw,4.5rem);font-family:'Fredoka One',cursive;margin:16px 0;color:var(--clr-text)}
+.q-emoji{font-size:clamp(3rem,11vw,5rem);display:block;margin-bottom:8px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:420px;margin:20px auto 0}
+.cbtn{background:#f3f4f6;border:3px solid transparent;border-radius:16px;padding:16px 12px;font-family:'Fredoka One',cursive;font-size:1.5rem;cursor:pointer;transition:all .15s;min-height:70px;display:flex;align-items:center;justify-content:center}
+.cbtn:hover{background:#e0e7ff;border-color:var(--clr-blue)}
+.cbtn.correct{background:#dcfce7;border-color:var(--clr-green)}
+.cbtn.wrong{background:#fee2e2;border-color:var(--clr-primary)}
+.score-bar{display:flex;gap:20px;justify-content:center;margin-top:16px;font-weight:800}
+.score-pill{background:#f3f4f6;border-radius:10px;padding:6px 16px;font-size:1rem}
+/* BINGO */
+.bingo-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:500px;margin:0 auto 28px}
+.bingo-header{font-family:'Fredoka One',cursive;font-size:2rem;color:#6366f1;text-align:center;letter-spacing:.2em;margin-bottom:16px}
+.bingo-caller{background:linear-gradient(135deg,#6366f1,#4338ca);color:white;border-radius:16px;padding:16px 20px;text-align:center;margin-bottom:16px}
+.bingo-caller-label{font-size:.75rem;font-weight:800;opacity:.8;text-transform:uppercase;letter-spacing:.08em}
+.bingo-called-word{font-family:'Fredoka One',cursive;font-size:2.4rem;min-height:48px;animation:fadeIn .3s ease}
+.bingo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:360px;margin:0 auto 16px}
+.bingo-cell{background:#f3f4f6;border:3px solid #e5e7eb;border-radius:14px;padding:14px 6px;text-align:center;cursor:pointer;transition:all .2s;font-family:'Fredoka One',cursive;font-size:1rem;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.bingo-cell:hover{background:#e0e7ff;border-color:var(--clr-blue)}
+.bingo-cell.daubed{background:#dcfce7;border-color:var(--clr-green);transform:scale(1.05)}
+.bingo-cell .bcell-emoji{font-size:1.3rem}
+.bingo-cell .bcell-word{font-size:.85rem;color:var(--clr-text)}
+.bingo-win{background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:16px;padding:20px;text-align:center;margin-top:12px;display:none;animation:starBurst .4s ease}
+.bingo-win.show{display:block}
+.bingo-win-text{font-family:'Fredoka One',cursive;font-size:2rem;color:white}
+/* SILLY BONUS */
+.silly-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:560px;margin:0 auto 28px}
+.silly-cols{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+@media(min-width:500px){.silly-cols{grid-template-columns:repeat(4,1fr)}}
+.silly-col{background:#f9fafb;border-radius:14px;padding:12px 8px}
+.silly-col-lbl{font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:8px;text-align:center}
+.silly-btn{background:white;border:3px solid #e5e7eb;border-radius:10px;padding:7px 8px;font-family:'Fredoka One',cursive;font-size:.9rem;cursor:pointer;width:100%;margin-bottom:5px;transition:all .2s;text-align:center;display:block}
+.silly-btn.active{background:#6366f1;color:white;border-color:#6366f1}
+.silly-result{background:linear-gradient(135deg,#ede9fe,#ddd6fe);border:3px solid #a78bfa;border-radius:16px;padding:16px;text-align:center;font-family:'Fredoka One',cursive;font-size:clamp(1rem,4vw,1.4rem);color:#4c1d95;min-height:56px;display:flex;align-items:center;justify-content:center;margin:12px 0;line-height:1.4}
 </style>
 </head>
 <body>
@@ -29,9 +57,17 @@
 </nav>
 <div class="page-header" style="background:linear-gradient(135deg,#6366f1,#4338ca)">
   <h1>🔄 Phonics Review</h1>
-  <p>Mixed questions across all topics!</p>
+  <p>Quiz, Bingo, and Silly Sentences!</p>
 </div>
 <main>
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('quiz')">🎯 Quiz</button>
+  <button class="mode-tab" onclick="switchMode('bingo')">🎱 Phonic Bingo!</button>
+  <button class="mode-tab" onclick="switchMode('silly')">😂 Silly Sentence!</button>
+</div>
+
+<!-- QUIZ (original) -->
+<div id="panel-quiz" class="panel active">
 <div class="review-card" id="review-card">
   <div class="category-badge" id="cat-badge">Letters</div>
   <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:4px" id="q-num">Question 1 of 20</p>
@@ -46,6 +82,45 @@
     <div class="score-pill">❌ <span id="wrong-count">0</span></div>
   </div>
 </div>
+</div>
+
+<!-- BINGO -->
+<div id="panel-bingo" class="panel">
+<div class="bingo-card">
+  <div class="bingo-header">B I N G O</div>
+  <div class="bingo-caller">
+    <div class="bingo-caller-label">🔊 Listen and find on your card!</div>
+    <div class="bingo-called-word" id="bingo-called">Press Call to start!</div>
+  </div>
+  <div class="bingo-grid" id="bingo-grid"></div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-purple btn-lg" id="bingo-call">📢 Call Next!</button>
+    <button class="btn btn-secondary" id="bingo-new">🔄 New Card</button>
+  </div>
+  <div style="text-align:center;margin-top:10px;font-weight:700;color:var(--clr-text-soft);font-size:.9rem">Daubed: <span id="bingo-daubed">0</span> / 9</div>
+  <div class="bingo-win" id="bingo-win">
+    <div style="font-size:3rem;margin-bottom:8px">🎉</div>
+    <div class="bingo-win-text">BINGO! 🎱</div>
+    <p style="color:white;font-size:.95rem;margin-top:8px;font-weight:700">You found all 9 words!</p>
+  </div>
+</div>
+</div>
+
+<!-- SILLY SENTENCE -->
+<div id="panel-silly" class="panel">
+<div class="silly-card">
+  <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#6366f1;text-align:center;margin-bottom:8px">😂 Silly Sentence Builder!</div>
+  <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);text-align:center;margin-bottom:20px">Use your phonics knowledge to make a silly sentence!</p>
+  <div class="silly-cols" id="silly-cols"></div>
+  <div class="silly-result" id="silly-result">Pick one from each box to build your sentence!</div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+    <button class="btn btn-purple" id="silly-read">🔊 Read It!</button>
+    <button class="btn btn-accent" id="silly-shuffle">🎲 Random!</button>
+    <button class="btn btn-secondary" id="silly-clear">🗑 Clear</button>
+  </div>
+</div>
+</div>
+
 </main>
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
@@ -54,154 +129,156 @@
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-const TOTAL = 20;
-let qNum = 0, correct = 0, wrong = 0, answered = false;
-// Track per-category performance
-const catStats = { Letters:0, Digraphs:0, 'CVC Words':0, Blends:0, 'Vowel Digraphs':0 };
-const catAttempts = { Letters:0, Digraphs:0, 'CVC Words':0, Blends:0, 'Vowel Digraphs':0 };
-
-// Load previous weakness data from localStorage
-const prevWeak = JSON.parse(localStorage.getItem('ph_review_weak') || '{}');
-
-function buildPool() {
-  const pool = [];
-
-  // Adjust weights: double-weight weak categories
-  function weight(cat) { return prevWeak[cat] === true ? 2 : 1; }
-
-  // Letter sound questions
-  const letterCount = 5 * weight('Letters');
-  UI.shuffle(PHONICS_DATA.alphabet).slice(0, letterCount).forEach(l => {
-    pool.push({
-      category:'Letters', emoji:'', text:`What sound does "${l.l}" make?`,
-      answer: l.sound,
-      options: UI.shuffle(PHONICS_DATA.alphabet.filter(x=>x.l!==l.l)).slice(0,3).map(x=>x.sound).concat(l.sound),
-    });
-  });
-
-  // Digraph questions
-  const digCount = 4 * weight('Digraphs');
-  UI.shuffle(PHONICS_DATA.digraphs).slice(0, digCount).forEach(d => {
-    pool.push({
-      category:'Digraphs', emoji: d.emoji, text:`"${d.word}" starts with which digraph?`,
-      answer: d.pair,
-      options: UI.shuffle(PHONICS_DATA.digraphs.filter(x=>x.pair!==d.pair)).slice(0,3).map(x=>x.pair).concat(d.pair),
-    });
-  });
-
-  // CVC word questions
-  const cvcCount = 4 * weight('CVC Words');
-  UI.shuffle(PHONICS_DATA.cvc).slice(0, cvcCount).forEach(w => {
-    pool.push({
-      category:'CVC Words', emoji: w.emoji, text:`What word matches this picture?`,
-      answer: w.word,
-      options: UI.shuffle(PHONICS_DATA.cvc.filter(x=>x.word!==w.word)).slice(0,3).map(x=>x.word).concat(w.word),
-    });
-  });
-
-  // Blend questions
-  const blendCount = 4 * weight('Blends');
-  UI.shuffle(PHONICS_DATA.consonantBlends).slice(0, blendCount).forEach(b => {
-    pool.push({
-      category:'Blends', emoji: b.emoji, text:`"${b.word}" starts with which blend?`,
-      answer: b.blend.toUpperCase(),
-      options: UI.shuffle(PHONICS_DATA.consonantBlends.filter(x=>x.blend!==b.blend)).slice(0,3).map(x=>x.blend.toUpperCase()).concat(b.blend.toUpperCase()),
-    });
-  });
-
-  // Vowel digraph questions
-  const vdPool = PHONICS_DATA.vowelDigraphs.filter((d,i,arr) => arr.findIndex(x=>x.word===d.word)===i);
-  const vdCount = 3 * weight('Vowel Digraphs');
-  UI.shuffle(vdPool).slice(0, vdCount).forEach(vd => {
-    pool.push({
-      category:'Vowel Digraphs', emoji: vd.emoji, text:`"${vd.word}" contains which vowel pair?`,
-      answer: vd.pair,
-      options: UI.shuffle(vdPool.filter(x=>x.pair!==vd.pair)).filter((x,i,a)=>a.findIndex(y=>y.pair===x.pair)===i).slice(0,3).map(x=>x.pair).concat(vd.pair),
-    });
-  });
-
-  return UI.shuffle(pool).slice(0, TOTAL);
+'use strict';
+const TOTAL=20;
+let qNum=0,correct=0,wrong=0,answered=false;
+function switchMode(m){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  event.target.classList.add('active');
+  if(m==='bingo')initBingo();
+  if(m==='silly')initSilly();
 }
 
-const POOL = buildPool();
-
-function loadQ() {
-  if (qNum >= TOTAL) { endGame(); return; }
-  answered = false;
-  const q = POOL[qNum];
-  document.getElementById('cat-badge').textContent  = q.category;
-  document.getElementById('q-num').textContent      = `Question ${qNum+1} of ${TOTAL}`;
-  document.getElementById('q-emoji').textContent    = q.emoji;
-  document.getElementById('q-text').textContent     = q.text;
-  UI.updateProgress(document.getElementById('prog-bar'), qNum+1, TOTAL);
-
-  if (q.emoji) AudioManager.speak(q.answer, {rate:.75});
-
-  const ch = document.getElementById('choices');
-  ch.innerHTML = '';
-  UI.shuffle(q.options).forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'cbtn'; btn.textContent = opt;
-    btn.addEventListener('click', () => {
-      if (answered) return; answered = true;
-      const isRight = opt === q.answer;
-      btn.classList.add(isRight ? 'correct' : 'wrong');
-      catAttempts[q.category] = (catAttempts[q.category]||0) + 1;
-      if (isRight) {
-        correct++;
-        catStats[q.category] = (catStats[q.category]||0) + 1;
-        AudioManager.playTone('correct'); UI.showFeedback(true);
-      } else {
-        wrong++;
-        AudioManager.playTone('wrong'); UI.showFeedback(false);
-        ch.querySelectorAll('.cbtn').forEach(b => { if (b.textContent === q.answer) b.classList.add('correct'); });
-      }
-      document.getElementById('correct-count').textContent = correct;
-      document.getElementById('wrong-count').textContent   = wrong;
-      ch.querySelectorAll('.cbtn').forEach(b => b.style.pointerEvents='none');
-      qNum++; setTimeout(loadQ, 1400);
+/* QUIZ */
+function buildPool(){
+  const pool=[];
+  UI.shuffle(PHONICS_DATA.alphabet).slice(0,7).forEach(l=>{pool.push({category:'Letters',emoji:'',text:`What sound does "${l.l}" make?`,answer:l.sound,options:UI.shuffle(PHONICS_DATA.alphabet.filter(x=>x.l!==l.l)).slice(0,3).map(x=>x.sound).concat(l.sound)});});
+  UI.shuffle(PHONICS_DATA.digraphs).slice(0,5).forEach(d=>{pool.push({category:'Digraphs',emoji:d.emoji,text:`"${d.word}" starts with which digraph?`,answer:d.pair,options:UI.shuffle(PHONICS_DATA.digraphs.filter(x=>x.pair!==d.pair)).slice(0,3).map(x=>x.pair).concat(d.pair)});});
+  UI.shuffle(PHONICS_DATA.cvc).slice(0,5).forEach(w=>{pool.push({category:'CVC Words',emoji:w.emoji,text:`What word matches this picture?`,answer:w.word,options:UI.shuffle(PHONICS_DATA.cvc.filter(x=>x.word!==w.word)).slice(0,3).map(x=>x.word).concat(w.word)});});
+  UI.shuffle(PHONICS_DATA.consonantBlends).slice(0,3).forEach(b=>{pool.push({category:'Blends',emoji:b.emoji,text:`"${b.word}" starts with which blend?`,answer:b.blend.toUpperCase(),options:UI.shuffle(PHONICS_DATA.consonantBlends.filter(x=>x.blend!==b.blend)).slice(0,3).map(x=>x.blend.toUpperCase()).concat(b.blend.toUpperCase())});});
+  return UI.shuffle(pool).slice(0,TOTAL);
+}
+const POOL=buildPool();
+function loadQ(){
+  if(qNum>=TOTAL){endGame();return;}
+  answered=false;
+  const q=POOL[qNum];
+  document.getElementById('cat-badge').textContent=q.category;
+  document.getElementById('q-num').textContent=`Question ${qNum+1} of ${TOTAL}`;
+  document.getElementById('q-emoji').textContent=q.emoji;
+  document.getElementById('q-text').textContent=q.text;
+  UI.updateProgress(document.getElementById('prog-bar'),qNum+1,TOTAL);
+  if(q.emoji)AudioManager.speak(q.answer,{rate:.75});
+  const ch=document.getElementById('choices');ch.innerHTML='';
+  UI.shuffle(q.options).forEach(opt=>{
+    const btn=document.createElement('button');btn.className='cbtn';btn.textContent=opt;
+    btn.addEventListener('click',()=>{
+      if(answered)return;answered=true;
+      const isRight=opt===q.answer;
+      btn.classList.add(isRight?'correct':'wrong');
+      if(isRight){correct++;AudioManager.playTone('correct');UI.showFeedback(true);}
+      else{wrong++;AudioManager.playTone('wrong');UI.showFeedback(false);ch.querySelectorAll('.cbtn').forEach(b=>{if(b.textContent===q.answer)b.classList.add('correct');});}
+      document.getElementById('correct-count').textContent=correct;
+      document.getElementById('wrong-count').textContent=wrong;
+      ch.querySelectorAll('.cbtn').forEach(b=>b.style.pointerEvents='none');
+      qNum++;setTimeout(loadQ,1400);
     });
     ch.appendChild(btn);
   });
 }
-
-function endGame() {
-  const pct = Math.round((correct/TOTAL)*100);
-
-  // Identify weak categories (< 60% accuracy)
-  const weakCats = Object.keys(catAttempts).filter(cat => {
-    const attempts = catAttempts[cat];
-    if (!attempts) return false;
-    const acc = (catStats[cat]||0) / attempts;
-    return acc < 0.6;
-  });
-
-  // Save weakness for next session weighting
-  const newWeak = {};
-  Object.keys(catAttempts).forEach(cat => {
-    const acc = catAttempts[cat] ? (catStats[cat]||0)/catAttempts[cat] : 1;
-    newWeak[cat] = acc < 0.6;
-  });
-  localStorage.setItem('ph_review_weak', JSON.stringify(newWeak));
-
-  const weakHtml = weakCats.length
-    ? `<div style="margin:12px 0"><p style="font-size:.85rem;color:#888;font-weight:700;margin-bottom:6px">Focus areas for next time:</p>${weakCats.map(c=>`<span class="weak-badge">⚠️ ${c}</span>`).join('')}</div>`
-    : `<p style="font-size:.85rem;color:#22c55e;font-weight:700;margin:12px 0">✅ Strong across all topics!</p>`;
-
-  document.getElementById('review-card').innerHTML = `
+function endGame(){
+  const pct=Math.round((correct/TOTAL)*100);
+  document.getElementById('review-card').innerHTML=`
     <div style="font-size:4rem;margin-bottom:16px">${pct>=80?'🏆':pct>=60?'⭐':'💪'}</div>
     <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${pct>=80?'Excellent!':pct>=60?'Good work!':'Keep practising!'}</h2>
-    <p style="font-size:1.2rem;color:#666;margin-bottom:8px">Score: ${correct}/${TOTAL} (${pct}%)</p>
-    ${weakHtml}
-    <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>
-    <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>`;
-
-  UI.setScore('phonics-review', {stars:correct, total:TOTAL});
-  if(typeof analytics !== 'undefined') analytics.trackActivityComplete('phonics-review', correct, TOTAL);
-  if(window.CurriculumManager) window.CurriculumManager.markActivityComplete('phonics-review');
+    <p style="font-size:1.2rem;color:#666;margin-bottom:24px">Score: ${correct}/${TOTAL} (${pct}%)</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>
+      <button class="btn btn-purple" onclick="switchMode('bingo')">🎱 Play Bingo!</button>
+      <button class="btn btn-accent" onclick="switchMode('silly')">😂 Silly Sentences!</button>
+    </div>`;
+  UI.setScore('phonics-review',{stars:correct,total:TOTAL});
+  if(typeof analytics!=='undefined')analytics.trackActivityComplete('phonics-review',correct,TOTAL);
 }
-
 loadQ();
+
+/* BINGO */
+const BINGO_WORD_POOL=[
+  {word:'cat',emoji:'🐱'},{word:'star',emoji:'⭐'},{word:'ship',emoji:'🚢'},
+  {word:'cake',emoji:'🎂'},{word:'blue',emoji:'🔵'},{word:'frog',emoji:'🐸'},
+  {word:'ring',emoji:'💍'},{word:'drum',emoji:'🥁'},{word:'flag',emoji:'🚩'},
+  {word:'bird',emoji:'🐦'},{word:'cheese',emoji:'🧀'},{word:'thumb',emoji:'👍'},
+  {word:'kite',emoji:'🪁'},{word:'corn',emoji:'🌽'},{word:'whale',emoji:'🐳'},
+];
+let bingoCard=[],bingoCalled=[],bingoDaubed=0,bingoCallerIdx=0;
+function initBingo(){bingoCalled=[];bingoCallerIdx=0;bingoDaubed=0;buildBingoCard();}
+function buildBingoCard(){
+  bingoCard=UI.shuffle([...BINGO_WORD_POOL]).slice(0,9);
+  bingoCalled=[];bingoDaubed=0;
+  document.getElementById('bingo-called').textContent='Press Call to start!';
+  document.getElementById('bingo-daubed').textContent='0';
+  document.getElementById('bingo-win').classList.remove('show');
+  const grid=document.getElementById('bingo-grid');grid.innerHTML='';
+  bingoCard.forEach((item,i)=>{
+    const cell=document.createElement('div');cell.className='bingo-cell';cell.dataset.idx=i;cell.dataset.word=item.word;
+    cell.innerHTML=`<span class="bcell-emoji">${item.emoji}</span><span class="bcell-word">${item.word}</span>`;
+    cell.addEventListener('click',()=>{
+      if(cell.classList.contains('daubed'))return;
+      const lastCalled=bingoCalled[bingoCalled.length-1];
+      if(lastCalled&&item.word===lastCalled){
+        cell.classList.add('daubed');AudioManager.playTone('correct');
+        bingoDaubed++;document.getElementById('bingo-daubed').textContent=bingoDaubed;
+        if(bingoDaubed>=9){document.getElementById('bingo-win').classList.add('show');AudioManager.speak('Bingo! You found all the words!',{rate:.8});}
+      } else {
+        cell.style.background='#fee2e2';setTimeout(()=>cell.style.background='',600);
+        AudioManager.playTone('wrong');
+      }
+    });
+    grid.appendChild(cell);
+  });
+}
+document.getElementById('bingo-call').addEventListener('click',()=>{
+  const remaining=bingoCard.filter(item=>!bingoCalled.includes(item.word));
+  if(remaining.length===0){document.getElementById('bingo-called').textContent='All called! 🎉';return;}
+  const pick=remaining[Math.floor(Math.random()*remaining.length)];
+  bingoCalled.push(pick.word);
+  document.getElementById('bingo-called').textContent=`${pick.emoji} ${pick.word}`;
+  AudioManager.speak(pick.word,{rate:.7});
+});
+document.getElementById('bingo-new').addEventListener('click',()=>initBingo());
+
+/* SILLY SENTENCE */
+const SILLY_CATS=[
+  {label:'🎭 Who',words:['The cat','A shark','The frog','A brave bird','The silly pig','A smart hen']},
+  {label:'🏃 Action',words:['can blend','says the sound','loves to spell','jumps like','sounds like','rhymes with']},
+  {label:'📖 Phonics word',words:['a digraph','the blend ST','short vowel A','magic-E words','a sight word','the sound SH']},
+  {label:'📍 Where',words:['at school','on the page','in a book','every day','with a friend','in the playground']},
+];
+let sillyChoices=[null,null,null,null];
+function initSilly(){sillyChoices=[null,null,null,null];buildSilly();}
+function buildSilly(){
+  const c=document.getElementById('silly-cols');c.innerHTML='';
+  SILLY_CATS.forEach((cat,ci)=>{
+    const col=document.createElement('div');col.className='silly-col';
+    col.innerHTML=`<div class="silly-col-lbl">${cat.label}</div>`;
+    cat.words.forEach(w=>{
+      const btn=document.createElement('button');btn.className='silly-btn';btn.textContent=w;
+      if(sillyChoices[ci]===w)btn.classList.add('active');
+      btn.addEventListener('click',()=>{
+        col.querySelectorAll('.silly-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');sillyChoices[ci]=w;updateSilly();AudioManager.speak(w,{rate:.85});
+      });
+      col.appendChild(btn);
+    });
+    c.appendChild(col);
+  });
+}
+function updateSilly(){
+  const res=document.getElementById('silly-result');
+  if(sillyChoices.some(c=>c===null)){res.textContent='Keep picking words…';return;}
+  res.textContent=sillyChoices.join(' ')+'!';
+}
+document.getElementById('silly-read').addEventListener('click',()=>{
+  if(sillyChoices.some(c=>c===null)){UI.toast('Pick a word from each box first!');return;}
+  AudioManager.speak(sillyChoices.join(' '),{rate:.8});
+});
+document.getElementById('silly-shuffle').addEventListener('click',()=>{
+  SILLY_CATS.forEach((cat,i)=>sillyChoices[i]=cat.words[Math.floor(Math.random()*cat.words.length)]);
+  buildSilly();updateSilly();
+});
+document.getElementById('silly-clear').addEventListener('click',()=>{sillyChoices=[null,null,null,null];buildSilly();document.getElementById('silly-result').textContent='Pick one from each box to build your sentence!';});
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("phonics-review");</script>
 </body>

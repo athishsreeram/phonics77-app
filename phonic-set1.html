@@ -6,26 +6,50 @@
 <title>🔤 Blending Intro · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.blend-card { background: white; border-radius: 28px; padding: 36px 24px; text-align: center; box-shadow: var(--shadow-md); max-width: 560px; margin: 28px auto; }
-.word-display { font-family: 'Fredoka One', cursive; font-size: clamp(3rem,12vw,6rem); letter-spacing: 0.15em; margin: 16px 0; color: var(--clr-text); }
-.word-emoji { font-size: clamp(3rem,10vw,5rem); margin-bottom: 12px; display: block; }
-.letters-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 20px 0; }
-.letter-tile { width: 64px; height: 64px; border-radius: 16px; background: #f3f4f6; border: 3px solid #e5e7eb; font-family: 'Fredoka One', cursive; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .15s, background .15s, border-color .15s; }
-.letter-tile.c-tile { border-color: #6bcb77; }
-.letter-tile.v-tile { border-color: #ff6b6b; background: #fff0f0; }
-.letter-tile.highlight { background: #dbeafe; border-color: var(--clr-blue); transform: scale(1.1); }
-.btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
-.progress-label { font-size: .9rem; font-weight: 700; color: var(--clr-text-soft); margin-bottom: 8px; }
-.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:16px; }
-.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 16px; font-weight:800; font-size:.9rem; cursor:pointer; }
-.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
-/* Quiz mode */
-.quiz-prompt { font-weight:800; color:var(--clr-text-soft); margin-bottom:12px; }
-.quiz-choices { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
-.qbtn { background:#f3f4f6; border:3px solid transparent; border-radius:14px; padding:12px 20px; font-family:'Fredoka One',cursive; font-size:1.4rem; cursor:pointer; transition:all .15s; }
-.qbtn.correct { background:#dcfce7; border-color:var(--clr-green); }
-.qbtn.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
-.vowel-tip { font-size:.85rem; font-weight:700; background:#eef2ff; color:#4338ca; border-radius:8px; padding:8px 12px; margin-top:8px; }
+.mode-bar{display:flex;gap:6px;justify-content:center;margin:16px 0 20px;flex-wrap:wrap}
+.mode-tab{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s}
+.mode-tab.active{background:var(--clr-blue);color:white;border-color:var(--clr-blue);transform:scale(1.05)}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .3s ease}
+
+/* BLEND mode (original) */
+.blend-card{background:white;border-radius:28px;padding:36px 24px;text-align:center;box-shadow:var(--shadow-md);max-width:560px;margin:28px auto}
+.word-display{font-family:'Fredoka One',cursive;font-size:clamp(3rem,12vw,6rem);letter-spacing:.15em;margin:16px 0;color:var(--clr-text)}
+.word-emoji{font-size:clamp(3rem,10vw,5rem);margin-bottom:12px;display:block}
+.letters-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:20px 0}
+.letter-tile{width:64px;height:64px;border-radius:16px;background:#f3f4f6;border:3px solid #e5e7eb;font-family:'Fredoka One',cursive;font-size:1.8rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s,background .15s,border-color .15s}
+.letter-tile:hover{background:#e0e7ff;border-color:var(--clr-blue);transform:translateY(-3px)}
+.letter-tile.highlight{background:#dbeafe;border-color:var(--clr-blue);transform:scale(1.1)}
+.progress-label{font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:8px}
+
+/* SCRAMBLE mode */
+.scramble-card{background:white;border-radius:28px;padding:36px 24px;text-align:center;box-shadow:var(--shadow-md);max-width:500px;margin:28px auto}
+.sc-emoji{font-size:clamp(3.5rem,12vw,6rem);display:block;margin-bottom:12px}
+.sc-tiles{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:16px 0}
+.sc-tile{width:66px;height:74px;border-radius:14px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;font-family:'Fredoka One',cursive;font-size:2rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;box-shadow:0 4px 10px rgba(59,130,246,.35)}
+.sc-tile:hover{transform:translateY(-4px) rotate(4deg);box-shadow:0 8px 18px rgba(59,130,246,.4)}
+.sc-tile.used{opacity:.25;pointer-events:none;transform:scale(.8)}
+.sc-answer{display:flex;justify-content:center;gap:10px;margin:16px 0;min-height:74px}
+.sc-slot{width:66px;height:74px;border-radius:14px;border:3px dashed #cbd5e1;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:2rem;color:var(--clr-blue);cursor:pointer;transition:all .2s}
+.sc-slot.filled{border-style:solid;border-color:var(--clr-blue);background:white;box-shadow:0 3px 10px rgba(0,0,0,.1)}
+.sc-result{border-radius:16px;padding:12px 16px;text-align:center;margin:10px 0;font-family:'Fredoka One',cursive;font-size:1.2rem;display:none;animation:fadeIn .2s ease}
+.sc-result.correct{background:#dcfce7;color:#15803d;border:2px solid #22c55e;display:block}
+.sc-result.wrong{background:#fee2e2;color:#991b1b;border:2px solid #ef4444;display:block}
+.sc-score{font-weight:700;color:var(--clr-text-soft);margin-top:8px}
+
+/* TAP THE LETTER falling game */
+.tap-card{background:white;border-radius:28px;padding:24px 20px;box-shadow:var(--shadow-md);max-width:560px;margin:28px auto}
+.tap-hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.tap-target-box{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:white;border-radius:14px;padding:10px 18px;text-align:center}
+.tap-target-label{font-size:.7rem;font-weight:800;opacity:.8;text-transform:uppercase;letter-spacing:.06em}
+.tap-target-letter{font-family:'Fredoka One',cursive;font-size:2rem;line-height:1}
+.tap-timer{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--clr-text)}
+.tap-timer.urgent{color:#ef4444;animation:pop .5s ease infinite}
+.tap-score-big{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--clr-primary)}
+#tap-canvas{display:block;border:3px solid #e5e7eb;border-radius:20px;background:linear-gradient(180deg,#eff6ff 0%,#f0fdf4 100%);touch-action:none}
+.tap-start-overlay{display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.tap-start-box{text-align:center}
+.tap-end-box{text-align:center;padding:32px 20px}
+.completion-card{background:white;border-radius:28px;padding:48px 28px;text-align:center;box-shadow:var(--shadow-md);max-width:480px;margin:0 auto}
 </style>
 </head>
 <body>
@@ -37,40 +61,87 @@
 </nav>
 <div class="page-header" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">
   <h1>🔤 Blending Intro</h1>
-  <p>Tap each letter, then blend them together!</p>
+  <p>Blend, scramble, and tap your way to reading!</p>
 </div>
 <main>
-  <div class="blend-card">
-    <div class="mode-toggle">
-      <button class="mode-btn active" id="mode-browse">🔤 Blend</button>
-      <button class="mode-btn" id="mode-quiz">🎯 Quiz</button>
-    </div>
-    <p class="progress-label" id="progress-label">Word 1 of 10</p>
-    <div class="progress-wrap" style="margin-bottom:20px">
-      <div class="progress-bar" id="progress-bar" style="width:10%"></div>
-    </div>
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('blend')">🔊 Blend!</button>
+  <button class="mode-tab" onclick="switchMode('scramble')">🔀 Scramble!</button>
+  <button class="mode-tab" onclick="switchMode('tap')">⚡ Tap the Letter!</button>
+</div>
 
-    <!-- Browse mode -->
-    <div id="browse-mode">
-      <span class="word-emoji" id="word-emoji">🐱</span>
-      <div class="letters-row" id="letters-row"></div>
-      <div id="vowel-tip-area"></div>
-      <div class="word-display" id="word-display" style="opacity:.2">???</div>
-      <div class="btn-row">
-        <button class="btn btn-primary btn-lg" id="btn-blend">🔊 Blend!</button>
-        <button class="btn btn-green btn-lg" id="btn-reveal">👁 Reveal</button>
-        <button class="btn btn-secondary" id="btn-next">➡️ Next</button>
-      </div>
-    </div>
+<!-- ═══ BLEND MODE ═══ -->
+<div id="panel-blend" class="panel active">
+<div class="blend-card">
+  <p class="progress-label" id="progress-label">Word 1 of 10</p>
+  <div class="progress-wrap" style="margin-bottom:20px">
+    <div class="progress-bar" id="progress-bar" style="width:10%"></div>
+  </div>
+  <span class="word-emoji" id="word-emoji">🐱</span>
+  <div class="letters-row" id="letters-row"></div>
+  <div class="word-display" id="word-display" style="opacity:.2">???</div>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px">
+    <button class="btn btn-primary btn-lg" id="btn-blend">🔊 Blend!</button>
+    <button class="btn btn-green btn-lg" id="btn-reveal">👁 Reveal</button>
+    <button class="btn btn-secondary" id="btn-next">➡️ Next</button>
+  </div>
+</div>
+</div>
 
-    <!-- Quiz mode: see emoji, pick word -->
-    <div id="quiz-mode" style="display:none">
-      <span class="word-emoji" id="quiz-emoji">🐱</span>
-      <p class="quiz-prompt">Which word matches this picture?</p>
-      <div class="quiz-choices" id="quiz-choices"></div>
-      <p style="font-weight:700;margin-top:12px;color:var(--clr-text-soft)">Score: <span id="q-score">0</span>/<span id="q-total">0</span></p>
+<!-- ═══ SCRAMBLE MODE ═══ -->
+<div id="panel-scramble" class="panel">
+<div class="scramble-card">
+  <p class="progress-label" id="sc-progress">Word 1 of 10</p>
+  <div class="progress-wrap" style="margin-bottom:16px">
+    <div class="progress-bar" id="sc-pb" style="width:10%"></div>
+  </div>
+  <span class="sc-emoji" id="sc-emoji">🐱</span>
+  <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft)">Tap letters in the right order to spell the word!</p>
+  <div class="sc-tiles" id="sc-tiles"></div>
+  <div class="sc-answer" id="sc-answer"></div>
+  <div class="sc-result" id="sc-result"></div>
+  <div class="sc-score">✅ <span id="sc-correct">0</span> &nbsp;·&nbsp; ❌ <span id="sc-wrong">0</span></div>
+  <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+    <button class="btn btn-primary" id="sc-hear">🔊 Hint</button>
+    <button class="btn btn-secondary" id="sc-clear">🗑 Clear</button>
+    <button class="btn btn-accent" id="sc-skip">Skip →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ TAP THE LETTER ═══ -->
+<div id="panel-tap" class="panel">
+<div class="tap-card">
+  <div id="tap-start-screen" class="tap-start-overlay">
+    <div class="tap-start-box">
+      <div style="font-size:4rem;margin-bottom:12px">⚡</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:2rem;color:var(--clr-blue);margin-bottom:8px">Tap the Letter!</div>
+      <p style="color:#666;font-weight:700;margin-bottom:24px">Letters fall from above — tap only the TARGET letter! 30 seconds. Go!</p>
+      <button class="btn btn-blue btn-lg" onclick="startTap()">🚀 Start!</button>
     </div>
   </div>
+  <div id="tap-game-screen" style="display:none">
+    <div class="tap-hud">
+      <div class="tap-target-box">
+        <div class="tap-target-label">Tap this!</div>
+        <div class="tap-target-letter" id="tap-target">A</div>
+      </div>
+      <div class="tap-score-big">⭐ <span id="tap-score">0</span></div>
+      <div class="tap-timer" id="tap-timer">30s</div>
+    </div>
+    <canvas id="tap-canvas" width="400" height="320"></canvas>
+  </div>
+  <div id="tap-end-screen" class="tap-end-box" style="display:none">
+    <div style="font-size:4rem;margin-bottom:12px" id="tap-end-emoji">⭐</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:2rem;color:var(--clr-blue);margin-bottom:8px" id="tap-end-title">Nice!</div>
+    <div style="font-size:1.1rem;color:#666;margin-bottom:24px" id="tap-end-msg">Score: 0</div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-blue btn-lg" onclick="startTap()">🔄 Play Again</button>
+      <button class="btn btn-secondary" onclick="switchMode('blend')">🔊 Back to Blend</button>
+    </div>
+  </div>
+</div>
+</div>
 </main>
 
 <script src="js/config.js"></script>
@@ -80,125 +151,302 @@
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-const WORDS = UI.shuffle(PHONICS_DATA.cvc).slice(0, 10);
-const VOWELS_SET = new Set(['a','e','i','o','u']);
-let idx = 0, revealed = false, score = 0;
-let qIdx = 0, qScore = 0, qTotal = 0, qAnswered = false;
-let quizMode = false;
+'use strict';
+function switchMode(m){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  event.target.classList.add('active');
+  if(m==='tap')resetTapUI();
+}
 
-function loadWord() {
-  if (idx >= WORDS.length) { endBrowse(); return; }
-  revealed = false;
-  const item = WORDS[idx];
-  const letters = item.word.split('');
+/* ══ BLEND MODE ══ */
+const WORDS=UI.shuffle(PHONICS_DATA.cvc).slice(0,10);
+let idx=0,revealed=false,score=0;
 
-  document.getElementById('progress-label').textContent = `Word ${idx+1} of ${WORDS.length}`;
-  UI.updateProgress(document.getElementById('progress-bar'), idx+1, WORDS.length);
-  document.getElementById('word-emoji').textContent = item.emoji;
-  document.getElementById('word-display').textContent = '???';
-  document.getElementById('word-display').style.opacity = '.2';
-  document.getElementById('word-display').style.color = 'var(--clr-text)';
-  document.getElementById('vowel-tip-area').innerHTML = '';
-
-  const vowelLetter = letters.find(c => VOWELS_SET.has(c));
-  if (vowelLetter) {
-    document.getElementById('vowel-tip-area').innerHTML = `<div class="vowel-tip">🔴 Middle vowel: <strong>${vowelLetter.toUpperCase()}</strong> — says "${vowelLetter === 'a' ? 'aah' : vowelLetter === 'e' ? 'eh' : vowelLetter === 'i' ? 'ih' : vowelLetter === 'o' ? 'oh' : 'uh'}"</div>`;
-  }
-
-  const row = document.getElementById('letters-row');
-  row.innerHTML = '';
-  letters.forEach((ch) => {
-    const tile = document.createElement('div');
-    const isVowel = VOWELS_SET.has(ch);
-    tile.className = `letter-tile ${isVowel ? 'v-tile' : 'c-tile'}`;
-    tile.textContent = ch.toUpperCase();
-    tile.addEventListener('click', () => { tile.classList.toggle('highlight'); AudioManager.speak(ch, {rate:.7}); });
+function loadWord(){
+  if(idx>=WORDS.length){endBlend();return;}
+  revealed=false;
+  const item=WORDS[idx];
+  document.getElementById('progress-label').textContent=`Word ${idx+1} of ${WORDS.length}`;
+  UI.updateProgress(document.getElementById('progress-bar'),idx+1,WORDS.length);
+  document.getElementById('word-emoji').textContent=item.emoji;
+  document.getElementById('word-display').textContent='???';
+  document.getElementById('word-display').style.opacity='.2';
+  document.getElementById('word-display').style.color='var(--clr-text)';
+  const row=document.getElementById('letters-row');
+  row.innerHTML='';
+  item.word.split('').forEach(ch=>{
+    const tile=document.createElement('div');
+    tile.className='letter-tile';tile.textContent=ch.toUpperCase();
+    tile.addEventListener('click',()=>{
+      tile.classList.toggle('highlight');
+      AudioManager.speak(ch,{rate:0.7});
+    });
     row.appendChild(tile);
   });
 }
 
-document.getElementById('btn-blend').addEventListener('click', () => {
-  const item = WORDS[idx];
-  AudioManager.speak(item.word, {rate:.6});
-  if (!revealed) {
-    revealed = true;
-    document.getElementById('word-display').textContent = item.word.toUpperCase();
-    document.getElementById('word-display').style.opacity = '1';
-    document.getElementById('word-display').style.color = 'var(--clr-primary)';
-    score++;
+document.getElementById('btn-blend').addEventListener('click',()=>{
+  const item=WORDS[idx];
+  AudioManager.speak(item.word,{rate:0.6});
+  if(!revealed){
+    revealed=true;score++;
+    document.getElementById('word-display').textContent=item.word.toUpperCase();
+    document.getElementById('word-display').style.opacity='1';
+    document.getElementById('word-display').style.color='var(--clr-primary)';
   }
 });
-document.getElementById('btn-reveal').addEventListener('click', () => {
-  const item = WORDS[idx];
-  revealed = true;
-  document.getElementById('word-display').textContent = item.word.toUpperCase();
-  document.getElementById('word-display').style.opacity = '1';
-  AudioManager.speak(item.word, {rate:.7});
+document.getElementById('btn-reveal').addEventListener('click',()=>{
+  const item=WORDS[idx];revealed=true;
+  document.getElementById('word-display').textContent=item.word.toUpperCase();
+  document.getElementById('word-display').style.opacity='1';
+  AudioManager.speak(item.word,{rate:.7});
 });
-document.getElementById('btn-next').addEventListener('click', () => { idx++; loadWord(); });
+document.getElementById('btn-next').addEventListener('click',()=>{idx++;loadWord();});
 
-function endBrowse() {
-  document.getElementById('browse-mode').innerHTML = `<div style="font-size:3rem;margin-bottom:12px">🎉</div><h2 style="font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:8px">Great blending!</h2><p style="color:#666;margin-bottom:20px">You blended ${score} words! Try the Quiz mode!</p><button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>`;
+function endBlend(){
+  document.getElementById('panel-blend').innerHTML=`
+    <div class="blend-card">
+      <div style="font-size:4rem;margin-bottom:16px">🎉</div>
+      <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">Great blending!</h2>
+      <p style="font-size:1.1rem;color:#666;margin-bottom:24px">You blended ${score} words!</p>
+      <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>
+      <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>
+    </div>`;
   UI.setScore('blending-intro',{stars:score,total:WORDS.length});
-  if(typeof analytics!=='undefined') analytics.trackActivityComplete('blending-intro',score,WORDS.length);
-  if(window.CurriculumManager) window.CurriculumManager.markActivityComplete('blending-intro');
+  if(typeof analytics!=='undefined')analytics.trackActivityComplete('blending-intro',score,WORDS.length);
+}
+loadWord();
+
+/* ══ SCRAMBLE MODE ══ */
+const SC_WORDS=UI.shuffle([...PHONICS_DATA.cvc]).slice(0,10);
+let scIdx=0,scCorrect=0,scWrong=0,scAnswer=[];
+
+function loadScramble(){
+  if(scIdx>=SC_WORDS.length){showScrambleDone();return;}
+  scAnswer=[];
+  const item=SC_WORDS[scIdx];
+  const scrambled=UI.shuffle(item.word.split(''));
+  document.getElementById('sc-progress').textContent=`Word ${scIdx+1} of ${SC_WORDS.length}`;
+  UI.updateProgress(document.getElementById('sc-pb'),scIdx+1,SC_WORDS.length);
+  document.getElementById('sc-emoji').textContent=item.emoji;
+  document.getElementById('sc-result').className='sc-result';
+
+  const tilesDiv=document.getElementById('sc-tiles');
+  tilesDiv.innerHTML='';
+  scrambled.forEach((ch,i)=>{
+    const t=document.createElement('div');
+    t.className='sc-tile';t.textContent=ch.toUpperCase();t.dataset.idx=i;
+    t.addEventListener('click',()=>pickScLetter(t,ch,i));
+    tilesDiv.appendChild(t);
+  });
+
+  const ansDiv=document.getElementById('sc-answer');
+  ansDiv.innerHTML='';
+  for(let i=0;i<3;i++){
+    const s=document.createElement('div');
+    s.className='sc-slot';s.dataset.pos=i;
+    s.addEventListener('click',()=>removeScLetter(i));
+    ansDiv.appendChild(s);
+  }
 }
 
-// Quiz mode
-const QUIZ_WORDS = UI.shuffle(PHONICS_DATA.cvc).slice(0,10);
+function pickScLetter(tile,ch,origIdx){
+  if(tile.classList.contains('used'))return;
+  if(scAnswer.length>=3)return;
+  tile.classList.add('used');
+  scAnswer.push({ch,origIdx});
+  AudioManager.speak(ch,{rate:.7});
+  const pos=scAnswer.length-1;
+  const slot=document.querySelector(`.sc-slot[data-pos="${pos}"]`);
+  if(slot){slot.textContent=ch.toUpperCase();slot.classList.add('filled');}
+  if(scAnswer.length===3)setTimeout(checkScramble,300);
+}
 
-function loadQuizQ() {
-  if (qIdx >= QUIZ_WORDS.length) { endQuiz(); return; }
-  qAnswered = false;
-  const q = QUIZ_WORDS[qIdx];
-  document.getElementById('quiz-emoji').textContent = q.emoji;
-  AudioManager.speak(q.word,{rate:.75});
+function removeScLetter(pos){
+  if(pos>=scAnswer.length)return;
+  const rem=scAnswer.splice(pos,1)[0];
+  const tile=document.querySelector(`.sc-tile[data-idx="${rem.origIdx}"]`);
+  if(tile)tile.classList.remove('used');
+  for(let i=0;i<3;i++){
+    const s=document.querySelector(`.sc-slot[data-pos="${i}"]`);
+    if(s){
+      if(i<scAnswer.length){s.textContent=scAnswer[i].ch.toUpperCase();s.classList.add('filled');}
+      else{s.textContent='';s.classList.remove('filled');}
+    }
+  }
+}
 
-  const wrongs = UI.shuffle(PHONICS_DATA.cvc.filter(x=>x.word!==q.word)).slice(0,3);
-  const opts = UI.shuffle([q,...wrongs]);
-  const qc = document.getElementById('quiz-choices');
-  qc.innerHTML='';
-  opts.forEach(opt=>{
-    const btn=document.createElement('button');
-    btn.className='qbtn';btn.textContent=opt.word;
-    btn.addEventListener('click',()=>{
-      if(qAnswered)return;qAnswered=true;qTotal++;
-      const right=opt.word===q.word;
-      btn.classList.add(right?'correct':'wrong');
-      if(right){qScore++;AudioManager.playTone('correct');UI.showFeedback(true);}
-      else{AudioManager.playTone('wrong');qc.querySelectorAll('.qbtn').forEach(b=>{if(b.textContent===q.word)b.classList.add('correct');});}
-      document.getElementById('q-score').textContent=qScore;
-      document.getElementById('q-total').textContent=qTotal;
-      qc.querySelectorAll('.qbtn').forEach(b=>b.style.pointerEvents='none');
-      qIdx++;setTimeout(loadQuizQ,1400);
-    });
-    qc.appendChild(btn);
+function checkScramble(){
+  const item=SC_WORDS[scIdx];
+  const built=scAnswer.map(a=>a.ch).join('');
+  const res=document.getElementById('sc-result');
+  if(built===item.word){
+    scCorrect++;res.textContent=`🎉 "${item.word.toUpperCase()}" — Correct!`;res.className='sc-result correct';
+    document.getElementById('sc-correct').textContent=scCorrect;
+    AudioManager.playTone('correct');UI.showFeedback(true);
+    AudioManager.speak(item.word,{rate:.75});
+    setTimeout(()=>{scIdx++;loadScramble();},1500);
+  } else {
+    scWrong++;res.textContent=`❌ The word is "${item.word.toUpperCase()}"`;res.className='sc-result wrong';
+    document.getElementById('sc-wrong').textContent=scWrong;
+    AudioManager.playTone('wrong');
+    setTimeout(()=>{scAnswer=[];loadScramble();},1600);
+  }
+}
+
+function showScrambleDone(){
+  const pct=Math.round((scCorrect/SC_WORDS.length)*100);
+  document.getElementById('panel-scramble').innerHTML=`
+    <div class="completion-card">
+      <div style="font-size:5rem;margin-bottom:16px">${pct>=80?'🌟':'⭐'}</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:2rem;color:var(--clr-blue);margin-bottom:8px">Unscrambled ${scCorrect}/${SC_WORDS.length}!</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
+        <button class="btn btn-blue btn-lg" onclick="scIdx=0;scCorrect=0;scWrong=0;loadScramble()">🔄 Again</button>
+        <button class="btn btn-accent" onclick="switchMode('tap')">⚡ Tap the Letter!</button>
+      </div>
+    </div>`;
+}
+
+document.getElementById('sc-hear').addEventListener('click',()=>{if(SC_WORDS[scIdx])AudioManager.speak(SC_WORDS[scIdx].word,{rate:.65});});
+document.getElementById('sc-clear').addEventListener('click',()=>{scAnswer=[];loadScramble();});
+document.getElementById('sc-skip').addEventListener('click',()=>{scIdx++;if(scIdx<SC_WORDS.length)loadScramble();else showScrambleDone();});
+loadScramble();
+
+/* ══ TAP THE LETTER ══ */
+const TAP_LETTERS=PHONICS_DATA.alphabet.map(a=>a.l);
+const TAP_COLORS=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#a855f7','#ec4899'];
+let tapScore=0,tapLives=3,tapTarget='',tapTimer=30,tapInterval=null,tapRAF=null,tapRunning=false;
+let tapBalls=[];let tapSpawnTimer=0;
+
+const tapCanvas=document.getElementById('tap-canvas');
+const tapCtx=tapCanvas.getContext('2d');
+
+function resetTapUI(){
+  document.getElementById('tap-start-screen').style.display='flex';
+  document.getElementById('tap-game-screen').style.display='none';
+  document.getElementById('tap-end-screen').style.display='none';
+}
+
+function startTap(){
+  tapScore=0;tapTimer=30;tapRunning=true;tapBalls=[];tapSpawnTimer=0;
+  document.getElementById('tap-start-screen').style.display='none';
+  document.getElementById('tap-game-screen').style.display='block';
+  document.getElementById('tap-end-screen').style.display='none';
+  document.getElementById('tap-score').textContent='0';
+  document.getElementById('tap-timer').textContent='30s';
+  document.getElementById('tap-timer').classList.remove('urgent');
+  resizeTapCanvas();
+  pickTapTarget();
+  tapInterval=setInterval(tickTap,1000);
+  tapRAF=requestAnimationFrame(tapLoop);
+}
+
+function resizeTapCanvas(){
+  tapCanvas.width=Math.min(tapCanvas.parentElement.clientWidth-32,500);
+  tapCanvas.height=300;
+}
+
+function pickTapTarget(){
+  tapTarget=TAP_LETTERS[Math.floor(Math.random()*TAP_LETTERS.length)];
+  document.getElementById('tap-target').textContent=tapTarget;
+  AudioManager.speak(tapTarget,{rate:.7});
+}
+
+function spawnBall(){
+  const letter=TAP_LETTERS[Math.floor(Math.random()*TAP_LETTERS.length)];
+  const r=28+Math.random()*12;
+  tapBalls.push({
+    x:r+Math.random()*(tapCanvas.width-2*r),y:-r*2,r,letter,
+    speed:1.5+Math.random()*1.5,
+    color:TAP_COLORS[Math.floor(Math.random()*TAP_COLORS.length)],
+    pop:false,popAnim:0
   });
 }
-function endQuiz(){
-  const pct=Math.round((qScore/QUIZ_WORDS.length)*100);
-  document.getElementById('quiz-mode').innerHTML=`<div style="font-size:3rem;margin-bottom:12px">${pct>=80?'🏆':'⭐'}</div><h2 style="font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:8px">${pct>=80?'Word Master!':'Nice work!'}</h2><p style="color:#666;margin-bottom:20px">${qScore}/${QUIZ_WORDS.length}</p><button class="btn btn-primary" onclick="location.reload()">🔄 Try Again</button>`;
-  if(typeof analytics!=='undefined') analytics.trackActivityComplete('blending-intro',qScore,QUIZ_WORDS.length);
-  if(window.CurriculumManager) window.CurriculumManager.markActivityComplete('blending-intro');
+
+function tapLoop(){
+  if(!tapRunning)return;
+  tapCtx.clearRect(0,0,tapCanvas.width,tapCanvas.height);
+  tapSpawnTimer++;
+  if(tapSpawnTimer>35){spawnBall();tapSpawnTimer=0;}
+  tapBalls.forEach(b=>{
+    if(b.pop){b.popAnim+=0.1;}else{b.y+=b.speed;}
+    tapCtx.save();tapCtx.translate(b.x,b.y);
+    if(b.pop){
+      for(let i=0;i<6;i++){
+        const angle=(i/6)*Math.PI*2;const dist=b.popAnim*b.r*1.5;
+        tapCtx.beginPath();tapCtx.arc(Math.cos(angle)*dist,Math.sin(angle)*dist,b.r*.25*(1-b.popAnim),0,Math.PI*2);
+        tapCtx.fillStyle=b.color;tapCtx.globalAlpha=1-b.popAnim;tapCtx.fill();
+      }
+    } else {
+      tapCtx.beginPath();tapCtx.ellipse(0,0,b.r,b.r*1.15,0,0,Math.PI*2);
+      tapCtx.fillStyle=b.color;tapCtx.globalAlpha=.92;tapCtx.fill();
+      tapCtx.beginPath();tapCtx.ellipse(-b.r*.2,-b.r*.3,b.r*.2,b.r*.15,-.4,0,Math.PI*2);
+      tapCtx.fillStyle='rgba(255,255,255,.4)';tapCtx.fill();
+      tapCtx.globalAlpha=1;tapCtx.fillStyle='white';
+      tapCtx.font=`bold ${b.r*.8}px 'Fredoka One',cursive`;
+      tapCtx.textAlign='center';tapCtx.textBaseline='middle';
+      tapCtx.fillText(b.letter,0,0);
+    }
+    tapCtx.restore();
+  });
+  tapBalls=tapBalls.filter(b=>{
+    if(b.pop&&b.popAnim>=1)return false;
+    if(!b.pop&&b.y>tapCanvas.height+50){
+      // Target escaped
+      if(b.letter===tapTarget)pickTapTarget();
+      return false;
+    }
+    return true;
+  });
+  tapRAF=requestAnimationFrame(tapLoop);
 }
 
-document.getElementById('mode-browse').addEventListener('click',()=>{
-  quizMode=false;
-  document.getElementById('mode-browse').classList.add('active');
-  document.getElementById('mode-quiz').classList.remove('active');
-  document.getElementById('browse-mode').style.display='block';
-  document.getElementById('quiz-mode').style.display='none';
-});
-document.getElementById('mode-quiz').addEventListener('click',()=>{
-  quizMode=true;
-  document.getElementById('mode-quiz').classList.add('active');
-  document.getElementById('mode-browse').classList.remove('active');
-  document.getElementById('browse-mode').style.display='none';
-  document.getElementById('quiz-mode').style.display='block';
-  if(qIdx===0) loadQuizQ();
-});
+function handleTapClick(x,y){
+  if(!tapRunning)return;
+  for(let i=tapBalls.length-1;i>=0;i--){
+    const b=tapBalls[i];if(b.pop)continue;
+    if(Math.hypot(x-b.x,y-b.y)<b.r*1.3){
+      if(b.letter===tapTarget){
+        b.pop=true;tapScore++;
+        document.getElementById('tap-score').textContent=tapScore;
+        AudioManager.playTone('correct');UI.showFeedback(true,300);
+        pickTapTarget();
+      } else {
+        AudioManager.playTone('wrong');
+        // Shake ball
+        const orig=b.x;let sh=0;
+        const si=setInterval(()=>{b.x=orig+(sh%2===0?8:-8);sh++;if(sh>5){b.x=orig;clearInterval(si);}},60);
+      }
+      break;
+    }
+  }
+}
 
-loadWord();
+tapCanvas.addEventListener('click',e=>{const r=tapCanvas.getBoundingClientRect();handleTapClick(e.clientX-r.left,e.clientY-r.top);});
+tapCanvas.addEventListener('touchstart',e=>{e.preventDefault();const r=tapCanvas.getBoundingClientRect();const t=e.touches[0];handleTapClick(t.clientX-r.left,t.clientY-r.top);},{passive:false});
+
+function tickTap(){
+  tapTimer--;
+  const el=document.getElementById('tap-timer');
+  el.textContent=`${tapTimer}s`;
+  if(tapTimer<=10)el.classList.add('urgent');
+  if(tapTimer<=0)endTap();
+}
+
+function endTap(){
+  tapRunning=false;
+  clearInterval(tapInterval);
+  cancelAnimationFrame(tapRAF);
+  document.getElementById('tap-game-screen').style.display='none';
+  document.getElementById('tap-end-screen').style.display='block';
+  const emoji=tapScore>=15?'🏆':tapScore>=8?'⭐':'💪';
+  const title=tapScore>=15?'Letter Master!':tapScore>=8?'Nice Work!':'Keep Tapping!';
+  document.getElementById('tap-end-emoji').textContent=emoji;
+  document.getElementById('tap-end-title').textContent=title;
+  document.getElementById('tap-end-msg').textContent=`You tapped ${tapScore} letters correctly!`;
+}
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("blending-intro");</script>
 </body>

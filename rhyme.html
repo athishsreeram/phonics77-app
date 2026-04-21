@@ -6,26 +6,44 @@
 <title>👨‍👩‍👧‍👦 Word Families · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.family-tabs { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:20px 0; }
-.tab-btn { background:#f3f4f6; border:3px solid transparent; border-radius:12px; padding:10px 18px; font-family:'Fredoka One',cursive; font-size:1.1rem; cursor:pointer; transition:all .2s; }
-.tab-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
-.family-card { background:white; border-radius:24px; padding:28px 20px; box-shadow:var(--shadow-md); text-align:center; }
-.family-header { font-family:'Fredoka One',cursive; font-size:3rem; color:var(--clr-primary); margin-bottom:20px; }
-.words-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:12px; }
-.word-tile { background:#f9fafb; border:3px solid #e5e7eb; border-radius:14px; padding:14px 8px; font-family:'Fredoka One',cursive; font-size:1.4rem; cursor:pointer; text-align:center; transition:all .15s; }
-.word-tile:hover { background:#e0e7ff; border-color:var(--clr-blue); transform:translateY(-2px); }
-.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:16px; }
-.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 16px; font-weight:800; font-size:.9rem; cursor:pointer; }
-.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
-/* Quiz */
-.quiz-section { background:white; border-radius:24px; padding:28px 20px; box-shadow:var(--shadow-md); margin-top:0; }
-.quiz-prompt { font-size:1.1rem; font-weight:800; margin-bottom:20px; }
-.quiz-choices { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-.qchoice { background:#f3f4f6; border:3px solid transparent; border-radius:14px; padding:14px 18px;
-  font-family:'Fredoka One',cursive; font-size:1.4rem; cursor:pointer; transition:all .15s; }
-.qchoice.correct { background:#dcfce7; border-color:var(--clr-green); }
-.qchoice.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
-.odd-word { font-family:'Fredoka One',cursive; font-size:clamp(2rem,8vw,3.5rem); color:var(--clr-primary); margin:12px 0; }
+.mode-bar{display:flex;gap:6px;justify-content:center;margin:16px 0 20px;flex-wrap:wrap}
+.mode-tab{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s}
+.mode-tab.active{background:#f97316;color:white;border-color:#f97316;transform:scale(1.05)}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .3s ease}
+/* original */
+.family-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.tab-btn{background:#f3f4f6;border:3px solid transparent;border-radius:12px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;transition:all .2s}
+.tab-btn.active{background:var(--clr-primary);color:white;border-color:var(--clr-primary)}
+.family-card{background:white;border-radius:24px;padding:28px 20px;box-shadow:var(--shadow-md);text-align:center}
+.family-header{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--clr-primary);margin-bottom:20px}
+.words-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px}
+.word-tile{background:#f9fafb;border:3px solid #e5e7eb;border-radius:14px;padding:14px 8px;font-family:'Fredoka One',cursive;font-size:1.4rem;cursor:pointer;text-align:center;transition:all .15s}
+.word-tile:hover{background:#e0e7ff;border-color:var(--clr-blue);transform:translateY(-2px)}
+/* SILLY SENTENCE */
+.silly-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:560px;margin:0 auto 28px}
+.silly-header{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--clr-primary);text-align:center;margin-bottom:8px}
+.silly-sub{font-size:.9rem;font-weight:700;color:var(--clr-text-soft);text-align:center;margin-bottom:20px}
+.silly-cols{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+@media(min-width:500px){.silly-cols{grid-template-columns:repeat(4,1fr)}}
+.silly-col{background:#f9fafb;border-radius:16px;padding:14px 10px;text-align:center}
+.silly-col-label{font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;color:#888}
+.silly-choice-btn{background:white;border:3px solid #e5e7eb;border-radius:12px;padding:8px 10px;font-family:'Fredoka One',cursive;font-size:.95rem;cursor:pointer;width:100%;margin-bottom:6px;transition:all .2s;display:block;text-align:center}
+.silly-choice-btn.active{background:var(--clr-primary);color:white;border-color:var(--clr-primary)}
+.silly-result{background:linear-gradient(135deg,#fef3c7,#fde68a);border:3px solid #fbbf24;border-radius:18px;padding:20px;text-align:center;font-family:'Fredoka One',cursive;font-size:clamp(1.1rem,4vw,1.6rem);color:#92400e;min-height:60px;display:flex;align-items:center;justify-content:center;margin:12px 0;line-height:1.4}
+/* WORD SEARCH */
+.search-card{background:white;border-radius:28px;padding:24px 20px;box-shadow:var(--shadow-md);max-width:560px;margin:0 auto 28px}
+.ws-target-bar{background:linear-gradient(135deg,#f97316,#ea580c);color:white;border-radius:14px;padding:10px 16px;text-align:center;margin-bottom:14px;font-family:'Fredoka One',cursive}
+.ws-word-list{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;justify-content:center}
+.ws-word-chip{background:#f3f4f6;border-radius:8px;padding:4px 12px;font-weight:800;font-size:.9rem;color:#555;transition:all .3s}
+.ws-word-chip.found{background:#dcfce7;color:#15803d;text-decoration:line-through}
+.ws-grid-wrap{display:inline-block;border:3px solid #e5e7eb;border-radius:14px;overflow:hidden;margin:0 auto 14px;display:block;text-align:center}
+.ws-grid{display:grid;margin:0 auto;user-select:none}
+.ws-cell{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;border:1px solid #f3f4f6;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.ws-cell:hover{background:#e0e7ff}
+.ws-cell.selected{background:#dbeafe}
+.ws-cell.found{background:#dcfce7;color:#15803d}
+.ws-cell.wrong-sel{background:#fee2e2;animation:wiggle .3s ease}
+.ws-score{font-weight:700;color:var(--clr-text-soft);text-align:center;margin-top:8px}
 </style>
 </head>
 <body>
@@ -37,46 +55,61 @@
 </nav>
 <div class="page-header" style="background:linear-gradient(135deg,#f97316,#c2410c)">
   <h1>👨‍👩‍👧‍👦 Word Families</h1>
-  <p>Words that rhyme share the same ending!</p>
+  <p>Rhyme, search, and build silly sentences!</p>
 </div>
 <main>
-  <div class="mode-toggle">
-    <button class="mode-btn active" id="mode-browse">📖 Browse</button>
-    <button class="mode-btn" id="mode-rhyme">🎯 Rhyme Quiz</button>
-    <button class="mode-btn" id="mode-odd">🦆 Odd One Out</button>
-  </div>
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('explore')">🔍 Explore</button>
+  <button class="mode-tab" onclick="switchMode('silly')">😂 Silly Sentence!</button>
+  <button class="mode-tab" onclick="switchMode('search')">🔍 Word Search!</button>
+</div>
 
-  <!-- Browse mode -->
-  <div id="browse-section">
-    <div class="family-tabs" id="tabs"></div>
-    <div class="family-card" id="family-card">
-      <div class="family-header" id="family-header">-at family</div>
-      <div class="words-grid" id="words-grid"></div>
-      <div style="margin-top:20px"><button class="btn btn-primary" id="btn-all">🔊 Say All</button></div>
+<!-- EXPLORE (original) -->
+<div id="panel-explore" class="panel active">
+  <div class="family-tabs" id="tabs"></div>
+  <div class="family-card" id="family-card">
+    <div class="family-header" id="family-header">-at family</div>
+    <div class="words-grid" id="words-grid"></div>
+    <div style="margin-top:20px">
+      <button class="btn btn-primary" id="btn-all">🔊 Say All</button>
     </div>
   </div>
+</div>
 
-  <!-- Rhyme quiz -->
-  <div id="rhyme-section" style="display:none">
-    <div class="quiz-section">
-      <p style="font-weight:700;color:var(--clr-text-soft);margin-bottom:8px" id="rq-label">Question 1 of 12</p>
-      <div class="progress-wrap" style="margin-bottom:16px"><div class="progress-bar" id="rq-bar" style="width:8%"></div></div>
-      <p class="quiz-prompt" id="rq-prompt">Which word rhymes with <strong>cat</strong>?</p>
-      <div class="quiz-choices" id="rq-choices"></div>
-      <p style="font-weight:700;margin-top:16px">Score: <span id="rq-score">0</span>/<span id="rq-total">0</span></p>
-    </div>
+<!-- SILLY SENTENCE -->
+<div id="panel-silly" class="panel">
+<div class="silly-card">
+  <div class="silly-header">😂 Silly Sentence Builder!</div>
+  <div class="silly-sub">Pick one from each box — make the silliest sentence!</div>
+  <div class="silly-cols" id="silly-cols"></div>
+  <div class="silly-result" id="silly-result">Tap choices above to build your sentence! 😄</div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+    <button class="btn btn-primary" id="silly-read">🔊 Read It!</button>
+    <button class="btn btn-accent" id="silly-shuffle">🎲 Shuffle Words</button>
+    <button class="btn btn-secondary" id="silly-clear">🗑 Clear</button>
   </div>
+</div>
+</div>
 
-  <!-- Odd one out -->
-  <div id="odd-section" style="display:none">
-    <div class="quiz-section">
-      <p style="font-weight:700;color:var(--clr-text-soft);margin-bottom:8px" id="oq-label">Question 1 of 8</p>
-      <div class="progress-wrap" style="margin-bottom:16px"><div class="progress-bar" id="oq-bar" style="width:12.5%"></div></div>
-      <p class="quiz-prompt">Which word does <strong>NOT</strong> rhyme with the others?</p>
-      <div class="quiz-choices" id="oq-choices"></div>
-      <p style="font-weight:700;margin-top:16px">Score: <span id="oq-score">0</span>/<span id="oq-total">0</span></p>
-    </div>
+<!-- WORD SEARCH -->
+<div id="panel-search" class="panel">
+<div class="search-card">
+  <div class="ws-target-bar">
+    <div style="font-size:.8rem;font-weight:800;opacity:.8">Find all -<span id="ws-family-name">at</span> family words!</div>
   </div>
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);text-align:center;margin-bottom:10px">Tap the first and last letter of each word</p>
+  <div class="ws-word-list" id="ws-word-list"></div>
+  <div class="ws-grid-wrap">
+    <div class="ws-grid" id="ws-grid"></div>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-primary" id="ws-next-family">Next Family →</button>
+    <button class="btn btn-secondary" id="ws-reveal">💡 Reveal All</button>
+  </div>
+  <div class="ws-score">Found: <span id="ws-found">0</span> / <span id="ws-total">0</span></div>
+</div>
+</div>
+
 </main>
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
@@ -85,145 +118,194 @@
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-const FAMILIES = PHONICS_DATA.rhymes;
-let cur = 0;
+'use strict';
+const FAMILIES=PHONICS_DATA.rhymes;
+let cur=0;
+function switchMode(m){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  event.target.classList.add('active');
+  if(m==='silly')initSilly();
+  if(m==='search')initSearch();
+}
 
-// Browse
-function renderFamily() {
-  const f = FAMILIES[cur];
-  document.getElementById('family-header').textContent = `-${f.family} family`;
-  document.querySelectorAll('.tab-btn').forEach((t,i) => t.classList.toggle('active', i===cur));
-  const grid = document.getElementById('words-grid');
-  grid.innerHTML = '';
-  f.words.forEach(w => {
-    const tile = document.createElement('div');
-    tile.className = 'word-tile';
-    tile.innerHTML = w.slice(0,-f.family.length) + `<span style="color:var(--clr-primary)">${f.family}</span>`;
-    tile.addEventListener('click', () => { AudioManager.speak(w, {rate:.75}); AudioManager.playTone('click'); });
+/* EXPLORE */
+function renderFamily(){
+  const f=FAMILIES[cur];
+  document.getElementById('family-header').textContent=`-${f.family} family`;
+  document.querySelectorAll('.tab-btn').forEach((t,i)=>t.classList.toggle('active',i===cur));
+  const grid=document.getElementById('words-grid');grid.innerHTML='';
+  f.words.forEach(w=>{
+    const tile=document.createElement('div');tile.className='word-tile';
+    tile.innerHTML=w.slice(0,-f.family.length)+`<span style="color:var(--clr-primary)">${f.family}</span>`;
+    tile.addEventListener('click',()=>{AudioManager.speak(w,{rate:.75});AudioManager.playTone('click');});
     grid.appendChild(tile);
   });
 }
-
-const tabs = document.getElementById('tabs');
-FAMILIES.forEach((f, i) => {
-  const btn = document.createElement('button');
-  btn.className = `tab-btn ${i===0?'active':''}`;
-  btn.textContent = `-${f.family}`;
-  btn.addEventListener('click', () => { cur = i; renderFamily(); });
-  tabs.appendChild(btn);
+const tabs=document.getElementById('tabs');
+FAMILIES.forEach((f,i)=>{
+  const btn=document.createElement('button');btn.className=`tab-btn ${i===0?'active':''}`;btn.textContent=`-${f.family}`;
+  btn.addEventListener('click',()=>{cur=i;renderFamily();});tabs.appendChild(btn);
 });
-
-document.getElementById('btn-all').addEventListener('click', () => {
-  const words = FAMILIES[cur].words;
-  let i = 0;
-  function next() { if(i>=words.length) return; AudioManager.speak(words[i++], {rate:.8, onEnd:()=>setTimeout(next,300)}); }
+document.getElementById('btn-all').addEventListener('click',()=>{
+  const words=FAMILIES[cur].words;let i=0;
+  function next(){if(i>=words.length)return;AudioManager.speak(words[i++],{rate:.8,onEnd:()=>setTimeout(next,300)});}
   next();
 });
 renderFamily();
 
-// Rhyme quiz
-let rqIdx=0, rqScore=0, rqTotal=0, rqAnswered=false;
-const allWords = FAMILIES.flatMap(f => f.words.map(w => ({word:w, family:f.family})));
-const shuffledRQ = UI.shuffle(allWords).slice(0,12);
+/* SILLY SENTENCE */
+const SILLY_CATS=[
+  {label:'🎭 Who',words:['The cat','A fat bat','The big rat','A happy man','The silly hen','A tiny pig']},
+  {label:'🏃 Action',words:['sat on','jumped over','ran past','danced near','hid under','flew above']},
+  {label:'-at words',words:['a blue mat','a red hat','a fat cat','a flat bat','a wet rat','a fancy pat']},
+  {label:'📍 Where',words:['in the park','on the moon','at the shop','by the lake','near the hill','on the train']},
+];
+let sillyChoices=[null,null,null,null];
 
-function loadRQ() {
-  if(rqIdx>=shuffledRQ.length){endRQ();return;}
-  rqAnswered=false;
-  const q=shuffledRQ[rqIdx];
-  document.getElementById('rq-label').textContent=`Question ${rqIdx+1} of ${shuffledRQ.length}`;
-  UI.updateProgress(document.getElementById('rq-bar'),rqIdx+1,shuffledRQ.length);
-  document.getElementById('rq-prompt').innerHTML=`Which word rhymes with <strong style="color:var(--clr-primary);font-size:1.3em">${q.word}</strong>?`;
-  AudioManager.speak(q.word,{rate:.75});
+function initSilly(){sillyChoices=[null,null,null,null];buildSillyCols();}
 
-  const sameFamily=FAMILIES.find(f=>f.family===q.family).words.filter(w=>w!==q.word);
-  const correct=UI.shuffle(sameFamily)[0];
-  const wrongFamilies=UI.shuffle(FAMILIES.filter(f=>f.family!==q.family)).slice(0,3);
-  const wrongs=wrongFamilies.map(f=>UI.shuffle(f.words)[0]);
-  const opts=UI.shuffle([correct,...wrongs]);
-  const rc=document.getElementById('rq-choices');
-  rc.innerHTML='';
-  opts.forEach(opt=>{
-    const btn=document.createElement('button');
-    btn.className='qchoice';btn.textContent=opt;
-    btn.addEventListener('click',()=>{
-      if(rqAnswered)return;rqAnswered=true;rqTotal++;
-      const right=opt===correct;
-      btn.classList.add(right?'correct':'wrong');
-      if(right){rqScore++;AudioManager.playTone('correct');UI.showFeedback(true);}
-      else{AudioManager.playTone('wrong');rc.querySelectorAll('.qchoice').forEach(b=>{if(b.textContent===correct)b.classList.add('correct');});}
-      document.getElementById('rq-score').textContent=rqScore;
-      document.getElementById('rq-total').textContent=rqTotal;
-      rc.querySelectorAll('.qchoice').forEach(b=>b.style.pointerEvents='none');
-      rqIdx++;setTimeout(loadRQ,1400);
+function buildSillyCols(){
+  const container=document.getElementById('silly-cols');container.innerHTML='';
+  SILLY_CATS.forEach((cat,catIdx)=>{
+    const col=document.createElement('div');col.className='silly-col';
+    col.innerHTML=`<div class="silly-col-label">${cat.label}</div>`;
+    cat.words.forEach(w=>{
+      const btn=document.createElement('button');btn.className='silly-choice-btn';btn.textContent=w;
+      if(sillyChoices[catIdx]===w)btn.classList.add('active');
+      btn.addEventListener('click',()=>{
+        col.querySelectorAll('.silly-choice-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        sillyChoices[catIdx]=w;
+        updateSillyResult();
+        AudioManager.speak(w,{rate:.8});
+      });
+      col.appendChild(btn);
     });
-    rc.appendChild(btn);
+    container.appendChild(col);
   });
 }
 
-function endRQ(){
-  const pct=Math.round((rqScore/shuffledRQ.length)*100);
-  document.getElementById('rhyme-section').innerHTML=`<div class="quiz-section" style="text-align:center"><div style="font-size:3.5rem;margin-bottom:12px">${pct>=80?'🏆':'⭐'}</div><h2 style="font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:8px">${pct>=80?'Rhyme Champion!':'Keep Practising!'}</h2><p style="color:#666;margin-bottom:20px">Score: ${rqScore}/${shuffledRQ.length}</p><button class="btn btn-primary" onclick="location.reload()">🔄 Try Again</button></div>`;
-  if(typeof analytics!=='undefined') analytics.trackActivityComplete('word-families',rqScore,shuffledRQ.length);
-  if(window.CurriculumManager) window.CurriculumManager.markActivityComplete('word-families');
+function updateSillyResult(){
+  const res=document.getElementById('silly-result');
+  if(sillyChoices.some(c=>c===null)){res.textContent='Keep picking words…';return;}
+  const sentence=sillyChoices.join(' ')+'!';
+  res.textContent=sentence;
 }
 
-// Odd one out
-let oqIdx=0,oqScore=0,oqTotal=0,oqAnswered=false;
-const ODD_QUESTIONS=UI.shuffle(FAMILIES).slice(0,8).map(f=>{
-  const threeFromFamily=UI.shuffle(f.words).slice(0,3);
-  const oddFamily=UI.shuffle(FAMILIES.filter(x=>x.family!==f.family))[0];
-  const odd=UI.shuffle(oddFamily.words)[0];
-  return {words:UI.shuffle([...threeFromFamily,odd]),odd,family:f.family};
+document.getElementById('silly-read').addEventListener('click',()=>{
+  if(sillyChoices.some(c=>c===null)){UI.toast('Pick a word from each box first!');return;}
+  AudioManager.speak(sillyChoices.join(' '),{rate:.8});
 });
+document.getElementById('silly-shuffle').addEventListener('click',()=>{
+  SILLY_CATS.forEach((cat,i)=>{sillyChoices[i]=cat.words[Math.floor(Math.random()*cat.words.length)];});
+  buildSillyCols();updateSillyResult();
+});
+document.getElementById('silly-clear').addEventListener('click',()=>{sillyChoices=[null,null,null,null];buildSillyCols();document.getElementById('silly-result').textContent='Tap choices above to build your sentence! 😄';});
 
-function loadOQ(){
-  if(oqIdx>=ODD_QUESTIONS.length){endOQ();return;}
-  oqAnswered=false;
-  const q=ODD_QUESTIONS[oqIdx];
-  document.getElementById('oq-label').textContent=`Question ${oqIdx+1} of ${ODD_QUESTIONS.length}`;
-  UI.updateProgress(document.getElementById('oq-bar'),oqIdx+1,ODD_QUESTIONS.length);
-  const oc=document.getElementById('oq-choices');
-  oc.innerHTML='';
-  q.words.forEach(w=>{
-    const btn=document.createElement('button');
-    btn.className='qchoice';btn.textContent=w;
-    btn.addEventListener('click',()=>{
-      if(oqAnswered)return;oqAnswered=true;oqTotal++;
-      const right=w===q.odd;
-      btn.classList.add(right?'correct':'wrong');
-      if(right){oqScore++;AudioManager.playTone('correct');UI.showFeedback(true);}
-      else{AudioManager.playTone('wrong');oc.querySelectorAll('.qchoice').forEach(b=>{if(b.textContent===q.odd)b.classList.add('correct');});}
-      document.getElementById('oq-score').textContent=oqScore;
-      document.getElementById('oq-total').textContent=oqTotal;
-      oc.querySelectorAll('.qchoice').forEach(b=>b.style.pointerEvents='none');
-      oqIdx++;setTimeout(loadOQ,1400);
-    });
-    oc.appendChild(btn);
+/* WORD SEARCH */
+const GRID_SIZE=8;
+let wsFamilyIdx=0,wsFound=0,wsTotal=0,wsWords=[],wsGrid=[],wsSelStart=null,wsCells=[];
+
+function initSearch(){wsFamilyIdx=0;loadWsFamily();}
+
+function loadWsFamily(){
+  const f=FAMILIES[wsFamilyIdx%FAMILIES.length];
+  wsWords=f.words.slice(0,4).map(w=>w.toUpperCase());
+  wsFound=0;wsTotal=wsWords.length;
+  document.getElementById('ws-family-name').textContent=f.family;
+  document.getElementById('ws-found').textContent='0';
+  document.getElementById('ws-total').textContent=wsTotal;
+
+  // Word list chips
+  const wl=document.getElementById('ws-word-list');wl.innerHTML='';
+  wsWords.forEach(w=>{
+    const chip=document.createElement('div');chip.className='ws-word-chip';chip.textContent=w.toLowerCase();chip.id=`wc-${w}`;wl.appendChild(chip);
   });
+
+  // Build grid
+  buildWsGrid(wsWords);
 }
 
-function endOQ(){
-  const pct=Math.round((oqScore/ODD_QUESTIONS.length)*100);
-  document.getElementById('odd-section').innerHTML=`<div class="quiz-section" style="text-align:center"><div style="font-size:3.5rem;margin-bottom:12px">${pct>=75?'🏆':'⭐'}</div><p style="font-family:'Fredoka One',cursive;font-size:1.8rem;margin-bottom:8px">${pct>=75?'Sharp ears!':'Keep listening!'}</p><p style="color:#666;margin-bottom:20px">${oqScore}/${ODD_QUESTIONS.length}</p><button class="btn btn-primary" onclick="location.reload()">🔄 Try Again</button></div>`;
-}
-
-// Mode toggle
-function setMode(m){
-  ['browse','rhyme','odd'].forEach(x=>{
-    document.getElementById(`${x}-section`).style.display=x===m?'block':'none';
-    document.getElementById(`mode-${x}`).classList.toggle('active',x===m);
+function buildWsGrid(words){
+  wsGrid=[];
+  for(let r=0;r<GRID_SIZE;r++){wsGrid.push(new Array(GRID_SIZE).fill(''));}
+  // Place words horizontally
+  words.forEach(word=>{
+    let placed=false,attempts=0;
+    while(!placed&&attempts<50){
+      attempts++;
+      const row=Math.floor(Math.random()*GRID_SIZE);
+      const col=Math.floor(Math.random()*(GRID_SIZE-word.length));
+      const fits=word.split('').every((_,i)=>wsGrid[row][col+i]===''||wsGrid[row][col+i]===word[i]);
+      if(fits){word.split('').forEach((ch,i)=>{wsGrid[row][col+i]=ch;});placed=true;}
+    }
   });
-  if(m==='rhyme'&&rqIdx===0) loadRQ();
-  if(m==='odd'&&oqIdx===0) loadOQ();
+  // Fill blanks
+  const alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for(let r=0;r<GRID_SIZE;r++)for(let c=0;c<GRID_SIZE;c++)if(wsGrid[r][c]==='')wsGrid[r][c]=alpha[Math.floor(Math.random()*alpha.length)];
+  renderWsGrid();
 }
-document.getElementById('mode-browse').addEventListener('click',()=>setMode('browse'));
-document.getElementById('mode-rhyme').addEventListener('click',()=>setMode('rhyme'));
-document.getElementById('mode-odd').addEventListener('click',()=>setMode('odd'));
+
+function renderWsGrid(){
+  const gridDiv=document.getElementById('ws-grid');
+  gridDiv.style.gridTemplateColumns=`repeat(${GRID_SIZE},36px)`;
+  gridDiv.innerHTML='';wsCells=[];
+  for(let r=0;r<GRID_SIZE;r++){
+    wsCells.push([]);
+    for(let c=0;c<GRID_SIZE;c++){
+      const cell=document.createElement('div');cell.className='ws-cell';cell.textContent=wsGrid[r][c];
+      cell.dataset.r=r;cell.dataset.c=c;
+      cell.addEventListener('click',()=>handleWsTap(r,c,cell));
+      gridDiv.appendChild(cell);wsCells[r].push(cell);
+    }
+  }
+}
+
+function handleWsTap(r,c,cell){
+  if(cell.classList.contains('found'))return;
+  if(!wsSelStart){
+    wsSelStart={r,c};cell.classList.add('selected');return;
+  }
+  const{r:sr,c:sc}=wsSelStart;
+  // Must be same row
+  if(r!==sr){document.querySelectorAll('.ws-cell.selected').forEach(x=>x.classList.remove('selected'));wsSelStart=null;return;}
+  const minC=Math.min(c,sc),maxC=Math.max(c,sc);
+  const selectedStr=Array.from({length:maxC-minC+1},(_,i)=>wsGrid[r][minC+i]).join('');
+  if(wsWords.includes(selectedStr)&&!document.getElementById(`wc-${selectedStr}`)?.classList.contains('found')){
+    // Mark found
+    for(let i=minC;i<=maxC;i++)wsCells[r][i].classList.add('found');
+    document.getElementById(`wc-${selectedStr}`)?.classList.add('found');
+    wsFound++;document.getElementById('ws-found').textContent=wsFound;
+    AudioManager.playTone('correct');AudioManager.speak(selectedStr.toLowerCase(),{rate:.8});
+    if(wsFound>=wsTotal){setTimeout(()=>{UI.toast('🎉 All words found! Amazing!');},300);}
+  } else {
+    document.querySelectorAll('.ws-cell.selected').forEach(x=>{x.classList.add('wrong-sel');setTimeout(()=>x.classList.remove('wrong-sel','selected'),400);});
+  }
+  document.querySelectorAll('.ws-cell.selected').forEach(x=>x.classList.remove('selected'));
+  wsSelStart=null;
+}
+
+document.getElementById('ws-next-family').addEventListener('click',()=>{wsFamilyIdx++;loadWsFamily();});
+document.getElementById('ws-reveal').addEventListener('click',()=>{
+  wsWords.forEach(w=>{
+    const chip=document.getElementById(`wc-${w}`);if(chip)chip.classList.add('found');
+    // Find and highlight all cells
+    for(let r=0;r<GRID_SIZE;r++){
+      for(let c=0;c<=GRID_SIZE-w.length;c++){
+        const slice=Array.from({length:w.length},(_,i)=>wsGrid[r][c+i]).join('');
+        if(slice===w){for(let i=0;i<w.length;i++)wsCells[r][c+i].classList.add('found');}
+      }
+    }
+  });
+  wsFound=wsTotal;document.getElementById('ws-found').textContent=wsFound;
+});
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("word-families");
 window.addEventListener('beforeunload',function(){
-  if(typeof analytics!=="undefined") analytics.trackActivityComplete("word-families",0,10);
-  if(window.CurriculumManager) window.CurriculumManager.markActivityComplete('word-families');
+  if(typeof analytics!=="undefined")analytics.trackActivityComplete("word-families",0,10);
+  if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('word-families');
 });</script>
 </body>
 </html>

@@ -3,51 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>🔤 Alphabet A–Z · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.alphabet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 14px; margin-bottom: 32px; }
-@media (min-width: 600px)  { .alphabet-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 16px; } }
-@media (min-width: 1024px) { .alphabet-grid { grid-template-columns: repeat(7, 1fr); gap: 18px; } }
-.alpha-card { aspect-ratio: 1; background: white; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,.10); border: 4px solid #eee; transition: transform .15s, box-shadow .15s, border-color .15s, background .2s; -webkit-tap-highlight-color: transparent; position: relative; }
-.alpha-card:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.10); }
-.alpha-card:hover  { transform: translateY(-4px); box-shadow: 0 8px 0 rgba(0,0,0,.10); }
-.alpha-card.mastered { background: #f0fdf4; border-color: var(--clr-green); }
-.alpha-card .big-letter    { font-family: 'Fredoka One', cursive; font-size: clamp(1.8rem,5vw,2.8rem); line-height: 1; }
-.alpha-card .example-word  { font-size: clamp(.75rem,2vw,.95rem); font-weight: 700; color: var(--clr-text-soft); }
-.alpha-card .example-emoji { font-size: clamp(1rem,3vw,1.4rem); }
-.alpha-card .small-letter   { font-size: clamp(.9rem,2.5vw,1.1rem); color: var(--clr-text-soft); display:block; margin-top:2px; }
-.alpha-card .mastered-check { position:absolute; top:6px; right:8px; font-size:1rem; opacity:0; transition:opacity .3s; }
-.alpha-card.mastered .mastered-check { opacity:1; }
-.alpha-card.vowel { border-color: var(--clr-primary); }
-.controls-bar { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; align-items:center; justify-content:center; }
-.stats-bar { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:24px; }
-.stat-box { background:white; border-radius:16px; padding:14px 12px; text-align:center; box-shadow:var(--shadow-sm); }
-.stat-num { font-family:'Fredoka One',cursive; font-size:clamp(1.6rem,5vw,2.4rem); line-height:1; display:block; }
-.stat-lbl { font-size:.9rem; color:var(--clr-text-soft); font-weight:600; }
-.quiz-section { background:white; border-radius:28px; padding:28px 20px; text-align:center; box-shadow:var(--shadow-md); margin-bottom:32px; display:none; }
-.quiz-section.active { display:block; animation:fadeIn .3s ease; }
-.quiz-tabs { display:flex; gap:8px; justify-content:center; margin-bottom:20px; }
-.qtab { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:10px; padding:6px 14px; font-weight:800; font-size:.85rem; cursor:pointer; }
-.qtab.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
-.quiz-prompt { font-size:clamp(1.3rem,4vw,1.8rem); font-weight:700; margin-bottom:24px; color:var(--clr-text); }
-.quiz-choices { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; max-width:480px; margin:0 auto; }
-@media (min-width:600px) { .quiz-choices { grid-template-columns:repeat(4,1fr); } }
-.quiz-choice { background:#f8f8f8; border:4px solid transparent; border-radius:20px; padding:20px 12px; font-family:'Fredoka One',cursive; font-size:clamp(1.8rem,6vw,2.8rem); cursor:pointer; transition:transform .15s,border-color .15s,background .15s; min-height:80px; display:flex; align-items:center; justify-content:center; }
-.quiz-choice:hover  { background:#f0f0f0; border-color:var(--clr-secondary); }
-.quiz-choice.correct { background:#f0fdf4; border-color:var(--clr-green); }
-.quiz-choice.wrong   { background:#fff0f0; border-color:var(--clr-primary); }
-.quiz-score { font-size:clamp(1rem,3vw,1.3rem); font-weight:700; color:var(--clr-text-soft); margin-top:20px; }
-.detail-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:140; opacity:0; pointer-events:none; transition:opacity .3s; }
-.detail-backdrop.open { opacity:1; pointer-events:auto; }
-.letter-detail { position:fixed; bottom:0; left:0; right:0; background:white; border-radius:32px 32px 0 0; padding:28px 28px calc(28px + env(safe-area-inset-bottom)); box-shadow:0 -8px 40px rgba(0,0,0,.18); z-index:150; transform:translateY(100%); transition:transform .35s cubic-bezier(.34,1.2,.64,1); text-align:center; }
-.letter-detail.open { transform:translateY(0); }
-.detail-letter { font-family:'Fredoka One',cursive; font-size:clamp(5rem,18vw,10rem); line-height:1; display:block; }
-.detail-cases  { font-size:clamp(2rem,8vw,4rem); font-weight:700; color:var(--clr-text-soft); margin:4px 0 12px; }
-.detail-word   { font-size:clamp(1.4rem,5vw,2.2rem); font-weight:800; margin-bottom:20px; }
-.detail-close  { position:absolute; top:16px; right:20px; background:#eee; border:none; border-radius:50%; width:44px; height:44px; font-size:1.4rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.detail-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-.phoneme-family { display:inline-block; background:#eef2ff; color:#4338ca; border-radius:6px; padding:3px 10px; font-size:.75rem; font-weight:800; margin-top:6px; }
+.alphabet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:14px;margin-bottom:32px}
+@media(min-width:600px){.alphabet-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:16px}}
+@media(min-width:1024px){.alphabet-grid{grid-template-columns:repeat(7,1fr);gap:18px}}
+.alpha-card{aspect-ratio:1;background:white;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.10);border:4px solid #eee;transition:transform .15s,box-shadow .15s,border-color .15s,background .2s;-webkit-tap-highlight-color:transparent;position:relative}
+.alpha-card:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.10)}
+.alpha-card:hover{transform:translateY(-4px);box-shadow:0 8px 0 rgba(0,0,0,.10)}
+.alpha-card.mastered{background:#f0fdf4;border-color:var(--clr-green)}
+.alpha-card .big-letter{font-family:'Fredoka One',cursive;font-size:clamp(1.8rem,5vw,2.8rem);line-height:1}
+.alpha-card .example-word{font-size:clamp(.75rem,2vw,.95rem);font-weight:700;color:var(--clr-text-soft)}
+.alpha-card .example-emoji{font-size:clamp(1rem,3vw,1.4rem)}
+.alpha-card .small-letter{font-size:clamp(.9rem,2.5vw,1.1rem);color:var(--clr-text-soft);display:block;margin-top:2px}
+.alpha-card .mastered-check{position:absolute;top:6px;right:8px;font-size:1rem;opacity:0;transition:opacity .3s}
+.alpha-card.mastered .mastered-check{opacity:1}
+.alpha-card.vowel{border-color:var(--clr-primary)}
+.controls-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;align-items:center;justify-content:center}
+.stats-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px}
+.stat-box{background:white;border-radius:16px;padding:14px 12px;text-align:center;box-shadow:var(--shadow-sm)}
+.stat-num{font-family:'Fredoka One',cursive;font-size:clamp(1.6rem,5vw,2.4rem);line-height:1;display:block}
+.stat-lbl{font-size:.9rem;color:var(--clr-text-soft);font-weight:600}
+.quiz-section{background:white;border-radius:28px;padding:28px 20px;text-align:center;box-shadow:var(--shadow-md);margin-bottom:32px;display:none}
+.quiz-section.active{display:block;animation:fadeIn .3s ease}
+.quiz-prompt{font-size:clamp(1.3rem,4vw,1.8rem);font-weight:700;margin-bottom:24px;color:var(--clr-text)}
+.quiz-choices{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:480px;margin:0 auto}
+@media(min-width:600px){.quiz-choices{grid-template-columns:repeat(4,1fr)}}
+.quiz-choice{background:#f8f8f8;border:4px solid transparent;border-radius:20px;padding:20px 12px;font-family:'Fredoka One',cursive;font-size:clamp(1.8rem,6vw,2.8rem);cursor:pointer;transition:transform .15s,border-color .15s,background .15s;-webkit-tap-highlight-color:transparent;min-height:80px;display:flex;align-items:center;justify-content:center}
+.quiz-choice:hover{background:#f0f0f0;border-color:var(--clr-secondary)}
+.quiz-choice.correct{background:#f0fdf4;border-color:var(--clr-green)}
+.quiz-choice.wrong{background:#fff0f0;border-color:var(--clr-primary)}
+.quiz-score{font-size:clamp(1rem,3vw,1.3rem);font-weight:700;color:var(--clr-text-soft);margin-top:20px}
+.letter-detail{position:fixed;bottom:0;left:0;right:0;background:white;border-radius:32px 32px 0 0;padding:28px 28px calc(28px + env(safe-area-inset-bottom));box-shadow:0 -8px 40px rgba(0,0,0,.18);z-index:150;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.2,.64,1);text-align:center}
+.letter-detail.open{transform:translateY(0)}
+.detail-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:140;opacity:0;pointer-events:none;transition:opacity .3s}
+.detail-backdrop.open{opacity:1;pointer-events:auto}
+.detail-letter{font-family:'Fredoka One',cursive;font-size:clamp(5rem,18vw,10rem);line-height:1;display:block}
+.detail-cases{font-size:clamp(2rem,8vw,4rem);font-weight:700;color:var(--clr-text-soft);margin:4px 0 12px}
+.detail-word{font-size:clamp(1.4rem,5vw,2.2rem);font-weight:800;margin-bottom:16px}
+.detail-close{position:absolute;top:16px;right:20px;background:#eee;border:none;border-radius:50%;width:44px;height:44px;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.detail-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+
+/* TRACE OVERLAY inside detail */
+.trace-section{border-top:2px dashed #e5e7eb;margin-top:16px;padding-top:16px}
+.trace-section-title{font-family:'Fredoka One',cursive;font-size:1rem;color:#888;margin-bottom:8px}
+.trace-canvas-wrap{position:relative;display:inline-block;margin:0 auto 8px}
+#trace-canvas-detail{border:2px dashed #e5e7eb;border-radius:16px;cursor:crosshair;touch-action:none;display:block;background:white}
+.trace-guide-letter{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:5rem;pointer-events:none;opacity:.18;color:#667eea}
+.trace-mini-btns{display:flex;gap:8px;justify-content:center;margin-bottom:8px}
+
+/* FILL THE SOUND section inside detail */
+.fill-section{border-top:2px dashed #e5e7eb;margin-top:14px;padding-top:14px}
+.fill-word-display{font-family:'Fredoka One',cursive;font-size:2.2rem;color:var(--clr-text);margin:8px 0}
+.fill-question{font-size:.9rem;font-weight:800;color:#555;margin-bottom:10px}
+.fill-choices{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.fill-btn{background:#f3f4f6;border:3px solid #e5e7eb;border-radius:12px;padding:10px 16px;font-family:'Fredoka One',cursive;font-size:1.4rem;cursor:pointer;transition:all .15s}
+.fill-btn:hover{background:#e0e7ff;border-color:var(--clr-blue)}
+.fill-btn.correct{background:#dcfce7;border-color:var(--clr-green)}
+.fill-btn.wrong{background:#fee2e2;border-color:var(--clr-primary)}
+
+/* MEMORY MATCH tab */
+.memory-section{background:white;border-radius:28px;padding:28px 20px;text-align:center;box-shadow:var(--shadow-md);margin-bottom:32px;display:none}
+.memory-section.active{display:block;animation:fadeIn .3s ease}
+.mem-info{font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:16px}
+.mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:480px;margin:0 auto 16px}
+@media(min-width:500px){.mem-grid{grid-template-columns:repeat(6,1fr)}}
+.mem-card{aspect-ratio:1;border-radius:14px;border:3px solid #e5e7eb;background:#f3f4f6;font-family:'Fredoka One',cursive;font-size:1.6rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.mem-card.flipped{background:white;border-color:var(--clr-primary);transform:scale(1.05)}
+.mem-card.matched{background:#dcfce7;border-color:var(--clr-green);pointer-events:none}
+.mem-card.wrong-flash{animation:wiggle .3s ease;background:#fee2e2;border-color:var(--clr-primary)}
+.mem-score-row{display:flex;gap:12px;justify-content:center;font-weight:800;font-size:.95rem;margin-bottom:12px}
+.mem-pill{background:#f3f4f6;border-radius:10px;padding:6px 14px}
 </style>
 </head>
 <body>
@@ -59,7 +87,7 @@
 </nav>
 <div class="page-header" style="background:linear-gradient(135deg,var(--stage1),#ff8c5a)">
   <h1>🔤 Alphabet A–Z</h1>
-  <p>Tap each letter to hear its name and sound!</p>
+  <p>Tap, trace, match, and learn every letter!</p>
 </div>
 <main>
   <div class="stats-bar" style="margin-top:24px">
@@ -67,38 +95,75 @@
     <div class="stat-box"><span class="stat-num" id="stars-count">0</span><span class="stat-lbl">⭐ Stars</span></div>
     <div class="stat-box"><span class="stat-num">26</span><span class="stat-lbl">Letters</span></div>
   </div>
-  <div class="progress-wrap" style="margin-bottom:20px"><div class="progress-bar" id="mastery-bar" style="width:0%"></div></div>
+  <div class="progress-wrap" style="margin-bottom:20px">
+    <div class="progress-bar" id="mastery-bar" style="width:0%"></div>
+  </div>
   <div class="controls-bar">
     <button class="btn btn-secondary" id="btn-explore">🔍 Explore</button>
-    <button class="btn btn-primary"   id="btn-autoplay">▶️ Auto-Play</button>
-    <button class="btn btn-purple"    id="btn-quiz">🎯 Quiz Mode</button>
-    <button class="btn btn-accent"    id="btn-reset">🔄 Reset</button>
+    <button class="btn btn-primary" id="btn-autoplay">▶️ Auto-Play</button>
+    <button class="btn btn-purple" id="btn-quiz">🎯 Quiz Mode</button>
+    <button class="btn btn-blue" id="btn-memory">🃏 Memory Match</button>
+    <button class="btn btn-accent" id="btn-reset">🔄 Reset</button>
   </div>
+
   <div class="quiz-section" id="quiz-section">
-    <div class="quiz-tabs">
-      <button class="qtab active" id="qt-sound">Sound → Letter</button>
-      <button class="qtab" id="qt-reverse">Word → First Letter</button>
-    </div>
     <p class="quiz-prompt" id="quiz-prompt">Which letter makes this sound?</p>
     <button class="btn btn-primary btn-lg" id="quiz-play-btn" style="margin:0 auto 24px;display:flex">🔊 Play Sound</button>
     <div class="quiz-choices" id="quiz-choices"></div>
     <p class="quiz-score">Score: <span id="quiz-score">0</span> / <span id="quiz-total">0</span></p>
   </div>
+
+  <!-- MEMORY MATCH section -->
+  <div class="memory-section" id="memory-section">
+    <p style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--clr-primary);margin-bottom:6px">🃏 Memory Match</p>
+    <p class="mem-info">Match uppercase letters to their lowercase partners!</p>
+    <div class="mem-score-row">
+      <div class="mem-pill">✅ Pairs: <span id="mem-pairs">0</span>/6</div>
+      <div class="mem-pill">🔄 Tries: <span id="mem-tries">0</span></div>
+    </div>
+    <div class="mem-grid" id="mem-grid"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-accent" onclick="initMemory()">🔄 New Game</button>
+      <button class="btn btn-secondary" onclick="toggleMemory()">✕ Close</button>
+    </div>
+  </div>
+
   <div class="alphabet-grid" id="alphabet-grid"></div>
 </main>
+
 <div class="detail-backdrop" id="detail-backdrop"></div>
 <div class="letter-detail" id="letter-detail">
   <button class="detail-close" id="detail-close">✕</button>
   <span class="detail-letter" id="detail-letter">A</span>
   <div class="detail-cases" id="detail-cases">A a</div>
   <div class="detail-word" id="detail-word">🍎 Apple</div>
-  <div id="detail-family-tag"></div>
   <div class="detail-actions">
     <button class="btn btn-primary btn-lg" id="detail-speak-name">🔊 Name</button>
     <button class="btn btn-secondary btn-lg" id="detail-speak-sound">🎵 Sound</button>
     <button class="btn btn-green btn-lg" id="detail-mastered-btn">✅ Mastered!</button>
   </div>
+
+  <!-- FILL THE MISSING SOUND -->
+  <div class="fill-section" id="fill-section">
+    <div class="fill-question" id="fill-question">Which letter completes: __pple?</div>
+    <div class="fill-word-display" id="fill-word-display">__pple</div>
+    <div class="fill-choices" id="fill-choices"></div>
+  </div>
+
+  <!-- TRACE THE LETTER -->
+  <div class="trace-section">
+    <div class="trace-section-title">✏️ Trace the letter!</div>
+    <div class="trace-canvas-wrap">
+      <div class="trace-guide-letter" id="trace-guide-letter">A</div>
+      <canvas id="trace-canvas-detail" width="200" height="180"></canvas>
+    </div>
+    <div class="trace-mini-btns">
+      <button class="btn btn-secondary" onclick="clearTrace()" style="padding:8px 14px;font-size:.85rem">🗑 Clear</button>
+      <button class="btn btn-green" onclick="doneTrace()" style="padding:8px 14px;font-size:.85rem">✅ Done!</button>
+    </div>
+  </div>
 </div>
+
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/analytics.js"></script>
@@ -106,133 +171,176 @@
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-const LETTERS = PHONICS_DATA.alphabet;
-// Phoneme family labels for detail panel
-const PHONEME_FAMILIES = {
-  stops:    ['B','D','G','K','P','T'],
-  fricatives:['F','S','V','Z'],
-  nasals:   ['M','N'],
-  liquids:  ['L','R'],
-  glides:   ['W','Y'],
-  affricates:['J'],
-  vowels:   ['A','E','I','O','U'],
-};
-function getFamily(l) { return Object.entries(PHONEME_FAMILIES).find(([,arr])=>arr.includes(l))?.[0] || ''; }
+'use strict';
+const LETTERS=PHONICS_DATA.alphabet;
+const VOWELS=new Set(['A','E','I','O','U']);
+let mastered=new Set(JSON.parse(localStorage.getItem('alpha_mastered')||'[]'));
+let quizScore=0,quizTotal=0,quizActive=false,quizAnswer=null;
+let autoPlaying=false,autoTimer=null;
+let currentLetter=null;
 
-let mastered = new Set(JSON.parse(localStorage.getItem('alpha_mastered') || '[]'));
-let quizScore = 0, quizTotal = 0, quizActive = false, quizAnswer = null;
-let autoPlaying = false, autoTimer = null, currentLetter = null;
-let reverseMode = false;
+// Trace canvas
+const traceCanvas=document.getElementById('trace-canvas-detail');
+const traceCtx=traceCanvas.getContext('2d');
+let traceActive=false;
+const TRACE_COLORS=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
 
-const grid = document.getElementById('alphabet-grid');
+function getTracePos(e){
+  const rect=traceCanvas.getBoundingClientRect();
+  const src=e.touches?e.touches[0]:e;
+  return{x:src.clientX-rect.left,y:src.clientY-rect.top};
+}
+traceCanvas.addEventListener('mousedown',e=>{traceActive=true;const p=getTracePos(e);traceCtx.beginPath();traceCtx.moveTo(p.x,p.y);});
+traceCanvas.addEventListener('mousemove',e=>{if(!traceActive)return;const p=getTracePos(e);const idx=currentLetter?LETTERS.findIndex(l=>l.l===currentLetter.l):0;traceCtx.lineWidth=7;traceCtx.lineCap='round';traceCtx.strokeStyle=TRACE_COLORS[idx%TRACE_COLORS.length];traceCtx.lineTo(p.x,p.y);traceCtx.stroke();});
+traceCanvas.addEventListener('mouseup',()=>traceActive=false);
+traceCanvas.addEventListener('mouseleave',()=>traceActive=false);
+traceCanvas.addEventListener('touchstart',e=>{e.preventDefault();traceActive=true;const p=getTracePos(e);traceCtx.beginPath();traceCtx.moveTo(p.x,p.y);},{passive:false});
+traceCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!traceActive)return;const p=getTracePos(e);const idx=currentLetter?LETTERS.findIndex(l=>l.l===currentLetter.l):0;traceCtx.lineWidth=9;traceCtx.lineCap='round';traceCtx.strokeStyle=TRACE_COLORS[idx%TRACE_COLORS.length];traceCtx.lineTo(p.x,p.y);traceCtx.stroke();},{passive:false});
+traceCanvas.addEventListener('touchend',()=>traceActive=false);
+function clearTrace(){traceCtx.clearRect(0,0,traceCanvas.width,traceCanvas.height);}
+function doneTrace(){AudioManager.playTone('star');UI.showFeedback(true);UI.toast(`Great tracing of ${currentLetter?.l||''}! ⭐`);}
 
-function buildGrid() {
-  grid.innerHTML = '';
-  LETTERS.forEach(data => {
-    const hue = (data.l.charCodeAt(0)-65)*14;
-    const card = document.createElement('div');
-    card.className = `alpha-card ${data.vowel?'vowel':'consonant'} ${mastered.has(data.l)?'mastered':''}`;
-    card.dataset.letter = data.l;
-    card.setAttribute('role','button');
-    card.tabIndex = 0;
-    if (!mastered.has(data.l)) card.style.borderColor = `hsl(${hue},60%,80%)`;
-    card.innerHTML = `<span class="example-emoji">${data.emoji}</span><span class="big-letter" style="color:hsl(${hue},70%,45%)">${data.l}</span><span class="small-letter">${data.l.toLowerCase()}</span><span class="example-word">${data.word}</span><span class="mastered-check">✅</span>`;
-    card.addEventListener('click', () => openDetail(data));
-    card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') openDetail(data); });
+// Grid
+const grid=document.getElementById('alphabet-grid');
+function buildGrid(){
+  grid.innerHTML='';
+  LETTERS.forEach(data=>{
+    const hue=(data.l.charCodeAt(0)-65)*14;
+    const card=document.createElement('div');
+    card.className=`alpha-card ${data.vowel?'vowel':'consonant'} ${mastered.has(data.l)?'mastered':''}`;
+    card.dataset.letter=data.l;
+    if(!mastered.has(data.l))card.style.borderColor=`hsl(${hue},60%,80%)`;
+    card.innerHTML=`<span class="example-emoji">${data.emoji}</span><span class="big-letter" style="color:hsl(${hue},70%,45%)">${data.l}</span><span class="small-letter">${data.l.toLowerCase()}</span><span class="example-word">${data.word}</span><span class="mastered-check">✅</span>`;
+    card.addEventListener('click',()=>openDetail(data));
     grid.appendChild(card);
   });
 }
 
-function refreshStats() {
-  const n = mastered.size;
-  document.getElementById('mastered-count').textContent = n;
-  document.getElementById('stars-count').textContent = n;
-  UI.updateProgress(document.getElementById('mastery-bar'), n, 26);
+function refreshStats(){
+  const n=mastered.size;
+  document.getElementById('mastered-count').textContent=n;
+  document.getElementById('stars-count').textContent=n;
+  UI.updateProgress(document.getElementById('mastery-bar'),n,26);
 }
-function saveMastered() { localStorage.setItem('alpha_mastered', JSON.stringify([...mastered])); UI.setScore('alphabet',{stars:mastered.size,total:26}); }
 
-function openDetail(data) {
-  currentLetter = data;
-  const hue = (data.l.charCodeAt(0)-65)*14;
-  document.getElementById('detail-letter').textContent = data.l;
-  document.getElementById('detail-letter').style.color = `hsl(${hue},70%,50%)`;
-  document.getElementById('detail-cases').textContent  = `${data.l} ${data.l.toLowerCase()}`;
-  document.getElementById('detail-word').innerHTML     = `${data.emoji} <strong>${data.word}</strong>`;
-  const fam = getFamily(data.l);
-  document.getElementById('detail-family-tag').innerHTML = fam ? `<div class="phoneme-family">${fam}</div>` : '';
-  const btn = document.getElementById('detail-mastered-btn');
-  btn.textContent = mastered.has(data.l) ? '💚 Mastered!' : '✅ Mark Mastered';
-  btn.style.background = mastered.has(data.l) ? 'var(--clr-green)' : '';
+function saveMastered(){
+  localStorage.setItem('alpha_mastered',JSON.stringify([...mastered]));
+  UI.setScore('alphabet',{stars:mastered.size,total:26});
+}
+
+// Fill the Sound
+function buildFillSection(data){
+  const word=data.word;
+  const lLower=data.l.toLowerCase();
+  const wordLower=word.toLowerCase();
+  const pos=wordLower.indexOf(lLower);
+  let blanked=word;
+  if(pos>=0) blanked=word.slice(0,pos)+'__'+word.slice(pos+1);
+  document.getElementById('fill-question').textContent=`Which letter completes: "${blanked}"?`;
+  document.getElementById('fill-word-display').textContent=blanked;
+
+  // 4 choices: correct + 3 random wrong
+  const wrong=UI.shuffle(LETTERS.filter(l=>l.l!==data.l)).slice(0,3);
+  const opts=UI.shuffle([data,...wrong]);
+  const fc=document.getElementById('fill-choices');
+  fc.innerHTML='';
+  opts.forEach(o=>{
+    const btn=document.createElement('button');
+    btn.className='fill-btn';btn.textContent=o.l;
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.fill-btn').forEach(b=>b.style.pointerEvents='none');
+      if(o.l===data.l){
+        btn.classList.add('correct');
+        AudioManager.playTone('correct');
+        document.getElementById('fill-word-display').textContent=word;
+        AudioManager.speak(`${data.l}! ${word}`,{rate:.8});
+      } else {
+        btn.classList.add('wrong');
+        AudioManager.playTone('wrong');
+        document.querySelectorAll('.fill-btn').forEach(b=>{if(b.textContent===data.l)b.classList.add('correct');});
+      }
+    });
+    fc.appendChild(btn);
+  });
+}
+
+function openDetail(data){
+  currentLetter=data;
+  const hue=(data.l.charCodeAt(0)-65)*14;
+  document.getElementById('detail-letter').textContent=data.l;
+  document.getElementById('detail-letter').style.color=`hsl(${hue},70%,50%)`;
+  document.getElementById('detail-cases').textContent=`${data.l} ${data.l.toLowerCase()}`;
+  document.getElementById('detail-word').innerHTML=`${data.emoji} <strong>${data.word}</strong>`;
+  document.getElementById('trace-guide-letter').textContent=data.l;
+  clearTrace();
+  const btn=document.getElementById('detail-mastered-btn');
+  btn.textContent=mastered.has(data.l)?'💚 Mastered!':'✅ Mark Mastered';
+  btn.style.background=mastered.has(data.l)?'var(--clr-green)':'';
   document.getElementById('letter-detail').classList.add('open');
   document.getElementById('detail-backdrop').classList.add('open');
+  buildFillSection(data);
   AudioManager.speak(`${data.l}. ${data.sound}. ${data.word}`);
   AudioManager.playTone('click');
 }
-function closeDetail() { document.getElementById('letter-detail').classList.remove('open'); document.getElementById('detail-backdrop').classList.remove('open'); AudioManager.stop(); }
 
-document.getElementById('detail-close').addEventListener('click', closeDetail);
-document.getElementById('detail-backdrop').addEventListener('click', closeDetail);
-document.getElementById('detail-speak-name').addEventListener('click', () => { if(currentLetter) AudioManager.speak(currentLetter.l,{rate:.7}); });
-document.getElementById('detail-speak-sound').addEventListener('click', () => { if(currentLetter) AudioManager.speak(currentLetter.sound,{rate:.7}); });
-document.getElementById('detail-mastered-btn').addEventListener('click', () => {
-  if (!currentLetter) return;
-  if (mastered.has(currentLetter.l)) { mastered.delete(currentLetter.l); }
-  else { mastered.add(currentLetter.l); AudioManager.playTone('star'); UI.showFeedback(true); }
-  saveMastered(); buildGrid(); refreshStats(); closeDetail();
-  if (window.CurriculumManager) window.CurriculumManager.markActivityComplete('letter-recognition');
+function closeDetail(){
+  document.getElementById('letter-detail').classList.remove('open');
+  document.getElementById('detail-backdrop').classList.remove('open');
+  AudioManager.stop();
+}
+
+document.getElementById('detail-close').addEventListener('click',closeDetail);
+document.getElementById('detail-backdrop').addEventListener('click',closeDetail);
+document.getElementById('detail-speak-name').addEventListener('click',()=>{if(currentLetter)AudioManager.speak(currentLetter.l,{rate:.7});});
+document.getElementById('detail-speak-sound').addEventListener('click',()=>{if(currentLetter)AudioManager.speak(currentLetter.sound,{rate:.7});});
+document.getElementById('detail-mastered-btn').addEventListener('click',()=>{
+  if(!currentLetter)return;
+  if(mastered.has(currentLetter.l))mastered.delete(currentLetter.l);
+  else{mastered.add(currentLetter.l);AudioManager.playTone('star');UI.showFeedback(true);}
+  saveMastered();buildGrid();refreshStats();closeDetail();
+  if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('letter-recognition');
 });
 
-document.getElementById('btn-autoplay').addEventListener('click', () => {
-  if (autoPlaying) { clearTimeout(autoTimer); autoPlaying=false; document.getElementById('btn-autoplay').textContent='▶️ Auto-Play'; return; }
-  autoPlaying=true; document.getElementById('btn-autoplay').textContent='⏹ Stop';
+// Auto-play
+document.getElementById('btn-autoplay').addEventListener('click',()=>{
+  if(autoPlaying){clearTimeout(autoTimer);autoPlaying=false;document.getElementById('btn-autoplay').textContent='▶️ Auto-Play';return;}
+  autoPlaying=true;document.getElementById('btn-autoplay').textContent='⏹ Stop';
   let i=0;
-  function playNext(){ if(!autoPlaying||i>=LETTERS.length){autoPlaying=false;document.getElementById('btn-autoplay').textContent='▶️ Auto-Play';return;} const data=LETTERS[i++]; AudioManager.speak(`${data.l}. ${data.word}`,{onEnd:()=>{autoTimer=setTimeout(playNext,600);}}); }
+  function playNext(){
+    if(!autoPlaying||i>=LETTERS.length){autoPlaying=false;document.getElementById('btn-autoplay').textContent='▶️ Auto-Play';return;}
+    const data=LETTERS[i++];
+    AudioManager.speak(`${data.l}. ${data.word}`,{onEnd:()=>{autoTimer=setTimeout(playNext,600);}});
+  }
   playNext();
 });
 
-// Quiz tabs
-document.getElementById('qt-sound').addEventListener('click', () => { reverseMode=false; document.getElementById('qt-sound').classList.add('active'); document.getElementById('qt-reverse').classList.remove('active'); nextQuestion(); });
-document.getElementById('qt-reverse').addEventListener('click', () => { reverseMode=true; document.getElementById('qt-reverse').classList.add('active'); document.getElementById('qt-sound').classList.remove('active'); nextQuestion(); });
-
-document.getElementById('btn-quiz').addEventListener('click', () => {
-  quizActive = !quizActive;
-  document.getElementById('quiz-section').classList.toggle('active', quizActive);
-  document.getElementById('btn-quiz').textContent = quizActive ? '✕ Close Quiz' : '🎯 Quiz Mode';
-  if (quizActive) nextQuestion();
+// Quiz
+document.getElementById('btn-quiz').addEventListener('click',()=>{
+  quizActive=!quizActive;
+  document.getElementById('quiz-section').classList.toggle('active',quizActive);
+  document.getElementById('btn-quiz').textContent=quizActive?'✕ Close Quiz':'🎯 Quiz Mode';
+  if(quizActive)nextQuestion();
 });
 
-function nextQuestion() {
-  const idx = Math.floor(Math.random()*LETTERS.length);
-  quizAnswer = LETTERS[idx];
-  const pool = UI.shuffle(LETTERS.filter(l=>l.l!==quizAnswer.l)).slice(0,3);
-  const choices = UI.shuffle([quizAnswer,...pool]);
-  const playBtn = document.getElementById('quiz-play-btn');
-
-  if (reverseMode) {
-    // Hear word → pick first letter
-    document.getElementById('quiz-prompt').textContent = `"${quizAnswer.word}" — what letter does it start with?`;
-    playBtn.textContent = `🔊 Hear "${quizAnswer.word}"`;
-    playBtn.onclick = () => AudioManager.speak(quizAnswer.word,{rate:.75});
-    AudioManager.speak(quizAnswer.word,{rate:.75});
-  } else {
-    // Hear sound → pick letter
-    document.getElementById('quiz-prompt').textContent = `Which letter makes the "${quizAnswer.sound}" sound?`;
-    playBtn.textContent = '🔊 Play Sound';
-    playBtn.onclick = () => AudioManager.speak(quizAnswer.sound,{rate:.7});
-    AudioManager.speak(quizAnswer.sound,{rate:.7});
-  }
-
-  const choicesEl = document.getElementById('quiz-choices');
-  choicesEl.innerHTML = '';
-  choices.forEach(ch => {
-    const btn = document.createElement('button');
-    btn.className='quiz-choice'; btn.textContent=ch.l;
+function nextQuestion(){
+  const idx=Math.floor(Math.random()*LETTERS.length);
+  quizAnswer=LETTERS[idx];
+  const pool=UI.shuffle(LETTERS.filter(l=>l.l!==quizAnswer.l)).slice(0,3);
+  const choices=UI.shuffle([quizAnswer,...pool]);
+  document.getElementById('quiz-prompt').textContent=`Which letter makes the "${quizAnswer.sound}" sound?`;
+  document.getElementById('quiz-play-btn').onclick=()=>AudioManager.speak(quizAnswer.sound,{rate:.7});
+  AudioManager.speak(quizAnswer.sound,{rate:.7});
+  const choicesEl=document.getElementById('quiz-choices');
+  choicesEl.innerHTML='';
+  choices.forEach(ch=>{
+    const btn=document.createElement('button');
+    btn.className='quiz-choice';btn.textContent=ch.l;
     btn.addEventListener('click',()=>answerQuiz(ch.l===quizAnswer.l,btn,choicesEl));
     choicesEl.appendChild(btn);
   });
 }
 
-function answerQuiz(correct,btn,container) {
+function answerQuiz(correct,btn,container){
   quizTotal++;
   if(correct){quizScore++;btn.classList.add('correct');AudioManager.playTone('correct');UI.showFeedback(true,900);setTimeout(nextQuestion,1200);}
   else{btn.classList.add('wrong');AudioManager.playTone('wrong');container.querySelectorAll('.quiz-choice').forEach(b=>{if(b.textContent===quizAnswer.l)b.classList.add('correct');});setTimeout(nextQuestion,1600);}
@@ -241,10 +349,91 @@ function answerQuiz(correct,btn,container) {
   container.querySelectorAll('.quiz-choice').forEach(b=>b.style.pointerEvents='none');
 }
 
-document.getElementById('btn-explore').addEventListener('click', () => { const first=LETTERS.find(l=>!mastered.has(l.l))||LETTERS[0]; openDetail(first); });
-document.getElementById('btn-reset').addEventListener('click', () => { if(!confirm('Reset all alphabet progress?'))return; mastered.clear();saveMastered();buildGrid();refreshStats();UI.toast('Progress reset! 🌟'); });
+// Explore btn
+document.getElementById('btn-explore').addEventListener('click',()=>{
+  const first=LETTERS.find(l=>!mastered.has(l.l))||LETTERS[0];
+  openDetail(first);
+});
 
-buildGrid(); refreshStats();
+document.getElementById('btn-reset').addEventListener('click',()=>{
+  if(!confirm('Reset all alphabet progress?'))return;
+  mastered.clear();saveMastered();buildGrid();refreshStats();
+  UI.toast('Progress reset! Start fresh! 🌟');
+});
+
+/* ══ MEMORY MATCH ══ */
+let memFlipped=[],memMatched=0,memTries=0,memLocked=false;
+
+function toggleMemory(){
+  const sec=document.getElementById('memory-section');
+  const isActive=sec.classList.contains('active');
+  sec.classList.toggle('active',!isActive);
+  document.getElementById('btn-memory').textContent=isActive?'🃏 Memory Match':'✕ Close Memory';
+  if(!isActive)initMemory();
+}
+document.getElementById('btn-memory').addEventListener('click',toggleMemory);
+
+function initMemory(){
+  memFlipped=[];memMatched=0;memTries=0;memLocked=false;
+  document.getElementById('mem-pairs').textContent='0';
+  document.getElementById('mem-tries').textContent='0';
+  // Pick 6 random letters
+  const picked=UI.shuffle([...LETTERS]).slice(0,6);
+  // Create pairs: uppercase + lowercase
+  const cards=UI.shuffle([
+    ...picked.map(l=>({id:l.l,display:l.l,isUpper:true,hue:(l.l.charCodeAt(0)-65)*14})),
+    ...picked.map(l=>({id:l.l,display:l.l.toLowerCase(),isUpper:false,hue:(l.l.charCodeAt(0)-65)*14}))
+  ]);
+  const memGrid=document.getElementById('mem-grid');
+  memGrid.innerHTML='';
+  cards.forEach((c,i)=>{
+    const card=document.createElement('div');
+    card.className='mem-card';
+    card.dataset.id=c.id;card.dataset.idx=i;card.dataset.display=c.display;card.dataset.hue=c.hue;
+    card.textContent='?';
+    card.addEventListener('click',()=>flipMemCard(card));
+    memGrid.appendChild(card);
+  });
+}
+
+function flipMemCard(card){
+  if(memLocked)return;
+  if(card.classList.contains('flipped')||card.classList.contains('matched'))return;
+  const hue=parseInt(card.dataset.hue);
+  card.textContent=card.dataset.display;
+  card.classList.add('flipped');
+  card.style.borderColor=`hsl(${hue},60%,60%)`;
+  card.style.color=`hsl(${hue},70%,40%)`;
+  AudioManager.speak(card.dataset.display,{rate:.7});
+  memFlipped.push(card);
+  if(memFlipped.length===2){
+    memTries++;
+    document.getElementById('mem-tries').textContent=memTries;
+    memLocked=true;
+    setTimeout(checkMemPair,600);
+  }
+}
+
+function checkMemPair(){
+  const[a,b]=memFlipped;
+  if(a.dataset.id===b.dataset.id&&a.dataset.display!==b.dataset.display){
+    a.classList.add('matched');b.classList.add('matched');
+    a.classList.remove('flipped');b.classList.remove('flipped');
+    AudioManager.playTone('correct');UI.showFeedback(true,400);
+    memMatched++;
+    document.getElementById('mem-pairs').textContent=memMatched;
+    if(memMatched===6){setTimeout(()=>{UI.toast('🎉 All pairs matched! Amazing!');AudioManager.speak('You matched all the letters!',{rate:.8});},300);}
+  } else {
+    a.classList.add('wrong-flash');b.classList.add('wrong-flash');
+    AudioManager.playTone('wrong');
+    setTimeout(()=>{
+      [a,b].forEach(c=>{c.classList.remove('flipped','wrong-flash');c.textContent='?';c.style.borderColor='';c.style.color='';});
+    },600);
+  }
+  memFlipped=[];memLocked=false;
+}
+
+buildGrid();refreshStats();
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("letter-recognition");</script>
 </body>

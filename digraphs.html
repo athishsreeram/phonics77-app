@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📖 Digraph Practice · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
+.mode-bar{display:flex;gap:6px;justify-content:center;margin:16px 0 20px;flex-wrap:wrap}
+.mode-tab{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s}
+.mode-tab.active{background:#0ea5e9;color:white;border-color:#0ea5e9;transform:scale(1.05)}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .3s ease}
+/* Original */
 .activity-container{max-width:560px;margin:28px auto}
 .digraph-card{background:white;border-radius:28px;padding:36px 24px;text-align:center;box-shadow:var(--shadow-md);margin-bottom:20px}
 .digraph-big{font-family:'Fredoka One',cursive;font-size:clamp(4rem,15vw,8rem);color:var(--clr-primary);line-height:1}
@@ -21,45 +27,334 @@
 .qbtn{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:16px 12px;font-family:'Fredoka One',cursive;font-size:1.6rem;cursor:pointer;transition:all .15s}
 .qbtn.correct{background:#dcfce7;border-color:var(--clr-green)}
 .qbtn.wrong{background:#fee2e2;border-color:var(--clr-primary)}
+/* SORT BIN */
+.sort-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:520px;margin:0 auto 28px}
+.sort-target-bar{background:linear-gradient(135deg,#0ea5e9,#0284c7);color:white;border-radius:14px;padding:12px 18px;text-align:center;margin-bottom:16px}
+.sort-target-bar .dg-big{font-family:'Fredoka One',cursive;font-size:2.2rem}
+.sort-word-stage{display:flex;justify-content:center;margin:12px 0}
+.sort-wcard{background:white;border:3px solid #e5e7eb;border-radius:18px;padding:16px 24px;text-align:center;box-shadow:var(--shadow-sm);min-width:160px;cursor:pointer;transition:all .2s}
+.sort-wcard .we{font-size:2.5rem;display:block;margin-bottom:4px}
+.sort-wcard .wt{font-family:'Fredoka One',cursive;font-size:1.8rem}
+.bins-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.bin{border-radius:18px;padding:18px 12px;text-align:center;min-height:110px;border:3px dashed #d1d5db;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-family:'Fredoka One',cursive}
+.bin.yes-bin{background:#f0fdf4;border-color:#86efac}
+.bin.no-bin{background:#fef2f2;border-color:#fca5a5}
+.bin:hover{transform:scale(1.04)}
+.bin-label{font-size:1.3rem;margin-top:4px}
+.bin-icon{font-size:2rem}
+.sort-res{border-radius:14px;padding:10px 14px;text-align:center;margin:8px 0;font-family:'Fredoka One',cursive;font-size:1.1rem;display:none;animation:fadeIn .2s ease}
+.sort-res.correct{background:#dcfce7;color:#15803d;border:2px solid #22c55e;display:block}
+.sort-res.wrong{background:#fee2e2;color:#991b1b;border:2px solid #ef4444;display:block}
+.sort-score{display:flex;gap:12px;justify-content:center;font-weight:800;font-size:.9rem;margin:8px 0}
+.spill{background:#f3f4f6;border-radius:8px;padding:4px 10px}
+/* CIRCLE mode */
+.circle-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:560px;margin:0 auto 28px}
+.circle-target{background:linear-gradient(135deg,#0ea5e9,#0284c7);color:white;border-radius:14px;padding:10px 16px;text-align:center;margin-bottom:14px;font-family:'Fredoka One',cursive}
+.circle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:480px){.circle-grid{grid-template-columns:repeat(4,1fr)}}
+.circle-word{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:12px 6px;text-align:center;font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;transition:all .2s;user-select:none}
+.circle-word:hover{background:#e0f2fe;border-color:#7dd3fc}
+.circle-word.circled{background:#dcfce7;border-color:var(--clr-green);color:#15803d;transform:scale(1.05)}
+.circle-word.circled.wrong{background:#fee2e2;border-color:var(--clr-primary);color:#991b1b;transform:scale(1)}
+.circle-word .wemoji{font-size:1.3rem;display:block;margin-bottom:4px}
+.circle-check-btn{margin-top:4px}
+.circle-res{font-family:'Fredoka One',cursive;font-size:1.2rem;text-align:center;padding:12px;border-radius:14px;margin-top:8px;display:none}
+.circle-res.show{display:block}
+.circle-res.correct{background:#dcfce7;color:#15803d}
+.circle-res.partial{background:#fef3c7;color:#92400e}
 </style>
 </head>
 <body>
-<nav class="top-nav"><div class="nav-left"><a href="index.html" class="nav-home-btn">🏠</a><span class="nav-title">Digraph Practice</span></div></nav>
-<div class="page-header" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)"><h1>📖 Digraph Practice</h1><p>Two letters, one sound!</p></div>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Digraph Practice</span>
+  </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+  <h1>📖 Digraph Practice</h1>
+  <p>Two letters, one sound!</p>
+</div>
 <main>
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('learn')">📖 Learn</button>
+  <button class="mode-tab" onclick="switchMode('sort')">🗂️ Sorting Bin!</button>
+  <button class="mode-tab" onclick="switchMode('circle')">⭕ Circle Words!</button>
+</div>
+
+<!-- LEARN -->
+<div id="panel-learn" class="panel active">
 <div class="activity-container">
-<div class="digraph-card" id="digraph-card">
-  <span class="digraph-emoji" id="d-emoji">🦈</span>
-  <div class="digraph-big" id="d-pair">SH</div>
-  <div class="digraph-word" id="d-word">Shark</div>
-  <div class="digraph-sound" id="d-sound">Sound: "shh"</div>
-  <div class="btn-row">
-    <button class="btn btn-primary" id="btn-say">🔊 Say It</button>
-    <button class="btn btn-secondary" id="btn-prev">← Prev</button>
-    <button class="btn btn-accent" id="btn-next">Next →</button>
+  <div class="digraph-card" id="digraph-card">
+    <span class="digraph-emoji" id="d-emoji">🦈</span>
+    <div class="digraph-big" id="d-pair">SH</div>
+    <div class="digraph-word" id="d-word">Shark</div>
+    <div class="digraph-sound" id="d-sound">Sound: "shh"</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-say">🔊 Say It</button>
+      <button class="btn btn-secondary" id="btn-prev">← Prev</button>
+      <button class="btn btn-accent" id="btn-next">Next →</button>
+    </div>
+  </div>
+  <div class="nav-dots" id="nav-dots"></div>
+  <div class="quiz-area" id="quiz-area" style="display:none">
+    <p class="quiz-q" id="quiz-q">Which digraph makes the "shh" sound?</p>
+    <div class="quiz-choices" id="quiz-choices"></div>
+    <p style="font-size:.9rem;color:var(--clr-text-soft);margin-top:12px">Score: <span id="qscore">0</span>/<span id="qtotal">0</span></p>
+  </div>
+  <div style="text-align:center;margin-top:16px">
+    <button class="btn btn-purple" id="btn-quiz">🎯 Start Quiz</button>
   </div>
 </div>
-<div class="nav-dots" id="nav-dots"></div>
-<div class="quiz-area" id="quiz-area" style="display:none">
-  <p class="quiz-q" id="quiz-q">Which digraph makes the "shh" sound?</p>
-  <div class="quiz-choices" id="quiz-choices"></div>
-  <p style="font-size:.9rem;color:var(--clr-text-soft);margin-top:12px">Score: <span id="qscore">0</span>/<span id="qtotal">0</span></p>
 </div>
-<div style="text-align:center;margin-top:16px"><button class="btn btn-purple" id="btn-quiz">🎯 Start Quiz</button></div>
+
+<!-- SORT -->
+<div id="panel-sort" class="panel">
+<div class="sort-card">
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:10px;text-align:center">Word 1 of 16</p>
+  <div class="progress-wrap" style="margin-bottom:14px">
+    <div class="progress-bar" id="sort-pb" style="width:6%"></div>
+  </div>
+  <div class="sort-target-bar">
+    <div style="font-size:.75rem;font-weight:800;opacity:.8;text-transform:uppercase">Does this word contain the digraph:</div>
+    <div class="dg-big" id="sort-digraph">SH</div>
+  </div>
+  <div class="sort-word-stage">
+    <div class="sort-wcard" id="sort-wcard">
+      <span class="we" id="sort-we">🦈</span>
+      <div class="wt" id="sort-wt">shark</div>
+    </div>
+  </div>
+  <div class="bins-row">
+    <div class="bin yes-bin" onclick="tapSortDg('yes')">
+      <div class="bin-icon">✅</div>
+      <div class="bin-label">YES it has it!</div>
+    </div>
+    <div class="bin no-bin" onclick="tapSortDg('no')">
+      <div class="bin-icon">❌</div>
+      <div class="bin-label">NO it doesn't</div>
+    </div>
+  </div>
+  <div class="sort-res" id="sort-res"></div>
+  <div style="display:flex;gap:10px;justify-content:center;margin:8px 0">
+    <button class="btn btn-primary" id="sort-hear">🔊 Hear Word</button>
+    <button class="btn btn-secondary" id="sort-skip">Skip →</button>
+  </div>
+  <div class="sort-score">
+    <div class="spill">✅ <span id="sort-yes">0</span></div>
+    <div class="spill">❌ <span id="sort-no">0</span></div>
+    <div class="spill">📊 <span id="sort-pct">0</span>%</div>
+  </div>
 </div>
+</div>
+
+<!-- CIRCLE -->
+<div id="panel-circle" class="panel">
+<div class="circle-card">
+  <div class="circle-target" id="circle-target">
+    <div style="font-size:.75rem;font-weight:800;opacity:.8">Circle ALL words with digraph:</div>
+    <div style="font-size:2.4rem">SH</div>
+  </div>
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:12px;text-align:center">Tap to circle the correct words!</p>
+  <div class="circle-grid" id="circle-grid"></div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-primary" id="circle-check">✅ Check Answers</button>
+    <button class="btn btn-secondary" id="circle-next-dg">Next Digraph →</button>
+    <button class="btn btn-accent" id="circle-hear-all">🔊 Hear All</button>
+  </div>
+  <div class="circle-res" id="circle-res"></div>
+  <div style="font-weight:700;color:var(--clr-text-soft);text-align:center;margin-top:8px;font-size:.85rem">Score: <span id="circle-score">0</span> / <span id="circle-total">0</span></div>
+</div>
+</div>
+
 </main>
-<script src="js/config.js"></script><script src="js/api.js"></script><script src="js/analytics.js"></script><script src="js/audio.js"></script><script src="js/materials.js"></script><script src="js/ui.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
 <script>
-const DG=PHONICS_DATA.digraphs;let cur=0,quizMode=false,qs=0,qt=0,qa=null;
-function renderCard(){const d=DG[cur];document.getElementById('d-emoji').textContent=d.emoji;document.getElementById('d-pair').textContent=d.pair;document.getElementById('d-word').textContent=d.word;document.getElementById('d-sound').textContent=`Sound: "${d.sound}" · e.g. ${d.example}`;document.querySelectorAll('.nav-dot').forEach((dot,i)=>dot.classList.toggle('active',i===cur));}
-function buildDots(){const c=document.getElementById('nav-dots');c.innerHTML='';DG.forEach((_,i)=>{const d=document.createElement('button');d.className=`nav-dot ${i===0?'active':''}`;d.addEventListener('click',()=>{cur=i;renderCard();});c.appendChild(d);});}
+'use strict';
+const DG=PHONICS_DATA.digraphs;
+let cur=0,quizMode=false,qs=0,qt=0,qa=null;
+
+function switchMode(m){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  event.target.classList.add('active');
+  if(m==='sort')initSort();
+  if(m==='circle')initCircle();
+}
+
+/* LEARN */
+function renderCard(){
+  const d=DG[cur];
+  document.getElementById('d-emoji').textContent=d.emoji;
+  document.getElementById('d-pair').textContent=d.pair;
+  document.getElementById('d-word').textContent=d.word;
+  document.getElementById('d-sound').textContent=`Sound: "${d.sound}" · e.g. ${d.example}`;
+  document.querySelectorAll('.nav-dot').forEach((dot,i)=>dot.classList.toggle('active',i===cur));
+}
+function buildDots(){
+  const c=document.getElementById('nav-dots');c.innerHTML='';
+  DG.forEach((_,i)=>{const d=document.createElement('button');d.className=`nav-dot ${i===0?'active':''}`;d.addEventListener('click',()=>{cur=i;renderCard();});c.appendChild(d);});
+}
 document.getElementById('btn-say').addEventListener('click',()=>{const d=DG[cur];AudioManager.speak(`${d.pair}. ${d.word}`,{rate:.75});});
 document.getElementById('btn-prev').addEventListener('click',()=>{cur=(cur-1+DG.length)%DG.length;renderCard();});
 document.getElementById('btn-next').addEventListener('click',()=>{cur=(cur+1)%DG.length;renderCard();});
-document.getElementById('btn-quiz').addEventListener('click',()=>{quizMode=!quizMode;document.getElementById('quiz-area').style.display=quizMode?'block':'none';document.getElementById('btn-quiz').textContent=quizMode?'✕ Close Quiz':'🎯 Start Quiz';if(quizMode)nextQ();});
-function nextQ(){const idx=Math.floor(Math.random()*DG.length);qa=DG[idx];const pool=UI.shuffle(DG.filter(d=>d.pair!==qa.pair)).slice(0,3);const opts=UI.shuffle([qa,...pool]);document.getElementById('quiz-q').textContent=`Which digraph makes the "${qa.sound}" sound?`;const qc=document.getElementById('quiz-choices');qc.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='qbtn';b.textContent=o.pair;b.addEventListener('click',()=>{qt++;const correct=o.pair===qa.pair;if(correct){qs++;b.classList.add('correct');AudioManager.playTone('correct');UI.showFeedback(true);}else{b.classList.add('wrong');AudioManager.playTone('wrong');qc.querySelectorAll('.qbtn').forEach(x=>{if(x.textContent===qa.pair)x.classList.add('correct');});}document.getElementById('qscore').textContent=qs;document.getElementById('qtotal').textContent=qt;qc.querySelectorAll('.qbtn').forEach(x=>x.style.pointerEvents='none');setTimeout(nextQ,1400);});qc.appendChild(b);});AudioManager.speak(qa.sound,{rate:.7});}
+document.getElementById('btn-quiz').addEventListener('click',()=>{
+  quizMode=!quizMode;
+  document.getElementById('quiz-area').style.display=quizMode?'block':'none';
+  document.getElementById('btn-quiz').textContent=quizMode?'✕ Close Quiz':'🎯 Start Quiz';
+  if(quizMode)nextQ();
+});
+function nextQ(){
+  const idx=Math.floor(Math.random()*DG.length);qa=DG[idx];
+  const pool=UI.shuffle(DG.filter(d=>d.pair!==qa.pair)).slice(0,3);
+  const opts=UI.shuffle([qa,...pool]);
+  document.getElementById('quiz-q').textContent=`Which digraph makes the "${qa.sound}" sound?`;
+  const qc=document.getElementById('quiz-choices');qc.innerHTML='';
+  opts.forEach(o=>{
+    const b=document.createElement('button');b.className='qbtn';b.textContent=o.pair;
+    b.addEventListener('click',()=>{
+      qt++;const correct=o.pair===qa.pair;
+      if(correct){qs++;b.classList.add('correct');AudioManager.playTone('correct');UI.showFeedback(true);}
+      else{b.classList.add('wrong');AudioManager.playTone('wrong');qc.querySelectorAll('.qbtn').forEach(x=>{if(x.textContent===qa.pair)x.classList.add('correct');});}
+      document.getElementById('qscore').textContent=qs;document.getElementById('qtotal').textContent=qt;
+      qc.querySelectorAll('.qbtn').forEach(x=>x.style.pointerEvents='none');
+      setTimeout(nextQ,1400);
+    });
+    qc.appendChild(b);
+  });
+  AudioManager.speak(qa.sound,{rate:.7});
+}
 buildDots();renderCard();
+
+/* SORT */
+// Build word pool: words WITH digraphs + distractor words without
+const SORT_WORDS_ALL=[
+  {word:'shark',emoji:'🦈',has:'SH'},{word:'cheese',emoji:'🧀',has:'CH'},{word:'thumb',emoji:'👍',has:'TH'},
+  {word:'whale',emoji:'🐳',has:'WH'},{word:'phone',emoji:'📱',has:'PH'},{word:'clock',emoji:'🕐',has:'CK'},
+  {word:'ring',emoji:'💍',has:'NG'},{word:'queen',emoji:'👑',has:'QU'},
+  // distractors (no target digraph)
+  {word:'cat',emoji:'🐱',has:null},{word:'dog',emoji:'🐶',has:null},{word:'sun',emoji:'☀️',has:null},
+  {word:'bird',emoji:'🐦',has:null},{word:'fish',emoji:'🐟',has:null},{word:'bear',emoji:'🐻',has:null},
+  {word:'rain',emoji:'🌧️',has:null},{word:'cup',emoji:'☕',has:null},
+];
+let sortIdx=0,sortCorrect=0,sortWrong=0;
+let sortDg='SH';
+const SORT_DG_LIST=UI.shuffle([...DG]);
+let sortDgIdx=0;
+const SORT_POOL=UI.shuffle(SORT_WORDS_ALL);
+
+function initSort(){sortIdx=0;sortCorrect=0;sortWrong=0;sortDgIdx=0;pickSortDg();loadSortWord();}
+
+function pickSortDg(){
+  sortDg=SORT_DG_LIST[sortDgIdx%SORT_DG_LIST.length].pair;
+  document.getElementById('sort-digraph').textContent=sortDg;
+}
+
+function loadSortWord(){
+  if(sortIdx>=SORT_POOL.length){document.getElementById('sort-res').textContent='All done! 🎉';document.getElementById('sort-res').className='sort-res correct';return;}
+  const item=SORT_POOL[sortIdx];
+  document.getElementById('sort-we').textContent=item.emoji;
+  document.getElementById('sort-wt').textContent=item.word;
+  document.getElementById('sort-res').className='sort-res';
+  const prog=document.getElementById('sort-pb').closest('.progress-wrap').previousElementSibling;
+  if(prog)prog.textContent=`Word ${sortIdx+1} of ${SORT_POOL.length}`;
+  UI.updateProgress(document.getElementById('sort-pb'),sortIdx+1,SORT_POOL.length);
+  AudioManager.speak(item.word,{rate:.75});
+}
+
+function tapSortDg(choice){
+  const item=SORT_POOL[sortIdx];
+  const hasIt=item.has===sortDg;
+  const correct=(choice==='yes'&&hasIt)||(choice==='no'&&!hasIt);
+  const res=document.getElementById('sort-res');
+  if(correct){
+    sortCorrect++;
+    res.textContent=hasIt?`✅ Yes! "${item.word}" has ${sortDg}!`:`✅ Right! "${item.word}" does NOT have ${sortDg}.`;
+    res.className='sort-res correct';AudioManager.playTone('correct');UI.showFeedback(true);
+  } else {
+    sortWrong++;
+    res.textContent=hasIt?`❌ "${item.word}" DOES have ${sortDg}!`:`❌ "${item.word}" does NOT have ${sortDg}.`;
+    res.className='sort-res wrong';AudioManager.playTone('wrong');
+  }
+  document.getElementById('sort-yes').textContent=sortCorrect;
+  document.getElementById('sort-no').textContent=sortWrong;
+  const total=sortCorrect+sortWrong;
+  document.getElementById('sort-pct').textContent=total>0?Math.round((sortCorrect/total)*100):0;
+  sortIdx++;sortDgIdx++;pickSortDg();
+  setTimeout(loadSortWord,1400);
+}
+
+document.getElementById('sort-hear').addEventListener('click',()=>{if(SORT_POOL[sortIdx])AudioManager.speak(SORT_POOL[sortIdx].word,{rate:.7});});
+document.getElementById('sort-skip').addEventListener('click',()=>{sortIdx++;sortDgIdx++;pickSortDg();loadSortWord();});
+
+/* CIRCLE */
+let circleDgIdx=0,circleScore=0,circleTotal=0;
+const CIRCLE_POOLS={
+  SH:[{word:'shark',emoji:'🦈',has:true},{word:'ship',emoji:'🚢',has:true},{word:'shell',emoji:'🐚',has:true},{word:'cat',emoji:'🐱',has:false},{word:'fish',emoji:'🐟',has:false},{word:'shop',emoji:'🛒',has:true},{word:'dog',emoji:'🐶',has:false},{word:'shed',emoji:'🏚️',has:true},{word:'sun',emoji:'☀️',has:false},{word:'shirt',emoji:'👕',has:true},{word:'bear',emoji:'🐻',has:false},{word:'dish',emoji:'🍽️',has:true}],
+  CH:[{word:'cheese',emoji:'🧀',has:true},{word:'chair',emoji:'🪑',has:true},{word:'cat',emoji:'🐱',has:false},{word:'church',emoji:'⛪',has:true},{word:'dog',emoji:'🐶',has:false},{word:'chick',emoji:'🐤',has:true},{word:'sun',emoji:'☀️',has:false},{word:'chip',emoji:'🍟',has:true},{word:'ball',emoji:'⚽',has:false},{word:'chain',emoji:'⛓️',has:true},{word:'fish',emoji:'🐟',has:false},{word:'chin',emoji:'🫦',has:true}],
+  TH:[{word:'thumb',emoji:'👍',has:true},{word:'three',emoji:'3️⃣',has:true},{word:'dog',emoji:'🐶',has:false},{word:'tooth',emoji:'🦷',has:true},{word:'cat',emoji:'🐱',has:false},{word:'think',emoji:'💭',has:true},{word:'bird',emoji:'🐦',has:false},{word:'bath',emoji:'🛁',has:true},{word:'sun',emoji:'☀️',has:false},{word:'thin',emoji:'📏',has:true},{word:'fish',emoji:'🐟',has:false},{word:'moth',emoji:'🦋',has:true}],
+};
+const CIRCLE_DGS=Object.keys(CIRCLE_POOLS);
+
+function initCircle(){circleDgIdx=0;loadCircleRound();}
+
+function loadCircleRound(){
+  const dg=CIRCLE_DGS[circleDgIdx%CIRCLE_DGS.length];
+  const pool=UI.shuffle(CIRCLE_POOLS[dg]||CIRCLE_POOLS.SH);
+  document.getElementById('circle-target').innerHTML=`<div style="font-size:.75rem;font-weight:800;opacity:.8">Circle ALL words with digraph:</div><div style="font-size:2.4rem">${dg}</div>`;
+  const grid=document.getElementById('circle-grid');grid.innerHTML='';
+  document.getElementById('circle-res').className='circle-res';
+  pool.slice(0,12).forEach(item=>{
+    const div=document.createElement('div');
+    div.className='circle-word';
+    div.dataset.has=item.has;div.dataset.word=item.word;
+    div.innerHTML=`<span class="wemoji">${item.emoji}</span>${item.word}`;
+    div.addEventListener('click',()=>{div.classList.toggle('circled');AudioManager.speak(item.word,{rate:.75});});
+    grid.appendChild(div);
+  });
+  document.getElementById('circle-hear-all').onclick=()=>{
+    let i=0;const words=pool.slice(0,12);
+    function nx(){if(i>=words.length)return;AudioManager.speak(words[i++].word,{rate:.8,onEnd:()=>setTimeout(nx,400)});}
+    nx();
+  };
+}
+
+document.getElementById('circle-check').addEventListener('click',()=>{
+  const words=document.querySelectorAll('.circle-word');
+  let correct=0,total=0;
+  words.forEach(w=>{
+    const shouldHave=w.dataset.has==='true';
+    const circled=w.classList.contains('circled');
+    if(shouldHave){
+      total++;
+      if(circled){correct++;w.classList.remove('wrong');}
+      else{w.style.outline='3px solid #ef4444';}
+    } else if(circled){
+      w.classList.add('wrong');
+    }
+  });
+  circleScore+=correct;circleTotal+=total;
+  document.getElementById('circle-score').textContent=circleScore;
+  document.getElementById('circle-total').textContent=circleTotal;
+  const pct=total>0?Math.round((correct/total)*100):0;
+  const res=document.getElementById('circle-res');
+  res.textContent=pct===100?`🎉 Perfect! ${correct}/${total} correct!`:`⭐ ${correct}/${total} — Keep trying!`;
+  res.className=`circle-res show ${pct===100?'correct':'partial'}`;
+  if(pct===100)AudioManager.playTone('star');else AudioManager.playTone('click');
+});
+
+document.getElementById('circle-next-dg').addEventListener('click',()=>{circleDgIdx++;loadCircleRound();});
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("digraph-practice");
-window.addEventListener('beforeunload',function(){if(typeof analytics!=="undefined"){analytics.trackActivityComplete("digraph-practice",typeof qs!=="undefined"?qs:0,typeof qt!=="undefined"?qt:10);}if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('digraph-practice');});</script>
-</body></html>
+window.addEventListener('beforeunload',function(){
+  if(typeof analytics!=="undefined"){analytics.trackActivityComplete("digraph-practice",qs,qt);}
+  if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('digraph-practice');
+});</script>
+</body>
+</html>

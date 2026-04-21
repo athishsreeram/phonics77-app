@@ -6,31 +6,44 @@
 <title>🔗 Consonant Blends · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.blend-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:14px; margin:16px 0; }
-.blend-chip {
-  background:white; border-radius:18px; padding:18px 10px; text-align:center;
-  box-shadow:var(--shadow-sm); cursor:pointer; border:3px solid transparent;
-  transition:all .2s;
-}
-.blend-chip:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:var(--clr-secondary); }
-.blend-chip.playing { border-color:var(--clr-primary); transform:scale(1.05); }
-.blend-pair { font-family:'Fredoka One',cursive; font-size:2rem; color:var(--clr-primary); }
-.blend-emoji { font-size:1.8rem; margin:4px 0; display:block; }
-.blend-word  { font-size:.8rem; font-weight:800; color:var(--clr-text-soft); }
-.mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:12px; }
-.mode-btn { background:#f3f4f6; border:3px solid #e5e7eb; border-radius:12px; padding:8px 16px; font-weight:800; font-size:.9rem; cursor:pointer; }
-.mode-btn.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); }
-.group-filter { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:16px; }
-.grp-btn { background:#f3f4f6; border:2px solid #e5e7eb; border-radius:10px; padding:6px 14px; font-weight:800; font-size:.82rem; cursor:pointer; }
-.grp-btn.active { background:#667eea; color:white; border-color:#667eea; }
-/* Quiz */
-.quiz-card { background:white; border-radius:28px; padding:32px 24px; text-align:center; box-shadow:var(--shadow-md); max-width:500px; margin:0 auto; }
-.quiz-word { font-family:'Fredoka One',cursive; font-size:clamp(2.5rem,10vw,5rem); color:var(--clr-text); margin:16px 0; }
-.blend-choices { display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:360px; margin:16px auto 0; }
-.bchoice { background:#f3f4f6; border:3px solid transparent; border-radius:14px; padding:14px;
-  font-family:'Fredoka One',cursive; font-size:1.6rem; cursor:pointer; transition:all .15s; }
-.bchoice.correct { background:#dcfce7; border-color:var(--clr-green); }
-.bchoice.wrong   { background:#fee2e2; border-color:var(--clr-primary); }
+.mode-bar{display:flex;gap:6px;justify-content:center;margin:16px 0 20px;flex-wrap:wrap}
+.mode-tab{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s}
+.mode-tab.active{background:#10b981;color:white;border-color:#10b981;transform:scale(1.05)}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .3s ease}
+/* original */
+.blend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px;margin:24px 0}
+.blend-chip{background:white;border-radius:18px;padding:18px 10px;text-align:center;box-shadow:var(--shadow-sm);cursor:pointer;border:3px solid transparent;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.blend-chip:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--clr-secondary)}
+.blend-chip.playing{border-color:var(--clr-primary);transform:scale(1.05)}
+.blend-pair{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--clr-primary)}
+.blend-emoji{font-size:1.8rem;margin:4px 0;display:block}
+.blend-word{font-size:.8rem;font-weight:800;color:var(--clr-text-soft)}
+/* CIRCLE */
+.circle-card{background:white;border-radius:28px;padding:24px 20px;box-shadow:var(--shadow-md);max-width:560px;margin:0 auto 28px}
+.circle-target{background:linear-gradient(135deg,#10b981,#059669);color:white;border-radius:14px;padding:10px 16px;text-align:center;margin-bottom:14px;font-family:'Fredoka One',cursive}
+.circle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:480px){.circle-grid{grid-template-columns:repeat(4,1fr)}}
+.cw{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;user-select:none}
+.cw:hover{background:#d1fae5;border-color:#6ee7b7}
+.cw.circled{background:#dcfce7;border-color:var(--clr-green);color:#15803d;transform:scale(1.05)}
+.cw.circled.wrong{background:#fee2e2;border-color:var(--clr-primary);color:#991b1b;transform:scale(1)}
+.cw .ce{font-size:1.4rem;display:block;margin-bottom:4px}
+.cw .cw-word{font-family:'Fredoka One',cursive;font-size:.95rem}
+.circle-res{font-family:'Fredoka One',cursive;font-size:1.2rem;text-align:center;padding:12px;border-radius:14px;margin-top:8px;display:none}
+.circle-res.show{display:block}
+.circle-res.correct{background:#dcfce7;color:#15803d}
+.circle-res.partial{background:#fef3c7;color:#92400e}
+.circle-progress{font-size:.8rem;font-weight:700;color:#aaa;text-align:center;margin-top:6px}
+/* SOUND MATCH */
+.smatch-card{background:white;border-radius:28px;padding:36px 24px;text-align:center;box-shadow:var(--shadow-md);max-width:500px;margin:0 auto 28px}
+.smatch-emoji-big{font-size:clamp(4rem,14vw,7rem);display:block;margin-bottom:8px}
+.smatch-question{font-size:1rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:20px}
+.smatch-choices{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:420px;margin:0 auto 16px}
+.smatch-btn{background:#f3f4f6;border:3px solid transparent;border-radius:16px;padding:14px 10px;font-family:'Fredoka One',cursive;font-size:1.6rem;cursor:pointer;transition:all .15s}
+.smatch-btn:hover{background:#d1fae5;border-color:#6ee7b7}
+.smatch-btn.correct{background:#dcfce7;border-color:var(--clr-green)}
+.smatch-btn.wrong{background:#fee2e2;border-color:var(--clr-primary)}
+.smatch-score{font-weight:700;color:var(--clr-text-soft);margin-top:8px}
 </style>
 </head>
 <body>
@@ -42,42 +55,59 @@
 </nav>
 <div class="page-header" style="background:linear-gradient(135deg,#10b981,#065f46)">
   <h1>🔗 Consonant Blends</h1>
-  <p>Tap a blend to hear it — then take the quiz!</p>
+  <p>Tap, circle, and match all 22 blends!</p>
 </div>
 <main>
-  <div class="mode-toggle">
-    <button class="mode-btn active" id="mode-browse">📖 Study</button>
-    <button class="mode-btn" id="mode-quiz">🎯 Quiz</button>
-  </div>
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('explore')">🔍 Explore</button>
+  <button class="mode-tab" onclick="switchMode('circle')">⭕ Circle Words!</button>
+  <button class="mode-tab" onclick="switchMode('match')">🎵 Sound Match!</button>
+</div>
 
-  <!-- Browse -->
-  <div id="browse-section">
-    <div class="group-filter">
-      <button class="grp-btn active" data-group="all">All 22</button>
-      <button class="grp-btn" data-group="l">L-blends</button>
-      <button class="grp-btn" data-group="r">R-blends</button>
-      <button class="grp-btn" data-group="s">S-blends</button>
-      <button class="grp-btn" data-group="other">Other</button>
-    </div>
-    <div class="blend-grid" id="blend-grid"></div>
-  </div>
+<!-- EXPLORE -->
+<div id="panel-explore" class="panel active">
+  <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-top:20px">Tap any blend to hear its sound and example word.</p>
+  <div class="blend-grid" id="blend-grid"></div>
+</div>
 
-  <!-- Quiz -->
-  <div id="quiz-section" style="display:none">
-    <div class="quiz-card">
-      <p style="font-weight:700;color:var(--clr-text-soft);margin-bottom:8px" id="q-label">Question 1 of 12</p>
-      <div class="progress-wrap" style="margin-bottom:16px">
-        <div class="progress-bar" id="q-bar" style="width:8%"></div>
-      </div>
-      <div style="font-size:3.5rem" id="q-emoji">🔵</div>
-      <div class="quiz-word" id="q-word">blue</div>
-      <p style="font-weight:700;color:var(--clr-text-soft)">Which blend starts this word?</p>
-      <button class="btn btn-primary" id="q-speak" style="margin:12px auto;display:block">🔊 Hear Word</button>
-      <div class="blend-choices" id="blend-choices"></div>
-      <p style="font-weight:700;margin-top:16px">Score: <span id="q-score">0</span>/<span id="q-total">0</span></p>
-    </div>
+<!-- CIRCLE WORDS -->
+<div id="panel-circle" class="panel">
+<div class="circle-card">
+  <div class="progress-wrap" style="margin-bottom:12px">
+    <div class="progress-bar" id="cp-bar" style="width:10%"></div>
   </div>
+  <div class="circle-target" id="circle-target">
+    <div style="font-size:.75rem;font-weight:800;opacity:.8">Circle ALL words starting with blend:</div>
+    <div style="font-size:2.4rem" id="circle-blend">BL</div>
+  </div>
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:12px;text-align:center">Tap to circle — miss one = not perfect!</p>
+  <div class="circle-grid" id="circle-grid"></div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-primary" id="cp-check">✅ Check!</button>
+    <button class="btn btn-secondary" id="cp-next">Next Blend →</button>
+    <button class="btn btn-accent" id="cp-hear">🔊 Hear All</button>
+  </div>
+  <div class="circle-res" id="circle-res"></div>
+  <div class="circle-progress" id="circle-progress">Score: 0 / 0</div>
+</div>
+</div>
+
+<!-- SOUND MATCH -->
+<div id="panel-match" class="panel">
+<div class="smatch-card">
+  <p style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:8px" id="sm-progress">Round 1 of 15</p>
+  <div class="progress-wrap" style="margin-bottom:16px">
+    <div class="progress-bar" id="sm-bar" style="width:7%"></div>
+  </div>
+  <span class="smatch-emoji-big" id="sm-emoji">🔵</span>
+  <p class="smatch-question">Which blend starts this word?</p>
+  <button class="btn btn-primary" id="sm-hear" style="margin:0 auto 16px;display:flex">🔊 Hear Word</button>
+  <div class="smatch-choices" id="sm-choices"></div>
+  <div class="smatch-score">✅ <span id="sm-score">0</span> / <span id="sm-total">0</span></div>
+</div>
+</div>
 </main>
+
 <script src="js/config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/analytics.js"></script>
@@ -85,121 +115,130 @@
 <script src="js/materials.js"></script>
 <script src="js/ui.js"></script>
 <script>
-const BLENDS = PHONICS_DATA.consonantBlends;
-const GROUPS = {
-  l: ['bl','cl','fl','gl','pl','sl'],
-  r: ['br','cr','dr','fr','gr','pr','tr','wr'],
-  s: ['sc','sk','sl','sm','sn','sp','st','sw'],
-  other: ['tw'],
+'use strict';
+const BLENDS=PHONICS_DATA.consonantBlends;
+function switchMode(m){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  event.target.classList.add('active');
+  if(m==='circle')initCircle();
+  if(m==='match')initMatch();
+}
+
+/* EXPLORE */
+BLENDS.forEach((b,i)=>{
+  const grid=document.getElementById('blend-grid');
+  const chip=document.createElement('div');chip.className='blend-chip';
+  const hue=(i*16)%360;
+  chip.innerHTML=`<div class="blend-pair" style="color:hsl(${hue},65%,45%)">${b.blend.toUpperCase()}</div><span class="blend-emoji">${b.emoji}</span><div class="blend-word">${b.word}</div>`;
+  chip.addEventListener('click',()=>{
+    document.querySelectorAll('.blend-chip').forEach(c=>c.classList.remove('playing'));
+    chip.classList.add('playing');
+    AudioManager.speak(`${b.blend}. ${b.word}`,{rate:.8});
+    setTimeout(()=>chip.classList.remove('playing'),1200);
+  });
+  grid.appendChild(chip);
+});
+
+/* CIRCLE WORDS */
+// Build pools per blend group
+const CIRCLE_POOLS={
+  'BL':[{w:'blue',e:'🔵',has:true},{w:'black',e:'⚫',has:true},{w:'cat',e:'🐱',has:false},{w:'block',e:'🧱',has:true},{w:'dog',e:'🐶',has:false},{w:'blast',e:'💥',has:true},{w:'sun',e:'☀️',has:false},{w:'bland',e:'😐',has:true},{w:'bird',e:'🐦',has:false},{w:'blob',e:'🟣',has:true},{w:'fish',e:'🐟',has:false},{w:'blow',e:'💨',has:true}],
+  'BR':[{w:'bread',e:'🍞',has:true},{w:'brown',e:'🤎',has:true},{w:'cat',e:'🐱',has:false},{w:'brick',e:'🧱',has:true},{w:'dog',e:'🐶',has:false},{w:'bride',e:'👰',has:true},{w:'sun',e:'☀️',has:false},{w:'brain',e:'🧠',has:true},{w:'fish',e:'🐟',has:false},{w:'brave',e:'🦁',has:true},{w:'bird',e:'🐦',has:false},{w:'brim',e:'🎩',has:true}],
+  'FL':[{w:'flag',e:'🚩',has:true},{w:'fly',e:'🪰',has:true},{w:'cat',e:'🐱',has:false},{w:'flat',e:'📄',has:true},{w:'dog',e:'🐶',has:false},{w:'flap',e:'✋',has:true},{w:'sun',e:'☀️',has:false},{w:'flan',e:'🍮',has:true},{w:'bird',e:'🐦',has:false},{w:'flip',e:'🤸',has:true},{w:'fish',e:'🐟',has:false},{w:'flock',e:'🐑',has:true}],
+  'ST':[{w:'star',e:'⭐',has:true},{w:'stop',e:'🛑',has:true},{w:'cat',e:'🐱',has:false},{w:'step',e:'👣',has:true},{w:'dog',e:'🐶',has:false},{w:'stem',e:'🌱',has:true},{w:'sun',e:'☀️',has:false},{w:'stir',e:'🥄',has:true},{w:'fish',e:'🐟',has:false},{w:'stuck',e:'🪲',has:true},{w:'bird',e:'🐦',has:false},{w:'sting',e:'🐝',has:true}],
 };
-
-let currentGroup = 'all';
-
-function getGroupBlends(g) {
-  if (g === 'all') return BLENDS;
-  if (g === 'other') return BLENDS.filter(b => !Object.values(GROUPS).flat().includes(b.blend) || GROUPS.other.includes(b.blend));
-  return BLENDS.filter(b => GROUPS[g] && GROUPS[g].includes(b.blend));
-}
-
-function renderGrid() {
-  const grid = document.getElementById('blend-grid');
-  grid.innerHTML = '';
-  getGroupBlends(currentGroup).forEach((b, i) => {
-    const hue = (i * 16) % 360;
-    const chip = document.createElement('div');
-    chip.className = 'blend-chip';
-    chip.innerHTML = `<div class="blend-pair" style="color:hsl(${hue},65%,45%)">${b.blend.toUpperCase()}</div><span class="blend-emoji">${b.emoji}</span><div class="blend-word">${b.word}</div>`;
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.blend-chip').forEach(c => c.classList.remove('playing'));
-      chip.classList.add('playing');
-      AudioManager.speak(`${b.blend}. ${b.word}`, {rate:.8});
-      setTimeout(() => chip.classList.remove('playing'), 1200);
-    });
-    grid.appendChild(chip);
+const CP_DGS=Object.keys(CIRCLE_POOLS);
+let cpIdx=0,cpScore=0,cpTotal=0;
+function initCircle(){cpIdx=0;cpScore=0;cpTotal=0;loadCircle();}
+function loadCircle(){
+  const dg=CP_DGS[cpIdx%CP_DGS.length];
+  const pool=UI.shuffle(CIRCLE_POOLS[dg]);
+  document.getElementById('circle-blend').textContent=dg;
+  document.getElementById('circle-target').querySelector('[style*="2.4rem"]').textContent=dg;
+  UI.updateProgress(document.getElementById('cp-bar'),cpIdx+1,CP_DGS.length);
+  const grid=document.getElementById('circle-grid');grid.innerHTML='';
+  document.getElementById('circle-res').className='circle-res';
+  pool.slice(0,12).forEach(item=>{
+    const div=document.createElement('div');div.className='cw';div.dataset.has=item.has;div.dataset.word=item.w;
+    div.innerHTML=`<span class="ce">${item.e}</span><span class="cw-word">${item.w}</span>`;
+    div.addEventListener('click',()=>{div.classList.toggle('circled');AudioManager.speak(item.w,{rate:.8});});
+    grid.appendChild(div);
   });
+  document.getElementById('cp-hear').onclick=()=>{
+    let i=0;const ws=pool.slice(0,12);
+    function nx(){if(i>=ws.length)return;AudioManager.speak(ws[i++].w,{rate:.8,onEnd:()=>setTimeout(nx,400)});}nx();
+  };
 }
-
-// Group filter buttons
-document.querySelectorAll('.grp-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.grp-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentGroup = btn.dataset.group;
-    renderGrid();
+document.getElementById('cp-check').addEventListener('click',()=>{
+  const words=document.querySelectorAll('.cw');
+  let correct=0,total=0;
+  words.forEach(w=>{
+    const should=w.dataset.has==='true';const circled=w.classList.contains('circled');
+    if(should){total++;if(circled)correct++;else w.style.outline='3px solid #ef4444';}
+    else if(circled)w.classList.add('wrong');
   });
+  cpScore+=correct;cpTotal+=total;
+  const pct=total>0?Math.round((correct/total)*100):0;
+  const res=document.getElementById('circle-res');
+  res.textContent=pct===100?`🎉 Perfect! ${correct}/${total}!`:`⭐ ${correct}/${total} — Keep going!`;
+  res.className=`circle-res show ${pct===100?'correct':'partial'}`;
+  document.getElementById('circle-progress').textContent=`Score: ${cpScore}/${cpTotal}`;
+  if(pct===100)AudioManager.playTone('star');
 });
+document.getElementById('cp-next').addEventListener('click',()=>{cpIdx++;loadCircle();});
 
-renderGrid();
-
-// Quiz mode
-let qIdx = 0, qScore = 0, qTotal = 0, qAnswered = false;
-const shuffledQ = UI.shuffle(BLENDS).slice(0, 12);
-
-function loadQuizQ() {
-  if (qIdx >= shuffledQ.length) { endQuiz(); return; }
-  qAnswered = false;
-  const q = shuffledQ[qIdx];
-  document.getElementById('q-label').textContent = `Question ${qIdx+1} of ${shuffledQ.length}`;
-  UI.updateProgress(document.getElementById('q-bar'), qIdx+1, shuffledQ.length);
-  document.getElementById('q-emoji').textContent = q.emoji;
-  document.getElementById('q-word').textContent = q.word;
-  document.getElementById('q-speak').onclick = () => AudioManager.speak(q.word, {rate:.75});
-
-  const wrongs = UI.shuffle(BLENDS.filter(b=>b.blend!==q.blend)).slice(0,3);
-  const opts = UI.shuffle([q, ...wrongs]);
-  const bc = document.getElementById('blend-choices');
-  bc.innerHTML = '';
-  opts.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'bchoice'; btn.textContent = opt.blend.toUpperCase();
-    btn.addEventListener('click', () => {
-      if(qAnswered) return; qAnswered=true; qTotal++;
-      const right = opt.blend === q.blend;
-      btn.classList.add(right?'correct':'wrong');
-      if(right){qScore++;AudioManager.playTone('correct');UI.showFeedback(true);}
-      else{AudioManager.playTone('wrong');bc.querySelectorAll('.bchoice').forEach(b=>{if(b.textContent===q.blend.toUpperCase())b.classList.add('correct');});}
-      document.getElementById('q-score').textContent=qScore;
-      document.getElementById('q-total').textContent=qTotal;
-      bc.querySelectorAll('.bchoice').forEach(b=>b.style.pointerEvents='none');
-      qIdx++;setTimeout(loadQuizQ,1400);
+/* SOUND MATCH */
+const SM_ROUNDS=UI.shuffle([...BLENDS]).slice(0,15);
+let smIdx=0,smScore=0,smTotal=0,smAnswered=false;
+function initMatch(){smIdx=0;smScore=0;smTotal=0;loadMatch();}
+function loadMatch(){
+  if(smIdx>=SM_ROUNDS.length){showMatchDone();return;}
+  smAnswered=false;
+  const item=SM_ROUNDS[smIdx];
+  document.getElementById('sm-progress').textContent=`Round ${smIdx+1} of ${SM_ROUNDS.length}`;
+  UI.updateProgress(document.getElementById('sm-bar'),smIdx+1,SM_ROUNDS.length);
+  document.getElementById('sm-emoji').textContent=item.emoji;
+  document.getElementById('sm-hear').onclick=()=>AudioManager.speak(item.word,{rate:.75});
+  AudioManager.speak(item.word,{rate:.75});
+  const pool=UI.shuffle(BLENDS.filter(b=>b.blend!==item.blend)).slice(0,3);
+  const opts=UI.shuffle([item,...pool]);
+  const ch=document.getElementById('sm-choices');ch.innerHTML='';
+  opts.forEach(o=>{
+    const btn=document.createElement('button');btn.className='smatch-btn';btn.textContent=o.blend.toUpperCase();
+    btn.addEventListener('click',()=>{
+      if(smAnswered)return;smAnswered=true;smTotal++;
+      const correct=o.blend===item.blend;
+      btn.classList.add(correct?'correct':'wrong');
+      if(correct){smScore++;AudioManager.playTone('correct');UI.showFeedback(true);}
+      else{AudioManager.playTone('wrong');ch.querySelectorAll('.smatch-btn').forEach(b=>{if(b.textContent===item.blend.toUpperCase())b.classList.add('correct');});}
+      document.getElementById('sm-score').textContent=smScore;
+      document.getElementById('sm-total').textContent=smTotal;
+      ch.querySelectorAll('.smatch-btn').forEach(b=>b.style.pointerEvents='none');
+      smIdx++;setTimeout(loadMatch,1400);
     });
-    bc.appendChild(btn);
+    ch.appendChild(btn);
   });
-  AudioManager.speak(q.word,{rate:.75});
 }
-
-function endQuiz() {
-  const pct=Math.round((qScore/shuffledQ.length)*100);
-  document.getElementById('quiz-section').innerHTML=`
-    <div class="quiz-card">
-      <div style="font-size:4rem;margin-bottom:16px">${pct>=80?'🏆':'⭐'}</div>
-      <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${pct>=80?'Blend Master!':'Keep Practising!'}</h2>
-      <p style="color:#666;margin-bottom:24px">Score: ${qScore}/${shuffledQ.length} (${pct}%)</p>
-      <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button>
-      <br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a>
+function showMatchDone(){
+  const pct=Math.round((smScore/SM_ROUNDS.length)*100);
+  document.getElementById('panel-match').innerHTML=`
+    <div style="background:white;border-radius:28px;padding:48px 28px;text-align:center;box-shadow:var(--shadow-md);max-width:480px;margin:0 auto">
+      <div style="font-size:5rem;margin-bottom:16px">${pct>=80?'🏆':'⭐'}</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:2rem;color:#10b981;margin-bottom:8px">Blend Master!</div>
+      <p style="font-size:1.1rem;color:#666;margin-bottom:24px">${smScore}/${SM_ROUNDS.length} (${pct}%)</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-green btn-lg" onclick="initMatch()">🔄 Play Again</button>
+        <button class="btn btn-secondary" onclick="switchMode('circle')">⭕ Circle Words</button>
+      </div>
     </div>`;
-  if(typeof analytics!=='undefined') analytics.trackActivityComplete('consonant-blends',qScore,shuffledQ.length);
-  if (window.CurriculumManager) window.CurriculumManager.markActivityComplete('consonant-blends');
 }
-
-document.getElementById('mode-browse').addEventListener('click',()=>{
-  document.getElementById('mode-browse').classList.add('active');
-  document.getElementById('mode-quiz').classList.remove('active');
-  document.getElementById('browse-section').style.display='block';
-  document.getElementById('quiz-section').style.display='none';
-});
-document.getElementById('mode-quiz').addEventListener('click',()=>{
-  document.getElementById('mode-quiz').classList.add('active');
-  document.getElementById('mode-browse').classList.remove('active');
-  document.getElementById('browse-section').style.display='none';
-  document.getElementById('quiz-section').style.display='block';
-  if(qIdx===0) loadQuizQ();
-});
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("consonant-blends");
-window.addEventListener('beforeunload', function() {
-  if(typeof analytics!=="undefined") analytics.trackActivityComplete("consonant-blends", 0, 10);
-  if (window.CurriculumManager) window.CurriculumManager.markActivityComplete('consonant-blends');
+window.addEventListener('beforeunload',function(){
+  if(typeof analytics!=="undefined")analytics.trackActivityComplete("consonant-blends",smScore||0,15);
+  if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('consonant-blends');
 });</script>
 </body>
 </html>

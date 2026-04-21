@@ -1,25 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎵 Vowel Teams · Phonics Hub</title>
 <link rel="stylesheet" href="css/shared.css">
 <style>
-.vowel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;margin:24px 0}
-.vowel-card{background:white;border-radius:20px;padding:20px 14px;text-align:center;box-shadow:var(--shadow-sm);cursor:pointer;border:4px solid transparent;transition:all .2s}
-.vowel-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
-.vowel-card.short-v{border-color:#ff6b6b}
-.vowel-card.long-v{border-color:#667eea}
-.vowel-big{font-family:'Fredoka One',cursive;font-size:3rem;line-height:1}
-.vowel-type{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin:4px 0}
-.vowel-example{font-size:.9rem;font-weight:700;color:var(--clr-text-soft)}
-.section-lbl{font-family:'Fredoka One',cursive;font-size:1.4rem;margin:28px 0 8px}
+/* Mode bar */
+.mode-bar { display:flex; gap:6px; justify-content:center; margin:16px 0 20px; flex-wrap:wrap; }
+.mode-tab { background:#f3f4f6; border:3px solid transparent; border-radius:14px; padding:10px 18px;
+  font-family:'Fredoka One',cursive; font-size:1rem; cursor:pointer; transition:all .2s; }
+.mode-tab.active { background:var(--clr-primary); color:white; border-color:var(--clr-primary); transform:scale(1.05); }
+
+/* EXPLORE mode (original) */
+.vowel-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:16px; margin:24px 0; }
+.vowel-card {
+  background:white; border-radius:20px; padding:20px 14px; text-align:center;
+  box-shadow:var(--shadow-sm); cursor:pointer; border:4px solid transparent;
+  transition:all .2s;
+}
+.vowel-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
+.vowel-card.short-v { border-color:#ff6b6b; }
+.vowel-card.long-v  { border-color:#667eea; }
+.vowel-big { font-family:'Fredoka One',cursive; font-size:3rem; line-height:1; }
+.vowel-type { font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; margin:4px 0; }
+.vowel-example { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); }
+.section-lbl { font-family:'Fredoka One',cursive; font-size:1.4rem; margin:28px 0 8px; }
+
+/* SORTING BIN mode */
+.sort-card { background:white; border-radius:28px; padding:28px 20px; box-shadow:var(--shadow-md); max-width:560px; margin:0 auto 28px; }
+.sort-progress { font-size:.9rem; font-weight:700; color:var(--clr-text-soft); margin-bottom:8px; }
+
+/* Word card to sort */
+.sort-word-stage { display:flex; justify-content:center; margin:16px 0 20px; }
+.sort-word-card {
+  background:white; border:3px solid #e5e7eb; border-radius:20px; padding:20px 28px;
+  text-align:center; box-shadow:var(--shadow-md); min-width:200px;
+  cursor:grab; transition:all .2s; user-select:none;
+}
+.sort-word-card:active { cursor:grabbing; transform:scale(1.05) rotate(2deg); box-shadow:0 12px 30px rgba(0,0,0,.2); }
+.sort-word-card .word-emoji-big { font-size:3rem; display:block; margin-bottom:6px; }
+.sort-word-card .word-text { font-family:'Fredoka One',cursive; font-size:2.2rem; color:var(--clr-text); }
+.sort-word-card .word-sound-hint { font-size:.85rem; font-weight:700; color:var(--clr-text-soft); margin-top:4px; }
+
+/* Bins */
+.bins-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0; }
+.bin {
+  border-radius:20px; padding:18px 14px; text-align:center; min-height:120px;
+  border:3px dashed #d1d5db; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .2s; position:relative;
+}
+.bin.short-bin { background:#fff0f0; border-color:#fca5a5; }
+.bin.long-bin  { background:#eff6ff; border-color:#93c5fd; }
+.bin:hover { transform:scale(1.03); }
+.bin.drag-over { border-style:solid; transform:scale(1.05); }
+.bin.short-bin.drag-over { border-color:#ef4444; background:#fee2e2; }
+.bin.long-bin.drag-over  { border-color:#3b82f6; background:#dbeafe; }
+.bin-icon { font-size:2rem; margin-bottom:6px; }
+.bin-label { font-family:'Fredoka One',cursive; font-size:1.2rem; margin-bottom:4px; }
+.bin-sublabel { font-size:.8rem; font-weight:700; color:var(--clr-text-soft); }
+.bin.correct-flash { animation:pop .3s ease; }
+
+/* Tap buttons (mobile fallback) */
+.tap-btns { display:flex; gap:10px; justify-content:center; margin-top:8px; }
+.tap-btn { border:none; border-radius:14px; padding:14px 24px; font-family:'Fredoka One',cursive; font-size:1.1rem; cursor:pointer; transition:all .15s; }
+.tap-btn.short { background:#fee2e2; color:#b91c1c; border:3px solid #fca5a5; }
+.tap-btn.long  { background:#dbeafe; color:#1d4ed8; border:3px solid #93c5fd; }
+.tap-btn:hover { transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+
+/* Result feedback */
+.sort-result { border-radius:16px; padding:12px 16px; text-align:center; margin:10px 0;
+  font-family:'Fredoka One',cursive; font-size:1.2rem; display:none; animation:fadeIn .2s ease; }
+.sort-result.correct { background:#dcfce7; color:#15803d; border:2px solid #22c55e; display:block; }
+.sort-result.wrong   { background:#fee2e2; color:#991b1b; border:2px solid #ef4444; display:block; }
+
+.sort-score { display:flex; gap:16px; justify-content:center; font-weight:800; font-size:.95rem; margin:12px 0; }
+.score-pill { background:#f3f4f6; border-radius:10px; padding:6px 14px; }
+
+/* LISTEN & LEARN mode */
+.listen-card { background:white; border-radius:28px; padding:28px 20px; box-shadow:var(--shadow-md); max-width:560px; margin:0 auto 28px; }
+.ll-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; }
+.ll-word-card { background:#f9fafb; border:3px solid #e5e7eb; border-radius:16px; padding:16px 10px;
+  text-align:center; cursor:pointer; transition:all .2s; }
+.ll-word-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:var(--clr-primary); }
+.ll-word-card.playing { background:#fff0f0; border-color:var(--clr-primary); transform:scale(1.05); }
+.ll-emoji { font-size:2rem; display:block; margin-bottom:6px; }
+.ll-word { font-family:'Fredoka One',cursive; font-size:1.3rem; color:var(--clr-text); }
+.ll-type { font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; margin-top:4px; }
+
+.panel { display:none; }
+.panel.active { display:block; animation:fadeIn .3s ease; }
 </style>
 </head>
 <body>
-<nav class="top-nav"><div class="nav-left"><a href="index.html" class="nav-home-btn">🏠</a><span class="nav-title">Vowel Teams</span></div></nav>
-<div class="page-header" style="background:linear-gradient(135deg,#ec4899,#be185d)"><h1>🎵 Vowel Teams</h1><p>Two vowels working together</p></div>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Vowel Teams</span>
+  </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#ec4899,#be185d)">
+  <h1>🎵 Vowel Teams</h1>
+  <p>Short, long, and team vowels!</p>
+</div>
 <main>
+
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('explore')">🔍 Explore</button>
+  <button class="mode-tab" onclick="switchMode('sorting')">🗂️ Sorting Bin!</button>
+  <button class="mode-tab" onclick="switchMode('listen')">👂 Listen & Learn</button>
+</div>
+
+<!-- ═══════════════════ EXPLORE MODE ═══════════════════ -->
+<div id="panel-explore" class="panel active">
   <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-top:24px">Tap a card to hear the sound!</p>
   <div class="section-lbl" style="color:#dc2626">🔴 Short Vowels</div>
   <div class="vowel-grid" id="short-grid"></div>
@@ -27,13 +120,299 @@
   <div class="vowel-grid" id="long-grid"></div>
   <div class="section-lbl" style="color:#10b981">🟢 Vowel Teams</div>
   <div class="vowel-grid" id="teams-grid"></div>
+</div>
+
+<!-- ═══════════════════ SORTING BIN ═══════════════════ -->
+<div id="panel-sorting" class="panel">
+<div class="sort-card">
+  <p class="sort-progress" id="sort-progress">Word 1 of 20</p>
+  <div class="progress-wrap" style="margin-bottom:16px">
+    <div class="progress-bar" id="sort-pb" style="width:5%"></div>
+  </div>
+
+  <div class="sort-word-stage">
+    <div class="sort-word-card" id="sort-word-card" draggable="true">
+      <span class="word-emoji-big" id="sort-emoji">🐱</span>
+      <div class="word-text" id="sort-word">cat</div>
+      <div class="word-sound-hint" id="sort-hint">Tap 🔊 to hear it!</div>
+    </div>
+  </div>
+
+  <div class="bins-row">
+    <div class="bin short-bin" id="bin-short" ondragover="onDragOver(event)" ondrop="onDrop(event,'short')" onclick="tapSort('short')">
+      <div class="bin-icon">🔴</div>
+      <div class="bin-label">Short Vowel</div>
+      <div class="bin-sublabel">cat, pet, sit, hot, cup</div>
+    </div>
+    <div class="bin long-bin" id="bin-long" ondragover="onDragOver(event)" ondrop="onDrop(event,'long')" onclick="tapSort('long')">
+      <div class="bin-icon">🔵</div>
+      <div class="bin-label">Long Vowel</div>
+      <div class="bin-sublabel">cake, kite, bone, cube</div>
+    </div>
+  </div>
+
+  <p style="text-align:center;font-size:.8rem;font-weight:700;color:#aaa;margin:-4px 0 8px">Drag the word card into the bin — or just tap a bin!</p>
+
+  <div class="sort-result" id="sort-result"></div>
+
+  <div style="display:flex;gap:10px;justify-content:center;margin:8px 0">
+    <button class="btn btn-primary" id="sort-hear">🔊 Hear Word</button>
+    <button class="btn btn-secondary" id="sort-skip">Skip →</button>
+  </div>
+
+  <div class="sort-score">
+    <div class="score-pill">✅ <span id="sort-correct">0</span></div>
+    <div class="score-pill">❌ <span id="sort-wrong">0</span></div>
+    <div class="score-pill">📊 <span id="sort-pct">0</span>%</div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════ LISTEN & LEARN ═══════════════════ -->
+<div id="panel-listen" class="panel">
+<div class="listen-card">
+  <p style="text-align:center;font-weight:700;color:var(--clr-text-soft);margin-bottom:16px">
+    Tap any word to hear it pronounced — listen for the vowel sound!
+  </p>
+  <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap">
+    <button class="btn btn-secondary btn-lg" id="ll-play-all">▶️ Play All Words</button>
+  </div>
+  <div class="ll-grid" id="ll-grid"></div>
+</div>
+</div>
+
 </main>
-<script src="js/config.js"></script><script src="js/api.js"></script><script src="js/analytics.js"></script><script src="js/audio.js"></script><script src="js/materials.js"></script><script src="js/ui.js"></script>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
 <script>
-PHONICS_DATA.vowels.forEach(v=>{['short','long'].forEach(type=>{const grid=document.getElementById(`${type}-grid`);const d=v[type];const card=document.createElement('div');card.className=`vowel-card ${type==='short'?'short-v':'long-v'}`;const color=type==='short'?'#dc2626':'#667eea';card.innerHTML=`<div class="vowel-big" style="color:${color}">${v.letter}</div><div class="vowel-type" style="color:${color}">${type} / ${d.sound}</div><div style="font-size:2.5rem;margin:6px 0">${d.emoji}</div><div class="vowel-example">${d.word}</div>`;card.addEventListener('click',()=>{AudioManager.speak(`${type} ${v.letter}. ${d.sound}. ${d.word}`,{rate:.8});AudioManager.playTone('click');card.style.animation='pop .3s ease';setTimeout(()=>card.style.animation='',400);});grid.appendChild(card);});});
-const vowelTeams=[{letters:'ai',emoji:'🌧️',sound:'ay'},{letters:'ay',emoji:'☀️',sound:'ay'},{letters:'ee',emoji:'🐝',sound:'ee'},{letters:'ea',emoji:'🍃',sound:'ee'},{letters:'oa',emoji:'⛵',sound:'oh'},{letters:'ow',emoji:'🐚',sound:'oh'}];
-const teamsGrid=document.getElementById('teams-grid');
-vowelTeams.forEach(team=>{const card=document.createElement('div');card.className='vowel-card';card.style.borderColor='#10b981';card.innerHTML=`<div class="vowel-big" style="color:#10b981">${team.letters}</div><div class="vowel-type" style="color:#10b981">/${team.sound}/</div><div style="font-size:2.5rem;margin:6px 0">${team.emoji}</div><div class="vowel-example">Vowel Team</div>`;card.addEventListener('click',()=>{AudioManager.speak(`${team.letters}. ${team.sound}`,{rate:.8});AudioManager.playTone('click');card.style.animation='pop .3s ease';setTimeout(()=>card.style.animation='',400);});teamsGrid.appendChild(card);});
+'use strict';
+
+/* ══════════════ MODE SWITCHING ══════════════ */
+function switchMode(mode) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`panel-${mode}`).classList.add('active');
+  event.target.classList.add('active');
+  if (mode === 'sorting') initSorting();
+  if (mode === 'listen')  initListenLearn();
+}
+
+/* ══════════════ EXPLORE MODE ══════════════ */
+PHONICS_DATA.vowels.forEach(v => {
+  ['short', 'long'].forEach(type => {
+    const grid = document.getElementById(`${type}-grid`);
+    const d    = v[type];
+    const card = document.createElement('div');
+    card.className = `vowel-card ${type==='short'?'short-v':'long-v'}`;
+    const color = type === 'short' ? '#dc2626' : '#667eea';
+    card.innerHTML = `
+      <div class="vowel-big" style="color:${color}">${v.letter}</div>
+      <div class="vowel-type" style="color:${color}">${type} / ${d.sound}</div>
+      <div style="font-size:2.5rem;margin:6px 0">${d.emoji}</div>
+      <div class="vowel-example">${d.word}</div>`;
+    card.addEventListener('click', () => {
+      AudioManager.speak(`${type} ${v.letter}. ${d.sound}. ${d.word}`, {rate:.8});
+      AudioManager.playTone('click');
+      card.style.animation = 'pop .3s ease';
+      setTimeout(() => card.style.animation='', 400);
+    });
+    grid.appendChild(card);
+  });
+});
+
+const vowelTeams = [
+  { letters:'ai', emoji:'🌧️', sound:'ay', example:'rain' },
+  { letters:'ay', emoji:'☀️',  sound:'ay', example:'play' },
+  { letters:'ee', emoji:'🐝',  sound:'ee', example:'bee'  },
+  { letters:'ea', emoji:'🍃',  sound:'ee', example:'leaf' },
+  { letters:'oa', emoji:'⛵',  sound:'oh', example:'boat' },
+  { letters:'ow', emoji:'🐚',  sound:'oh', example:'snow' },
+];
+const teamsGrid = document.getElementById('teams-grid');
+vowelTeams.forEach(team => {
+  const card = document.createElement('div');
+  card.className = 'vowel-card'; card.style.borderColor = '#10b981';
+  card.innerHTML = `
+    <div class="vowel-big" style="color:#10b981">${team.letters}</div>
+    <div class="vowel-type" style="color:#10b981">/${team.sound}/</div>
+    <div style="font-size:2.5rem;margin:6px 0">${team.emoji}</div>
+    <div class="vowel-example">${team.example}</div>`;
+  card.addEventListener('click', () => {
+    AudioManager.speak(`${team.letters} says ${team.sound}. Like in ${team.example}`, {rate:.8});
+    card.style.animation = 'pop .3s ease';
+    setTimeout(() => card.style.animation='', 400);
+  });
+  teamsGrid.appendChild(card);
+});
+
+/* ══════════════ SORTING BIN ══════════════ */
+// Build sort word pool from vowel data
+const SORT_WORDS = UI.shuffle([
+  // Short vowels
+  { word:'cat', emoji:'🐱', type:'short', vowel:'A', sound:'short a' },
+  { word:'pet', emoji:'🐹', type:'short', vowel:'E', sound:'short e' },
+  { word:'sit', emoji:'🪑', type:'short', vowel:'I', sound:'short i' },
+  { word:'hot', emoji:'🌶️', type:'short', vowel:'O', sound:'short o' },
+  { word:'cup', emoji:'☕', type:'short', vowel:'U', sound:'short u' },
+  { word:'bat', emoji:'🦇', type:'short', vowel:'A', sound:'short a' },
+  { word:'hen', emoji:'🐔', type:'short', vowel:'E', sound:'short e' },
+  { word:'pig', emoji:'🐷', type:'short', vowel:'I', sound:'short i' },
+  { word:'dog', emoji:'🐶', type:'short', vowel:'O', sound:'short o' },
+  { word:'bug', emoji:'🐛', type:'short', vowel:'U', sound:'short u' },
+  // Long vowels (magic e)
+  { word:'cake', emoji:'🎂', type:'long', vowel:'A', sound:'long a' },
+  { word:'kite', emoji:'🪁', type:'long', vowel:'I', sound:'long i' },
+  { word:'bone', emoji:'🦴', type:'long', vowel:'O', sound:'long o' },
+  { word:'cube', emoji:'🎲', type:'long', vowel:'U', sound:'long u' },
+  { word:'mane', emoji:'🦁', type:'long', vowel:'A', sound:'long a' },
+  { word:'pine', emoji:'🌲', type:'long', vowel:'I', sound:'long i' },
+  { word:'rope', emoji:'🪢', type:'long', vowel:'O', sound:'long o' },
+  { word:'dune', emoji:'🏜️', type:'long', vowel:'U', sound:'long u' },
+  { word:'gate', emoji:'🚪', type:'long', vowel:'A', sound:'long a' },
+  { word:'ride', emoji:'🚲', type:'long', vowel:'I', sound:'long i' },
+]);
+
+let sIdx = 0, sCorrect = 0, sWrong = 0;
+
+function initSorting() { sIdx = 0; sCorrect = 0; sWrong = 0; loadSortWord(); }
+
+function loadSortWord() {
+  if (sIdx >= SORT_WORDS.length) { showSortComplete(); return; }
+  const item = SORT_WORDS[sIdx];
+  document.getElementById('sort-progress').textContent = `Word ${sIdx+1} of ${SORT_WORDS.length}`;
+  UI.updateProgress(document.getElementById('sort-pb'), sIdx+1, SORT_WORDS.length);
+  document.getElementById('sort-emoji').textContent = item.emoji;
+  document.getElementById('sort-word').textContent  = item.word;
+  document.getElementById('sort-hint').textContent  = `Vowel sound: ?`;
+  document.getElementById('sort-result').className = 'sort-result';
+  AudioManager.speak(item.word, {rate:.7});
+  // Reset drag state
+  const card = document.getElementById('sort-word-card');
+  card.style.opacity = '1';
+  card.style.transform = '';
+}
+
+// Drag & Drop
+const sortCard = document.getElementById('sort-word-card');
+sortCard.addEventListener('dragstart', e => {
+  e.dataTransfer.setData('text/plain', 'sortword');
+  sortCard.style.opacity = '.6';
+});
+sortCard.addEventListener('dragend', () => { sortCard.style.opacity = '1'; });
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+document.querySelectorAll('.bin').forEach(bin => {
+  bin.addEventListener('dragleave', () => bin.classList.remove('drag-over'));
+});
+function onDrop(e, type) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  tapSort(type);
+}
+
+function tapSort(chosen) {
+  if (sIdx >= SORT_WORDS.length) return;
+  const item = SORT_WORDS[sIdx];
+  const result = document.getElementById('sort-result');
+  const isCorrect = chosen === item.type;
+  if (isCorrect) {
+    sCorrect++;
+    result.textContent = `✅ Correct! "${item.word}" has a ${item.sound}.`;
+    result.className = 'sort-result correct';
+    AudioManager.playTone('correct'); UI.showFeedback(true);
+    document.getElementById(`bin-${chosen}`).classList.add('correct-flash');
+    setTimeout(() => document.getElementById(`bin-${chosen}`).classList.remove('correct-flash'), 400);
+    AudioManager.speak(`${item.word} — ${item.sound}`, {rate:.8});
+  } else {
+    sWrong++;
+    result.textContent = `❌ "${item.word}" has a ${item.sound}. Try the other bin!`;
+    result.className = 'sort-result wrong';
+    AudioManager.playTone('wrong');
+  }
+  document.getElementById('sort-correct').textContent = sCorrect;
+  document.getElementById('sort-wrong').textContent   = sWrong;
+  const total = sCorrect + sWrong;
+  document.getElementById('sort-pct').textContent = total > 0 ? Math.round((sCorrect/total)*100) : 0;
+  sIdx++;
+  setTimeout(loadSortWord, isCorrect ? 1200 : 1600);
+}
+
+function showSortComplete() {
+  const pct = Math.round((sCorrect / SORT_WORDS.length) * 100);
+  document.getElementById('panel-sorting').innerHTML = `
+    <div style="background:white;border-radius:28px;padding:48px 28px;text-align:center;box-shadow:var(--shadow-md);max-width:480px;margin:0 auto">
+      <div style="font-size:5rem;margin-bottom:16px">${pct>=80?'🏆':pct>=60?'⭐':'💪'}</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:2rem;color:var(--clr-primary);margin-bottom:8px">
+        Sorting Complete!
+      </div>
+      <p style="font-size:1.1rem;color:#666;margin-bottom:24px">${sCorrect}/${SORT_WORDS.length} sorted correctly (${pct}%)</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary btn-lg" onclick="initSorting()">🔄 Sort Again</button>
+        <button class="btn btn-secondary" onclick="switchMode('explore')">🔍 Explore Vowels</button>
+      </div>
+    </div>`;
+}
+
+document.getElementById('sort-hear').addEventListener('click', () => { if(SORT_WORDS[sIdx]) AudioManager.speak(SORT_WORDS[sIdx].word, {rate:.65}); });
+document.getElementById('sort-skip').addEventListener('click', () => { sIdx++; if(sIdx<SORT_WORDS.length) loadSortWord(); else showSortComplete(); });
+
+/* ══════════════ LISTEN & LEARN ══════════════ */
+const LL_WORDS = [
+  ...PHONICS_DATA.vowels.flatMap(v => [
+    { word: v.short.word, emoji: v.short.emoji, type: `Short ${v.letter}`, color:'#dc2626' },
+    { word: v.long.word,  emoji: v.long.emoji,  type: `Long ${v.letter}`,  color:'#667eea' },
+  ]),
+  { word:'rain',  emoji:'🌧️', type:'Vowel Team ai', color:'#10b981' },
+  { word:'play',  emoji:'☀️',  type:'Vowel Team ay', color:'#10b981' },
+  { word:'bee',   emoji:'🐝',  type:'Vowel Team ee', color:'#10b981' },
+  { word:'leaf',  emoji:'🍃',  type:'Vowel Team ea', color:'#10b981' },
+  { word:'boat',  emoji:'⛵',  type:'Vowel Team oa', color:'#10b981' },
+];
+
+function initListenLearn() {
+  const grid = document.getElementById('ll-grid');
+  if (grid.children.length > 0) return; // already built
+  LL_WORDS.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'll-word-card';
+    card.innerHTML = `
+      <span class="ll-emoji">${item.emoji}</span>
+      <div class="ll-word">${item.word}</div>
+      <div class="ll-type" style="color:${item.color}">${item.type}</div>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.ll-word-card').forEach(c => c.classList.remove('playing'));
+      card.classList.add('playing');
+      AudioManager.speak(`${item.word}. ${item.type}.`, {rate:.75, onEnd:()=>card.classList.remove('playing')});
+      AudioManager.playTone('click');
+    });
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById('ll-play-all').addEventListener('click', () => {
+  let i = 0;
+  const cards = document.querySelectorAll('.ll-word-card');
+  function next() {
+    if (i >= LL_WORDS.length) { document.querySelectorAll('.ll-word-card').forEach(c=>c.classList.remove('playing')); return; }
+    document.querySelectorAll('.ll-word-card').forEach(c=>c.classList.remove('playing'));
+    if (cards[i]) cards[i].classList.add('playing');
+    AudioManager.speak(LL_WORDS[i].word, {rate:.75, onEnd:()=>{ i++; setTimeout(next,400); }});
+  }
+  next();
+});
 </script>
-<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("vowel-teams");window.addEventListener('beforeunload',function(){if(typeof analytics!=="undefined")analytics.trackActivityComplete("vowel-teams",0,10);});</script>
-</body></html>
+
+<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("vowel-teams");
+window.addEventListener('beforeunload', function() {
+  if(typeof analytics!=="undefined") analytics.trackActivityComplete("vowel-teams", sCorrect||0, 20);
+});</script>
+</body>
+</html>
