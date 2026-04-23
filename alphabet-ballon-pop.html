@@ -1,66 +1,117 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>🎈 Balloon Pop · Phonics Hub</title><link rel="stylesheet" href="css/shared.css">
-<style>body{overflow:hidden}#game-canvas{display:block;background:linear-gradient(180deg,#87ceeb 0%,#b8e4f7 60%,#e8f5e9 100%)}.hud{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);z-index:20}.target-box{text-align:center}.target-letter{font-family:'Fredoka One',cursive;font-size:2.2rem;color:var(--clr-primary);line-height:1}.target-label{font-size:.75rem;font-weight:800;color:var(--clr-text-soft)}.score-box{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--clr-text)}.lives-box{font-size:1.4rem;letter-spacing:2px}.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:center;justify-content:center}.overlay-box{background:white;border-radius:28px;padding:40px 28px;text-align:center;max-width:380px;width:90%}.overlay-box h2{font-family:'Fredoka One',cursive;font-size:2.2rem;margin-bottom:12px}.overlay-box p{font-size:1rem;color:#666;margin-bottom:24px}.round-info{font-size:.8rem;font-weight:800;color:var(--clr-text-soft);margin-bottom:8px}</style>
-</head><body>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎈 Balloon Pop · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+body{overflow:hidden}
+#game-canvas{display:block;background:linear-gradient(180deg,#87ceeb 0%,#b8e4f7 60%,#e8f5e9 100%)}
+.hud{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);z-index:20}
+.target-box{text-align:center}
+.target-letter{font-family:'Fredoka One',cursive;font-size:2.2rem;color:var(--clr-primary);line-height:1}
+.target-label{font-size:.75rem;font-weight:800;color:var(--clr-text-soft)}
+.score-box{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--clr-text)}
+.lives-box{font-size:1.4rem;letter-spacing:2px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:center;justify-content:center}
+.overlay-box{background:white;border-radius:28px;padding:40px 28px;text-align:center;max-width:380px;width:90%}
+.overlay-box h2{font-family:'Fredoka One',cursive;font-size:2.2rem;margin-bottom:12px}
+.overlay-box p{font-size:1rem;color:#666;margin-bottom:24px}
+/* WHERE'S THE LETTER panel */
+.where-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:60;display:flex;align-items:center;justify-content:center;animation:fadeIn .3s ease}
+.where-box{background:white;border-radius:28px;padding:32px 24px;text-align:center;max-width:380px;width:90%;animation:pop .3s ease}
+.where-title{font-family:'Fredoka One',cursive;font-size:1.3rem;color:#f97316;margin-bottom:8px}
+.where-word-display{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--clr-text);margin:12px 0}
+.where-highlight{color:var(--clr-primary);text-decoration:underline wavy var(--clr-primary)}
+.where-question{font-size:1rem;font-weight:700;color:#555;margin-bottom:16px}
+.where-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.where-btn{background:#f3f4f6;border:3px solid #e5e7eb;border-radius:14px;padding:12px 18px;font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;transition:all .15s;min-width:90px}
+.where-btn:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.1)}
+.where-btn.correct{background:#dcfce7;border-color:var(--clr-green)}
+.where-btn.wrong{background:#fee2e2;border-color:var(--clr-primary)}
+.streak-badge{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:white;border-radius:10px;padding:4px 10px;font-family:'Fredoka One',cursive;font-size:.85rem}
+</style>
+</head>
+<body>
 <div class="hud">
   <div class="lives-box" id="lives">❤️❤️❤️</div>
   <div class="target-box">
-    <div class="round-info" id="round-info">Vowels Round</div>
     <div class="target-letter" id="target-letter">A</div>
     <div class="target-label">Pop this!</div>
   </div>
-  <div class="score-box">⭐ <span id="score-val">0</span></div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="score-box">⭐ <span id="score-val">0</span></div>
+    <div class="streak-badge" id="streak-badge" style="display:none">🔥<span id="streak-val">0</span></div>
+  </div>
 </div>
 <canvas id="game-canvas"></canvas>
+
+<!-- START -->
 <div class="overlay" id="start-overlay">
   <div class="overlay-box">
     <h2>🎈 Balloon Pop</h2>
-    <p>Pop the balloon showing the correct letter!<br>Rounds get harder — vowels first, then confusable letters!<br>3 lives — good luck!</p>
+    <p>Pop the balloon showing the correct letter!<br>3 lives — and answer position questions for bonus points!</p>
     <button class="btn btn-primary btn-lg" onclick="startGame()">🚀 Start!</button>
     <br><br><a href="index.html" class="btn btn-secondary" style="display:inline-block;margin-top:8px">🏠 Home</a>
   </div>
 </div>
+
+<!-- END -->
 <div class="overlay" id="end-overlay" style="display:none">
   <div class="overlay-box">
     <h2 id="end-title">Game Over!</h2>
     <p id="end-msg">Final score: 0</p>
+    <div id="where-bonus-display" style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#f97316;margin-bottom:16px"></div>
     <button class="btn btn-primary btn-lg" onclick="startGame()">🔄 Play Again</button>
     <br><br><a href="index.html" class="btn btn-secondary" style="display:inline-block;margin-top:8px">🏠 Home</a>
   </div>
 </div>
-<script src="js/config.js"></script><script src="js/api.js"></script><script src="js/analytics.js"></script><script src="js/audio.js"></script><script src="js/materials.js"></script><script src="js/ui.js"></script>
+
+<!-- WHERE'S THE LETTER panel -->
+<div id="where-overlay" style="display:none" class="where-overlay">
+  <div class="where-box">
+    <div class="where-title">🔍 Quick Check! +1 Bonus!</div>
+    <div class="where-word-display" id="where-word-display">Apple</div>
+    <div class="where-question" id="where-question">Where is the letter <strong id="where-letter-q">A</strong>?</div>
+    <div class="where-btns">
+      <button class="where-btn" onclick="answerWhere('beginning')">🟢 Beginning</button>
+      <button class="where-btn" onclick="answerWhere('middle')">🟡 Middle</button>
+      <button class="where-btn" onclick="answerWhere('end')">🔴 End</button>
+    </div>
+    <p style="font-size:.75rem;color:#aaa;font-weight:700;margin-top:12px">Answer correctly for a bonus point!</p>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
 <script>
-const canvas=document.getElementById('game-canvas');const ctx=canvas.getContext('2d');
-const ALL_LETTERS=PHONICS_DATA.alphabet.map(a=>a.l);
-const VOWELS=['A','E','I','O','U'];
-const CONFUSABLE_PAIRS=[['B','D'],['B','P'],['D','T'],['M','N'],['F','V']];
+'use strict';
+const canvas=document.getElementById('game-canvas');
+const ctx=canvas.getContext('2d');
+const LETTERS=PHONICS_DATA.alphabet.map(a=>a.l);
 const BALLOON_COLORS=['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#c77dff','#ff9f1c','#00b4d8'];
 let balloons=[],target='',score=0,lives=3,raf=null,running=false;
 let spawnTimer=0,spawnInterval=80,speedMult=1;
-let roundLetters=ALL_LETTERS,roundName='All Letters';
+let whereCounter=0,whereBonus=0,streak=0,lastCorrectLetter=null;
+let showingWhere=false;
 
 function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
 resize();window.addEventListener('resize',resize);
 
-function getRoundLetters(){
-  if(score<8) return{letters:VOWELS,name:'Vowels Round'};
-  if(score<18){const pair=CONFUSABLE_PAIRS[Math.floor((score-8)/2)%CONFUSABLE_PAIRS.length];return{letters:pair,name:'Tricky Letters!'};}
-  return{letters:ALL_LETTERS,name:'All Letters'};
-}
-
 function pickTarget(){
-  const{letters,name}=getRoundLetters();
-  roundLetters=letters;roundName=name;
-  target=letters[Math.floor(Math.random()*letters.length)];
+  target=LETTERS[Math.floor(Math.random()*LETTERS.length)];
   document.getElementById('target-letter').textContent=target;
-  document.getElementById('round-info').textContent=name;
   AudioManager.speak(target,{rate:.7});
+  lastCorrectLetter=target;
 }
 
 function spawnBalloon(){
-  // Higher chance of target letter appearing (30%)
-  const useTarget=Math.random()<0.3;
-  const letter=useTarget?target:ALL_LETTERS[Math.floor(Math.random()*ALL_LETTERS.length)];
+  const letter=LETTERS[Math.floor(Math.random()*LETTERS.length)];
   const r=36+Math.random()*18;
   balloons.push({x:r+Math.random()*(canvas.width-2*r),y:canvas.height+r+20,r,letter,speed:(1.2+Math.random()*1.2)*speedMult,color:BALLOON_COLORS[Math.floor(Math.random()*BALLOON_COLORS.length)],pop:false,popAnim:0,wobble:Math.random()*Math.PI*2});
 }
@@ -69,24 +120,65 @@ function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   balloons.forEach(b=>{
     ctx.save();ctx.translate(b.x,b.y);
-    if(b.pop){for(let i=0;i<8;i++){const angle=(i/8)*Math.PI*2;const dist=b.popAnim*b.r;ctx.beginPath();ctx.arc(Math.cos(angle)*dist,Math.sin(angle)*dist,b.r*0.2*(1-b.popAnim),0,Math.PI*2);ctx.fillStyle=b.color;ctx.globalAlpha=1-b.popAnim;ctx.fill();}}
-    else{const wob=Math.sin(b.wobble)*4;ctx.scale(1+wob*0.006,1);ctx.beginPath();ctx.ellipse(0,0,b.r,b.r*1.2,0,0,Math.PI*2);ctx.fillStyle=b.color;ctx.globalAlpha=.92;ctx.fill();ctx.beginPath();ctx.ellipse(-b.r*.25,-b.r*.35,b.r*.22,b.r*.18,-0.4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.45)';ctx.fill();ctx.beginPath();ctx.moveTo(0,b.r*1.2);ctx.lineTo(0,b.r*1.2+30);ctx.strokeStyle='#999';ctx.lineWidth=1.5;ctx.globalAlpha=.6;ctx.stroke();ctx.globalAlpha=1;ctx.fillStyle='white';ctx.font=`bold ${b.r*.9}px 'Fredoka One',cursive`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.letter,0,0);}
+    if(b.pop){
+      for(let i=0;i<8;i++){const angle=(i/8)*Math.PI*2;const dist=b.popAnim*b.r;ctx.beginPath();ctx.arc(Math.cos(angle)*dist,Math.sin(angle)*dist,b.r*.2*(1-b.popAnim),0,Math.PI*2);ctx.fillStyle=b.color;ctx.globalAlpha=1-b.popAnim;ctx.fill();}
+    } else {
+      const wob=Math.sin(b.wobble)*4;ctx.scale(1+wob*.006,1);
+      ctx.beginPath();ctx.ellipse(0,0,b.r,b.r*1.2,0,0,Math.PI*2);ctx.fillStyle=b.color;ctx.globalAlpha=.92;ctx.fill();
+      ctx.beginPath();ctx.ellipse(-b.r*.25,-b.r*.35,b.r*.22,b.r*.18,-.4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.45)';ctx.fill();
+      ctx.beginPath();ctx.moveTo(0,b.r*1.2);ctx.lineTo(0,b.r*1.2+30);ctx.strokeStyle='#999';ctx.lineWidth=1.5;ctx.globalAlpha=.6;ctx.stroke();
+      ctx.globalAlpha=1;ctx.fillStyle='white';ctx.font=`bold ${b.r*.9}px 'Fredoka One',cursive`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.letter,0,0);
+    }
     ctx.restore();
   });
 }
 
 function update(){
-  spawnTimer++;if(spawnTimer>=spawnInterval){spawnBalloon();spawnTimer=0;spawnInterval=Math.max(30,spawnInterval-0.3);}
-  speedMult=1+score*0.015;
-  balloons.forEach(b=>{b.wobble+=0.04;if(b.pop){b.popAnim+=0.08;}else{b.y-=b.speed;}});
-  balloons=balloons.filter(b=>{if(b.pop&&b.popAnim>=1)return false;if(!b.pop&&b.y<-80&&b.letter===target){loseLife();b.pop=true;}return b.y>-100;});
+  if(showingWhere)return;
+  spawnTimer++;
+  if(spawnTimer>=spawnInterval){spawnBalloon();spawnTimer=0;spawnInterval=Math.max(30,spawnInterval-.3);}
+  speedMult=1+score*.015;
+  balloons.forEach(b=>{b.wobble+=.04;if(b.pop)b.popAnim+=.08;else b.y-=b.speed;});
+  balloons=balloons.filter(b=>!(b.pop&&b.popAnim>=1)&&b.y>-100);
+  balloons.forEach(b=>{if(!b.pop&&b.y<-60&&b.letter===target){loseLife();b.pop=true;}});
+  balloons=balloons.filter(b=>b.y>-100);
 }
 
-function loseLife(){lives--;document.getElementById('lives').textContent='❤️'.repeat(Math.max(0,lives))||'💔';AudioManager.playTone('wrong');if(lives<=0)endGame();else pickTarget();}
+function loseLife(){
+  lives--;const hearts='❤️'.repeat(Math.max(0,lives));
+  document.getElementById('lives').textContent=hearts||'💔';
+  AudioManager.playTone('wrong');streak=0;updateStreakUI();
+  if(lives<=0)endGame();
+  else pickTarget();
+}
 
 function tap(x,y){
-  if(!running)return;
-  for(let i=balloons.length-1;i>=0;i--){const b=balloons[i];if(b.pop)continue;const dist=Math.hypot(x-b.x,y-b.y);if(dist<b.r*1.3){if(b.letter===target){b.pop=true;score++;document.getElementById('score-val').textContent=score;AudioManager.playTone('correct');UI.showFeedback(true,400);pickTarget();}else{AudioManager.playTone('wrong');const orig=b.x;let shakes=0;const si=setInterval(()=>{b.x=orig+(shakes%2===0?10:-10);shakes++;if(shakes>5){b.x=orig;clearInterval(si);}},60);}break;}}
+  if(!running||showingWhere)return;
+  for(let i=balloons.length-1;i>=0;i--){
+    const b=balloons[i];if(b.pop)continue;
+    if(Math.hypot(x-b.x,y-b.y)<b.r*1.3){
+      if(b.letter===target){
+        b.pop=true;score++;streak++;
+        document.getElementById('score-val').textContent=score;
+        updateStreakUI();
+        AudioManager.playTone('correct');UI.showFeedback(true,400);
+        whereCounter++;
+        // Show Where's the Letter every 5 correct pops
+        if(whereCounter%5===0){setTimeout(()=>showWhere(b.letter),600);}
+        else pickTarget();
+      } else {
+        AudioManager.playTone('wrong');streak=0;updateStreakUI();
+        const ox=b.x;let sh=0;const si=setInterval(()=>{b.x=ox+(sh%2===0?10:-10);sh++;if(sh>5){b.x=ox;clearInterval(si);}},60);
+      }
+      break;
+    }
+  }
+}
+
+function updateStreakUI(){
+  const badge=document.getElementById('streak-badge');
+  if(streak>=3){badge.style.display='flex';document.getElementById('streak-val').textContent=streak;}
+  else badge.style.display='none';
 }
 
 canvas.addEventListener('click',e=>{const r=canvas.getBoundingClientRect();tap(e.clientX-r.left,e.clientY-r.top);});
@@ -94,9 +186,70 @@ canvas.addEventListener('touchstart',e=>{e.preventDefault();const r=canvas.getBo
 
 function gameLoop(){if(!running)return;update();draw();raf=requestAnimationFrame(gameLoop);}
 
-function startGame(){balloons=[];score=0;lives=3;spawnTimer=0;spawnInterval=80;speedMult=1;document.getElementById('score-val').textContent='0';document.getElementById('lives').textContent='❤️❤️❤️';document.getElementById('start-overlay').style.display='none';document.getElementById('end-overlay').style.display='none';running=true;if(raf)cancelAnimationFrame(raf);pickTarget();gameLoop();}
+function startGame(){
+  balloons=[];score=0;lives=3;spawnTimer=0;spawnInterval=80;speedMult=1;whereCounter=0;whereBonus=0;streak=0;showingWhere=false;
+  document.getElementById('score-val').textContent='0';
+  document.getElementById('lives').textContent='❤️❤️❤️';
+  document.getElementById('streak-badge').style.display='none';
+  document.getElementById('start-overlay').style.display='none';
+  document.getElementById('end-overlay').style.display='none';
+  document.getElementById('where-overlay').style.display='none';
+  running=true;if(raf)cancelAnimationFrame(raf);
+  pickTarget();gameLoop();
+}
 
-function endGame(){running=false;cancelAnimationFrame(raf);document.getElementById('end-title').textContent=score>=15?'🏆 Amazing!':score>=8?'⭐ Nice!':'💪 Try Again!';document.getElementById('end-msg').textContent=`Final score: ${score}`;document.getElementById('end-overlay').style.display='flex';UI.setScore('alphabet-balloon',{stars:score,total:score});if(typeof analytics!=='undefined')analytics.trackActivityComplete('balloon-pop',score,score);if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('alphabet-balloon');}
+function endGame(){
+  running=false;cancelAnimationFrame(raf);
+  const end=document.getElementById('end-overlay');
+  document.getElementById('end-title').textContent=score>=15?'🏆 Amazing!':score>=8?'⭐ Nice!':'💪 Try Again!';
+  document.getElementById('end-msg').textContent=`Final score: ${score}`;
+  document.getElementById('where-bonus-display').textContent=whereBonus>0?`+${whereBonus} bonus points from position questions! 🔍`:'';
+  end.style.display='flex';
+  UI.setScore('alphabet-balloon',{stars:score,total:score});
+}
+
+/* WHERE'S THE LETTER */
+function showWhere(letter){
+  showingWhere=true;
+  const letterData=PHONICS_DATA.alphabet.find(a=>a.l===letter)||{l:letter,word:letter+'ord',emoji:'📝'};
+  const word=letterData.word;
+  const lLower=letter.toLowerCase();
+  const wLower=word.toLowerCase();
+  const pos=wLower.indexOf(lLower);
+  let highlighted=word;
+  if(pos>=0)highlighted=word.slice(0,pos)+`<span class="where-highlight">${word[pos]}</span>`+word.slice(pos+1);
+  document.getElementById('where-word-display').innerHTML=highlighted+' '+letterData.emoji;
+  document.getElementById('where-letter-q').textContent=letter;
+  document.getElementById('where-question').innerHTML=`Where is the letter <strong>${letter}</strong> in "${word}"?`;
+  document.getElementById('where-overlay').style.display='flex';
+  document.querySelectorAll('.where-btn').forEach(b=>{b.classList.remove('correct','wrong');b.style.pointerEvents='auto';});
+  AudioManager.speak(`Where is the ${letter} sound in ${word}?`,{rate:.8});
+}
+
+function answerWhere(chosen){
+  const letterData=PHONICS_DATA.alphabet.find(a=>a.l===lastCorrectLetter)||{word:'cat'};
+  const word=letterData.word.toLowerCase();
+  const lLower=lastCorrectLetter.toLowerCase();
+  const posIdx=word.indexOf(lLower);
+  let actual='beginning';
+  if(posIdx===word.length-1)actual='end';
+  else if(posIdx>0)actual='middle';
+  document.querySelectorAll('.where-btn').forEach(b=>{
+    b.style.pointerEvents='none';
+    if(b.textContent.toLowerCase().includes(actual))b.classList.add('correct');
+    else if(b.textContent.toLowerCase().includes(chosen)&&chosen!==actual)b.classList.add('wrong');
+  });
+  if(chosen===actual){whereBonus++;score++;document.getElementById('score-val').textContent=score;AudioManager.playTone('correct');UI.showFeedback(true,500);}
+  else AudioManager.playTone('wrong');
+  setTimeout(()=>{
+    document.getElementById('where-overlay').style.display='none';
+    showingWhere=false;pickTarget();
+  },1400);
+}
 </script>
-<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("alphabet-balloon");window.addEventListener('beforeunload',function(){if(typeof analytics!=="undefined")analytics.trackActivityComplete("balloon-pop",typeof score!=="undefined"?score:0,10);});</script>
-</body></html>
+<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("alphabet-balloon");
+window.addEventListener('beforeunload',function(){
+  if(typeof analytics!=="undefined")analytics.trackActivityComplete("balloon-pop",score||0,20);
+});</script>
+</body>
+</html>

@@ -1,17 +1,85 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>📈 Alphabet Tracing · Phonics Hub</title><link rel="stylesheet" href="css/shared.css">
-<style>.trace-card{background:white;border-radius:28px;padding:32px 20px;text-align:center;box-shadow:var(--shadow-md);max-width:500px;margin:28px auto}.letter-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:16px}.letter-show{font-family:'Fredoka One',cursive;font-size:clamp(5rem,20vw,10rem);line-height:1}.canvas-wrap{position:relative;margin:0 auto;display:inline-block}.trace-guide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}.trace-guide span{font-family:'Fredoka One',cursive;font-size:clamp(6rem,25vw,12rem);color:rgba(200,200,200,.35);line-height:1}canvas{border:3px dashed #e5e7eb;border-radius:20px;cursor:crosshair;touch-action:none;display:block}.info-row{font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-top:8px}.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}</style>
-</head><body>
-<nav class="top-nav"><div class="nav-left"><a href="index.html" class="nav-home-btn">🏠</a><span class="nav-title">Alphabet Tracing</span></div></nav>
-<div class="page-header" style="background:linear-gradient(135deg,#d946ef,#9d174d)"><h1>📈 Alphabet Tracing</h1><p>Trace letters with your finger!</p></div>
-<main><div class="trace-card">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📈 Alphabet Tracing · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.mode-bar{display:flex;gap:6px;justify-content:center;margin:16px 0 20px;flex-wrap:wrap}
+.mode-tab{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s}
+.mode-tab.active{background:#d946ef;color:white;border-color:#d946ef;transform:scale(1.05)}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .3s ease}
+/* TRACE (original) */
+.trace-card{background:white;border-radius:28px;padding:32px 20px;text-align:center;box-shadow:var(--shadow-md);max-width:500px;margin:28px auto}
+.letter-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:16px}
+.letter-show{font-family:'Fredoka One',cursive;font-size:clamp(5rem,20vw,10rem);line-height:1}
+.canvas-wrap{position:relative;margin:0 auto;display:inline-block}
+canvas{border:3px dashed #e5e7eb;border-radius:20px;cursor:crosshair;touch-action:none;display:block}
+.trace-guide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.trace-guide span{font-family:'Fredoka One',cursive;font-size:clamp(6rem,25vw,12rem);color:rgba(200,200,200,.35);line-height:1}
+.info-row{font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-top:8px}
+.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+/* DRAW SOMETHING */
+.draw-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:520px;margin:0 auto 28px}
+.draw-prompt{font-family:'Fredoka One',cursive;font-size:clamp(1.4rem,5vw,2rem);color:#d946ef;margin-bottom:8px;text-align:center}
+.draw-hint{font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:14px;text-align:center}
+.draw-canvas-wrap{position:relative;display:block;text-align:center;margin:0 auto 14px}
+#draw-canvas{border:3px solid #e5e7eb;border-radius:20px;cursor:crosshair;touch-action:none;display:inline-block;background:white}
+.draw-tools{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.color-swatch{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:all .2s}
+.color-swatch.active{border-color:#1f2937;transform:scale(1.2)}
+.brush-slider{width:100px;accent-color:#d946ef}
+.draw-nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.draw-letter-btn{background:#f3f4f6;border:3px solid #e5e7eb;border-radius:10px;padding:6px 10px;font-family:'Fredoka One',cursive;font-size:.9rem;cursor:pointer;transition:all .2s}
+.draw-letter-btn.active{background:#d946ef;color:white;border-color:#d946ef}
+.draw-letter-btn.drawn{background:#dcfce7;border-color:var(--clr-green);color:#15803d}
+.draw-btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+/* STICKER BOOK */
+.sticker-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:560px;margin:0 auto 28px}
+.sticker-header{font-family:'Fredoka One',cursive;font-size:1.5rem;color:#d946ef;text-align:center;margin-bottom:8px}
+.sticker-sub{font-size:.9rem;font-weight:700;color:var(--clr-text-soft);text-align:center;margin-bottom:16px}
+.sticker-progress-wrap{background:#e5e7eb;border-radius:999px;height:14px;margin-bottom:20px;overflow:hidden}
+.sticker-progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#d946ef,#a855f7);transition:width .5s ease}
+.sticker-alphabet{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px}
+.sticker-letter{width:46px;height:46px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.1rem;transition:all .3s;border:3px solid #e5e7eb;background:#f9fafb;cursor:pointer;position:relative}
+.sticker-letter.traced{background:linear-gradient(135deg,#fef3c7,#fde68a);border-color:#fbbf24;box-shadow:0 3px 10px rgba(251,191,36,.3)}
+.sticker-letter.traced::after{content:'⭐';position:absolute;top:-8px;right:-8px;font-size:.8rem}
+.sticker-letter:hover{transform:scale(1.08)}
+.milestone-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.milestone-badge{background:#f3f4f6;border-radius:12px;padding:10px 14px;text-align:center;font-size:.8rem;font-weight:800;color:#666;transition:all .3s;cursor:default}
+.milestone-badge.unlocked{background:linear-gradient(135deg,#d946ef,#a855f7);color:white;box-shadow:0 4px 12px rgba(217,70,239,.3)}
+.milestone-icon{font-size:1.4rem;display:block;margin-bottom:2px}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Alphabet Tracing</span>
+  </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#d946ef,#9d174d)">
+  <h1>📈 Alphabet Tracing</h1>
+  <p>Trace, draw, and collect stickers!</p>
+</div>
+<main>
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('trace')">✏️ Trace Letters</button>
+  <button class="mode-tab" onclick="switchMode('draw')">🎨 Draw Something!</button>
+  <button class="mode-tab" onclick="switchMode('sticker')">⭐ Sticker Book</button>
+</div>
+
+<!-- TRACE -->
+<div id="panel-trace" class="panel active">
+<div class="trace-card">
   <div class="letter-nav">
     <button class="btn btn-secondary" id="btn-prev">←</button>
     <span class="letter-show" id="letter-show" style="color:#667eea">A</span>
     <button class="btn btn-secondary" id="btn-next">→</button>
   </div>
   <div class="info-row" id="info-row">Letter 1 of 52 · Uppercase A is for Apple 🍎</div>
-  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);margin:8px 0">Trace over the letter below.</p>
+  <p style="font-size:.85rem;font-weight:700;color:#aaa;margin:6px 0 12px">Trace over the letter — press ✅ when done!</p>
   <div class="canvas-wrap">
     <div class="trace-guide"><span id="guide-letter">A</span></div>
     <canvas id="trace-canvas" width="280" height="280"></canvas>
@@ -19,28 +87,218 @@
   <div class="btn-row">
     <button class="btn btn-primary" id="btn-speak">🔊 Hear Letter</button>
     <button class="btn btn-secondary" id="btn-clear">🗑 Clear</button>
-    <button class="btn btn-green" id="btn-done">✅ Done!</button>
+    <button class="btn btn-green btn-lg" id="btn-done">✅ Done!</button>
   </div>
-</div></main>
-<script src="js/config.js"></script><script src="js/api.js"></script><script src="js/analytics.js"></script><script src="js/audio.js"></script><script src="js/materials.js"></script><script src="js/ui.js"></script>
+  <div style="margin-top:12px;font-family:'Fredoka One',cursive;font-size:1rem;color:#d946ef">⭐ Traced: <span id="traced-count">0</span> / 52</div>
+</div>
+</div>
+
+<!-- DRAW SOMETHING -->
+<div id="panel-draw" class="panel">
+<div class="draw-card">
+  <div class="draw-prompt" id="draw-prompt-text">🍎 Draw an Apple!</div>
+  <div class="draw-hint">Now that you know the letter — draw something starting with <strong id="draw-letter-highlight">A</strong>!</div>
+  <div class="draw-nav" id="draw-letter-nav"></div>
+  <div class="draw-canvas-wrap">
+    <canvas id="draw-canvas" width="300" height="260"></canvas>
+  </div>
+  <div class="draw-tools">
+    <div style="display:flex;gap:7px;flex-wrap:wrap;justify-content:center">
+      <div class="color-swatch active" style="background:#1f2937" data-color="#1f2937" onclick="setDrawColor(this)"></div>
+      <div class="color-swatch" style="background:#ef4444" data-color="#ef4444" onclick="setDrawColor(this)"></div>
+      <div class="color-swatch" style="background:#f97316" data-color="#f97316" onclick="setDrawColor(this)"></div>
+      <div class="color-swatch" style="background:#eab308" data-color="#eab308" onclick="setDrawColor(this)"></div>
+      <div class="color-swatch" style="background:#22c55e" data-color="#22c55e" onclick="setDrawColor(this)"></div>
+      <div class="color-swatch" style="background:#3b82f6" data-color="#3b82f6" onclick="setDrawColor(this)"></div>
+      <div class="color-swatch" style="background:#d946ef" data-color="#d946ef" onclick="setDrawColor(this)"></div>
+      <div class="color-swatch" style="background:#ffffff;border:2px solid #e5e7eb" data-color="#ffffff" onclick="setDrawColor(this)"></div>
+    </div>
+    <input type="range" class="brush-slider" id="draw-brush" min="3" max="28" value="10">
+    <span style="font-size:.8rem;font-weight:700;color:#888">Size</span>
+  </div>
+  <div class="draw-btn-row">
+    <button class="btn btn-primary" id="draw-hear">🔊 Hear Word</button>
+    <button class="btn btn-secondary" id="draw-clear-btn">🗑 Clear</button>
+    <button class="btn btn-green" id="draw-save-btn">💾 Save</button>
+    <button class="btn btn-purple" id="draw-done-btn">✅ Great Drawing!</button>
+  </div>
+</div>
+</div>
+
+<!-- STICKER BOOK -->
+<div id="panel-sticker" class="panel">
+<div class="sticker-card">
+  <div class="sticker-header">⭐ My Sticker Book</div>
+  <div class="sticker-sub">Earn a ⭐ sticker every time you trace a letter!</div>
+  <div class="sticker-progress-wrap">
+    <div class="sticker-progress-fill" id="sticker-fill" style="width:0%"></div>
+  </div>
+  <div style="text-align:center;font-family:'Fredoka One',cursive;font-size:1.2rem;color:#d946ef;margin-bottom:14px">
+    <span id="sticker-count">0</span> / 52 letters traced!
+  </div>
+  <div class="sticker-alphabet" id="sticker-alphabet"></div>
+  <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#444;margin-bottom:12px;text-align:center">🏅 Milestones</div>
+  <div class="milestone-row" id="milestone-row"></div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
+    <button class="btn btn-purple" onclick="switchMode('trace')">✏️ Keep Tracing!</button>
+    <button class="btn btn-accent" onclick="switchMode('draw')">🎨 Draw Something!</button>
+  </div>
+</div>
+</div>
+
+</main>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
 <script>
-const UPPERCASE=PHONICS_DATA.alphabet;const LOWERCASE=PHONICS_DATA.alphabet.map(item=>({l:item.l.toLowerCase(),word:item.word,emoji:item.emoji,sound:item.sound,vowel:item.vowel}));const LETTERS=[...UPPERCASE,...LOWERCASE];const COLORS=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
-let idx=0,drawing=false;const canvas=document.getElementById('trace-canvas');const ctx=canvas.getContext('2d');
-function getPos(e){const rect=canvas.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return{x:src.clientX-rect.left,y:src.clientY-rect.top};}
-function render(){const d=LETTERS[idx];const hue=(idx*14)%360;const letterType=idx<26?'Uppercase':'Lowercase';document.getElementById('letter-show').textContent=d.l;document.getElementById('letter-show').style.color=`hsl(${hue},70%,50%)`;document.getElementById('guide-letter').textContent=d.l;document.getElementById('guide-letter').style.color=`hsla(${hue},60%,60%,.3)`;document.getElementById('info-row').textContent=`Letter ${idx+1} of 52 · ${letterType} ${d.l} is for ${d.word} ${d.emoji}`;clearCanvas();}
-function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height);}
-canvas.addEventListener('mousedown',e=>{drawing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
-canvas.addEventListener('mousemove',e=>{if(!drawing)return;const p=getPos(e);ctx.lineWidth=8;ctx.lineCap='round';ctx.strokeStyle=COLORS[idx%COLORS.length];ctx.lineTo(p.x,p.y);ctx.stroke();});
-canvas.addEventListener('mouseup',()=>{drawing=false;});canvas.addEventListener('mouseleave',()=>{drawing=false;});
-canvas.addEventListener('touchstart',e=>{e.preventDefault();drawing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);},{passive:false});
-canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;const p=getPos(e);ctx.lineWidth=10;ctx.lineCap='round';ctx.strokeStyle=COLORS[idx%COLORS.length];ctx.lineTo(p.x,p.y);ctx.stroke();},{passive:false});
-canvas.addEventListener('touchend',()=>{drawing=false;});
-document.getElementById('btn-prev').addEventListener('click',()=>{idx=(idx-1+52)%52;render();});
-document.getElementById('btn-next').addEventListener('click',()=>{idx=(idx+1)%52;render();});
-document.getElementById('btn-speak').addEventListener('click',()=>{const d=LETTERS[idx];AudioManager.speak(`${d.l}. ${d.sound}. ${d.word}`,{rate:.75});});
-document.getElementById('btn-clear').addEventListener('click',clearCanvas);
-document.getElementById('btn-done').addEventListener('click',()=>{AudioManager.playTone('star');UI.showFeedback(true);UI.toast(`Great tracing of ${LETTERS[idx].l}! ⭐`);if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('alphabet-trace');});
-render();
+'use strict';
+const UPPERCASE=PHONICS_DATA.alphabet;
+const LOWERCASE=PHONICS_DATA.alphabet.map(item=>({l:item.l.toLowerCase(),word:item.word,emoji:item.emoji,sound:item.sound,vowel:item.vowel}));
+const ALL_LETTERS=[...UPPERCASE,...LOWERCASE];
+const COLORS=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
+const STICKER_KEY='ph_traced_letters';
+
+function loadTraced(){try{return new Set(JSON.parse(localStorage.getItem(STICKER_KEY)||'[]'));}catch{return new Set();}}
+function saveTraced(s){try{localStorage.setItem(STICKER_KEY,JSON.stringify([...s]));}catch{}}
+let traced=loadTraced();
+
+function switchMode(m){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  event.target.classList.add('active');
+  if(m==='draw')initDraw();
+  if(m==='sticker')renderStickers();
+}
+
+/* TRACE */
+let traceIdx=0,traceActive=false;
+const traceCanvas=document.getElementById('trace-canvas');
+const traceCtx=traceCanvas.getContext('2d');
+
+function getTracePos(e){const rect=traceCanvas.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return{x:src.clientX-rect.left,y:src.clientY-rect.top};}
+traceCanvas.addEventListener('mousedown',e=>{traceActive=true;const p=getTracePos(e);traceCtx.beginPath();traceCtx.moveTo(p.x,p.y);});
+traceCanvas.addEventListener('mousemove',e=>{if(!traceActive)return;const p=getTracePos(e);traceCtx.lineWidth=8;traceCtx.lineCap='round';traceCtx.strokeStyle=COLORS[traceIdx%COLORS.length];traceCtx.lineTo(p.x,p.y);traceCtx.stroke();});
+traceCanvas.addEventListener('mouseup',()=>traceActive=false);
+traceCanvas.addEventListener('mouseleave',()=>traceActive=false);
+traceCanvas.addEventListener('touchstart',e=>{e.preventDefault();traceActive=true;const p=getTracePos(e);traceCtx.beginPath();traceCtx.moveTo(p.x,p.y);},{passive:false});
+traceCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!traceActive)return;const p=getTracePos(e);traceCtx.lineWidth=10;traceCtx.lineCap='round';traceCtx.strokeStyle=COLORS[traceIdx%COLORS.length];traceCtx.lineTo(p.x,p.y);traceCtx.stroke();},{passive:false});
+traceCanvas.addEventListener('touchend',()=>traceActive=false);
+
+function renderTrace(){
+  const d=ALL_LETTERS[traceIdx];
+  const type=traceIdx<26?'Uppercase':'Lowercase';
+  const hue=(traceIdx*14)%360;
+  document.getElementById('letter-show').textContent=d.l;
+  document.getElementById('letter-show').style.color=`hsl(${hue},70%,50%)`;
+  document.getElementById('guide-letter').textContent=d.l;
+  document.getElementById('guide-letter').style.color=`hsla(${hue},60%,60%,.3)`;
+  document.getElementById('info-row').textContent=`Letter ${traceIdx+1} of 52 · ${type} ${d.l} is for ${d.word} ${d.emoji}`;
+  document.getElementById('traced-count').textContent=traced.size;
+  traceCtx.clearRect(0,0,traceCanvas.width,traceCanvas.height);
+}
+
+document.getElementById('btn-speak').addEventListener('click',()=>{const d=ALL_LETTERS[traceIdx];AudioManager.speak(`${d.l}. ${d.sound}. ${d.word}`,{rate:.75});});
+document.getElementById('btn-clear').addEventListener('click',()=>traceCtx.clearRect(0,0,traceCanvas.width,traceCanvas.height));
+document.getElementById('btn-prev').addEventListener('click',()=>{traceIdx=(traceIdx-1+52)%52;renderTrace();});
+document.getElementById('btn-next').addEventListener('click',()=>{traceIdx=(traceIdx+1)%52;renderTrace();});
+document.getElementById('btn-done').addEventListener('click',()=>{
+  const d=ALL_LETTERS[traceIdx];
+  traced.add(d.l.toUpperCase());saveTraced(traced);
+  AudioManager.playTone('star');UI.showFeedback(true);
+  UI.toast(`Great tracing of "${d.l}"! ⭐`);
+  document.getElementById('traced-count').textContent=traced.size;
+  if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('progress-tracker');
+});
+renderTrace();
+
+/* DRAW SOMETHING */
+let drawColor='#1f2937',drawActive=false,drawLetterIdx=0;
+let drawnLetters=new Set();
+const drawCanvas=document.getElementById('draw-canvas');
+const drawCtx=drawCanvas.getContext('2d');
+
+function initDraw(){drawLetterIdx=0;buildDrawNav();loadDrawPrompt();clearDraw();}
+
+function buildDrawNav(){
+  const nav=document.getElementById('draw-letter-nav');nav.innerHTML='';
+  UPPERCASE.slice(0,13).forEach((l,i)=>{
+    const btn=document.createElement('button');btn.className=`draw-letter-btn${i===0?' active':''}${drawnLetters.has(l.l)?' drawn':''}`;
+    btn.textContent=l.l;btn.dataset.idx=i;
+    btn.addEventListener('click',()=>{
+      drawLetterIdx=i;loadDrawPrompt();clearDraw();
+      document.querySelectorAll('.draw-letter-btn').forEach((b,j)=>{b.classList.toggle('active',j===i);});
+    });
+    nav.appendChild(btn);
+  });
+}
+
+function loadDrawPrompt(){
+  const d=UPPERCASE[drawLetterIdx];
+  document.getElementById('draw-prompt-text').textContent=`${d.emoji} Draw ${d.word.startsWith('A')||d.word.startsWith('E')||d.word.startsWith('I')||d.word.startsWith('O')||d.word.startsWith('U')?'an':'a'} ${d.word}!`;
+  document.getElementById('draw-letter-highlight').textContent=d.l;
+  AudioManager.speak(`Draw a ${d.word}`,{rate:.8});
+}
+
+function getDrawPos(e){const rect=drawCanvas.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return{x:src.clientX-rect.left,y:src.clientY-rect.top};}
+drawCanvas.addEventListener('mousedown',e=>{drawActive=true;const p=getDrawPos(e);drawCtx.beginPath();drawCtx.moveTo(p.x,p.y);});
+drawCanvas.addEventListener('mousemove',e=>{if(!drawActive)return;const p=getDrawPos(e);drawCtx.lineWidth=parseInt(document.getElementById('draw-brush').value);drawCtx.lineCap='round';drawCtx.strokeStyle=drawColor;drawCtx.lineTo(p.x,p.y);drawCtx.stroke();});
+drawCanvas.addEventListener('mouseup',()=>drawActive=false);drawCanvas.addEventListener('mouseleave',()=>drawActive=false);
+drawCanvas.addEventListener('touchstart',e=>{e.preventDefault();drawActive=true;const p=getDrawPos(e);drawCtx.beginPath();drawCtx.moveTo(p.x,p.y);},{passive:false});
+drawCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!drawActive)return;const p=getDrawPos(e);drawCtx.lineWidth=parseInt(document.getElementById('draw-brush').value)+2;drawCtx.lineCap='round';drawCtx.strokeStyle=drawColor;drawCtx.lineTo(p.x,p.y);drawCtx.stroke();},{passive:false});
+drawCanvas.addEventListener('touchend',()=>drawActive=false);
+
+function setDrawColor(el){document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');drawColor=el.dataset.color;}
+function clearDraw(){drawCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height);drawCtx.fillStyle='#ffffff';drawCtx.fillRect(0,0,drawCanvas.width,drawCanvas.height);}
+
+document.getElementById('draw-hear').addEventListener('click',()=>{const d=UPPERCASE[drawLetterIdx];AudioManager.speak(d.word,{rate:.75});});
+document.getElementById('draw-clear-btn').addEventListener('click',clearDraw);
+document.getElementById('draw-save-btn').addEventListener('click',()=>{
+  const d=UPPERCASE[drawLetterIdx];
+  const link=document.createElement('a');link.download=`my-${d.word.toLowerCase()}-drawing.png`;link.href=drawCanvas.toDataURL();link.click();
+  UI.toast('Drawing saved! 🎨');
+});
+document.getElementById('draw-done-btn').addEventListener('click',()=>{
+  const d=UPPERCASE[drawLetterIdx];
+  drawnLetters.add(d.l);
+  UI.toast(`Amazing ${d.word} drawing! ⭐`);AudioManager.playTone('star');UI.showFeedback(true);
+  buildDrawNav();
+  // Move to next
+  drawLetterIdx=(drawLetterIdx+1)%UPPERCASE.slice(0,13).length;loadDrawPrompt();clearDraw();
+  document.querySelectorAll('.draw-letter-btn').forEach((b,j)=>{b.classList.toggle('active',j===drawLetterIdx);});
+});
+
+/* STICKER BOOK */
+const MILESTONES=[{count:5,icon:'✏️',label:'5 letters'},{count:13,icon:'🌟',label:'13 letters'},{count:26,icon:'🎯',label:'26 letters'},{count:39,icon:'🏅',label:'39 letters'},{count:52,icon:'🏆',label:'All 52!'}];
+
+function renderStickers(){
+  const count=traced.size;
+  const pct=Math.round((count/52)*100);
+  document.getElementById('sticker-fill').style.width=pct+'%';
+  document.getElementById('sticker-count').textContent=count;
+  // Letter grid
+  const alpha=document.getElementById('sticker-alphabet');alpha.innerHTML='';
+  ALL_LETTERS.forEach(d=>{
+    const div=document.createElement('div');div.className=`sticker-letter${traced.has(d.l.toUpperCase())?' traced':''}`;
+    div.textContent=d.l;div.title=`${d.l} — ${traced.has(d.l.toUpperCase())?'Traced! ⭐':'Not yet'}`;
+    div.addEventListener('click',()=>{if(traced.has(d.l.toUpperCase()))AudioManager.speak(`${d.l}. ${d.sound}. ${d.word}`,{rate:.75});});
+    alpha.appendChild(div);
+  });
+  // Milestones
+  const mRow=document.getElementById('milestone-row');mRow.innerHTML='';
+  MILESTONES.forEach(m=>{
+    const badge=document.createElement('div');badge.className=`milestone-badge${count>=m.count?' unlocked':''}`;
+    badge.innerHTML=`<span class="milestone-icon">${m.icon}</span>${m.label}`;
+    mRow.appendChild(badge);
+  });
+}
 </script>
-<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("alphabet-trace");window.addEventListener('beforeunload',function(){if(typeof analytics!=="undefined")analytics.trackActivityComplete("alphabet-tracing",0,10);});</script>
-</body></html>
+<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("progress-tracker");
+window.addEventListener('beforeunload',function(){
+  if(typeof analytics!=="undefined")analytics.trackActivityComplete("alphabet-tracing",traced?traced.size:0,52);
+});</script>
+</body>
+</html>

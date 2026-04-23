@@ -1,23 +1,384 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>📊 Word Match · Phonics Hub</title><link rel="stylesheet" href="css/shared.css">
-<style>.match-card{background:white;border-radius:28px;padding:32px 20px;text-align:center;box-shadow:var(--shadow-md);max-width:500px;margin:28px auto}.target-emoji{font-size:clamp(4rem,14vw,7rem);display:block;margin-bottom:8px}.match-choices{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.match-btn{background:#f3f4f6;border:3px solid transparent;border-radius:16px;padding:16px 10px;font-family:'Fredoka One',cursive;font-size:1.5rem;cursor:pointer;transition:all .15s}.match-btn:hover{background:#e0e7ff;border-color:var(--clr-blue)}.match-btn.correct{background:#dcfce7;border-color:var(--clr-green)}.match-btn.wrong{background:#fee2e2;border-color:var(--clr-primary)}.round-label{font-weight:700;color:var(--clr-text-soft);margin-bottom:12px}</style>
-</head><body>
-<nav class="top-nav"><div class="nav-left"><a href="index.html" class="nav-home-btn">🏠</a><span class="nav-title">Word Match</span></div></nav>
-<div class="page-header" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><h1>📊 Word Match</h1><p>Match the picture to its word!</p></div>
-<main><div class="match-card" id="match-card">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 Word Match · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.mode-bar{display:flex;gap:6px;justify-content:center;margin:16px 0 20px;flex-wrap:wrap}
+.mode-tab{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s}
+.mode-tab.active{background:#6366f1;color:white;border-color:#6366f1;transform:scale(1.05)}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .3s ease}
+/* MATCH mode original */
+.match-card{background:white;border-radius:28px;padding:32px 20px;text-align:center;box-shadow:var(--shadow-md);max-width:500px;margin:28px auto}
+.target-emoji{font-size:clamp(4rem,14vw,7rem);display:block;margin-bottom:8px}
+.match-choices{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.match-btn{background:#f3f4f6;border:3px solid transparent;border-radius:16px;padding:16px 10px;font-family:'Fredoka One',cursive;font-size:1.5rem;cursor:pointer;transition:all .15s}
+.match-btn:hover{background:#e0e7ff;border-color:var(--clr-blue)}
+.match-btn.correct{background:#dcfce7;border-color:var(--clr-green)}
+.match-btn.wrong{background:#fee2e2;border-color:var(--clr-primary)}
+.round-label{font-weight:700;color:var(--clr-text-soft);margin-bottom:12px}
+/* MEMORY MATCH */
+.mem-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:560px;margin:0 auto 28px}
+.mem-info{font-size:.9rem;font-weight:700;color:var(--clr-text-soft);text-align:center;margin-bottom:14px}
+.mem-stats{display:flex;gap:12px;justify-content:center;margin-bottom:16px;font-weight:800;font-size:.95rem}
+.mem-pill{background:#f3f4f6;border-radius:10px;padding:6px 14px}
+.mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:440px;margin:0 auto 16px}
+@media(min-width:480px){.mem-grid{grid-template-columns:repeat(6,1fr)}}
+.mem-cell{aspect-ratio:1;border-radius:14px;background:#f3f4f6;border:3px solid #e5e7eb;font-family:'Fredoka One',cursive;font-size:1.5rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden}
+.mem-cell .card-back{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:#e0e7ff;border-radius:11px}
+.mem-cell .card-front{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;opacity:0;background:white;border-radius:11px;transition:opacity .2s}
+.mem-cell.flipped .card-back{opacity:0}
+.mem-cell.flipped .card-front{opacity:1}
+.mem-cell.flipped{border-color:var(--clr-primary);background:white}
+.mem-cell.matched{background:#dcfce7;border-color:var(--clr-green);pointer-events:none}
+.mem-cell.matched .card-front{background:#dcfce7}
+.mem-cell.wrong-flash{animation:wiggle .3s ease;background:#fee2e2;border-color:var(--clr-primary)}
+.mem-complete{text-align:center;padding:20px}
+/* WHACK */
+.whack-card{background:white;border-radius:28px;padding:24px 20px;box-shadow:var(--shadow-md);max-width:560px;margin:0 auto 28px}
+.whack-hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.whack-target{background:linear-gradient(135deg,#6366f1,#4338ca);color:white;border-radius:14px;padding:12px 16px;text-align:center;margin-bottom:14px}
+.whack-target .wt-label{font-size:.7rem;font-weight:800;opacity:.8;text-transform:uppercase;letter-spacing:.07em}
+.whack-target .wt-word{font-family:'Fredoka One',cursive;font-size:2rem}
+.whack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.mole-hole{background:#f3f4f6;border-radius:18px;height:90px;position:relative;overflow:hidden}
+.mole{position:absolute;bottom:-100%;left:50%;transform:translateX(-50%);background:white;border:3px solid #e5e7eb;border-radius:14px;padding:8px 6px;text-align:center;width:90%;transition:bottom .25s cubic-bezier(.34,1.4,.64,1);cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.mole.up{bottom:3px}
+.mole.correct{background:#dcfce7;border-color:var(--clr-green);animation:pop .2s ease}
+.mole.wrong{background:#fee2e2;border-color:var(--clr-primary);animation:wiggle .3s ease}
+.mole .mole-emoji{font-size:1.4rem;display:block;margin-bottom:2px}
+.mole .mole-word{font-family:'Fredoka One',cursive;font-size:.9rem;color:var(--clr-text)}
+.w-timer{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--clr-text)}
+.w-timer.urgent{color:#ef4444;animation:pop .5s ease infinite}
+.w-score-big{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--clr-primary)}
+.w-lives{font-size:1.2rem;letter-spacing:2px}
+.whack-start,.whack-end{text-align:center;padding:32px 20px}
+.completion-card{background:white;border-radius:28px;padding:48px 28px;text-align:center;box-shadow:var(--shadow-md);max-width:480px;margin:0 auto}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Word Match</span>
+  </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+  <h1>📊 Word Match</h1>
+  <p>Match, flip, and whack your way to mastery!</p>
+</div>
+<main>
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('match')">🖼️ Picture Match</button>
+  <button class="mode-tab" onclick="switchMode('memory')">🃏 Memory Flip!</button>
+  <button class="mode-tab" onclick="switchMode('whack')">🔨 Whack-a-Word!</button>
+</div>
+
+<!-- PICTURE MATCH -->
+<div id="panel-match" class="panel active">
+<div class="match-card" id="match-card">
   <p class="round-label" id="round-label">Round 1 of 12</p>
-  <div class="progress-wrap" style="margin-bottom:20px"><div class="progress-bar" id="prog-bar" style="width:8%"></div></div>
+  <div class="progress-wrap" style="margin-bottom:20px">
+    <div class="progress-bar" id="prog-bar" style="width:8%"></div>
+  </div>
   <span class="target-emoji" id="target-emoji">🐱</span>
   <p style="font-size:.95rem;font-weight:700;color:var(--clr-text-soft)">Which word matches this picture?</p>
   <div class="match-choices" id="match-choices"></div>
   <p style="margin-top:16px;font-weight:700;color:var(--clr-text-soft)">⭐ <span id="mscore">0</span> / <span id="mtotal">0</span></p>
-</div></main>
-<script src="js/config.js"></script><script src="js/api.js"></script><script src="js/analytics.js"></script><script src="js/audio.js"></script><script src="js/materials.js"></script><script src="js/ui.js"></script>
+</div>
+</div>
+
+<!-- MEMORY FLIP -->
+<div id="panel-memory" class="panel">
+<div class="mem-card">
+  <p style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#6366f1;text-align:center;margin-bottom:6px">🃏 Memory Flip!</p>
+  <div class="mem-info">Match each picture emoji to its word!</div>
+  <div class="mem-stats">
+    <div class="mem-pill">✅ Pairs: <span id="mem-pairs">0</span>/<span id="mem-total-pairs">6</span></div>
+    <div class="mem-pill">🔄 Tries: <span id="mem-tries">0</span></div>
+    <div class="mem-pill">⭐ <span id="mem-stars">0</span></div>
+  </div>
+  <div class="mem-grid" id="mem-grid"></div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-purple" onclick="initMemory()">🔄 New Game</button>
+    <button class="btn btn-secondary" id="mem-hint">💡 Hint</button>
+  </div>
+</div>
+</div>
+
+<!-- WHACK-A-WORD -->
+<div id="panel-whack" class="panel">
+<div class="whack-card">
+  <div id="whack-start" class="whack-start">
+    <div style="font-size:4rem;margin-bottom:12px">🔨</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:2rem;color:#6366f1;margin-bottom:8px">Whack-a-Word!</div>
+    <p style="color:#666;font-weight:700;margin-bottom:24px">The emoji appears — whack the mole with the RIGHT word! 45 seconds, 3 lives.</p>
+    <button class="btn btn-purple btn-lg" onclick="startWhack()">🚀 Start!</button>
+  </div>
+  <div id="whack-game" style="display:none">
+    <div class="whack-hud">
+      <div class="w-lives" id="w-lives">❤️❤️❤️</div>
+      <div class="w-score-big">⭐ <span id="w-score">0</span></div>
+      <div class="w-timer" id="w-timer">45s</div>
+    </div>
+    <div class="whack-target">
+      <div class="wt-label">Find this picture's word!</div>
+      <div id="w-target-emoji" style="font-size:2.5rem;margin-bottom:4px">🐱</div>
+      <div class="wt-word" id="w-target-word">cat</div>
+    </div>
+    <div class="whack-grid" id="w-grid"></div>
+  </div>
+  <div id="whack-end" class="whack-end" style="display:none">
+    <div style="font-size:4rem;margin-bottom:12px" id="w-end-emoji">⭐</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:2rem;color:#6366f1;margin-bottom:8px" id="w-end-title">Nice!</div>
+    <div style="font-size:1.1rem;color:#666;margin-bottom:24px" id="w-end-msg">Score: 0</div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-purple btn-lg" onclick="startWhack()">🔄 Play Again</button>
+      <button class="btn btn-secondary" onclick="switchMode('match')">🖼️ Picture Match</button>
+    </div>
+  </div>
+</div>
+</div>
+
+</main>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
 <script>
-const ITEMS=UI.shuffle(PHONICS_DATA.cvc).slice(0,12);const TOTAL=ITEMS.length;let idx=0,mscore=0;
-function loadRound(){if(idx>=TOTAL){endGame();return;}const item=ITEMS[idx];document.getElementById('round-label').textContent=`Round ${idx+1} of ${TOTAL}`;document.getElementById('target-emoji').textContent=item.emoji;UI.updateProgress(document.getElementById('prog-bar'),idx+1,TOTAL);const pool=UI.shuffle(ITEMS.filter(x=>x.word!==item.word)).slice(0,3);const opts=UI.shuffle([item,...pool]);const ch=document.getElementById('match-choices');ch.innerHTML='';opts.forEach(o=>{const btn=document.createElement('button');btn.className='match-btn';btn.textContent=o.word;btn.addEventListener('click',()=>{const right=o.word===item.word;btn.classList.add(right?'correct':'wrong');if(right){mscore++;AudioManager.playTone('correct');UI.showFeedback(true);}else{AudioManager.playTone('wrong');ch.querySelectorAll('.match-btn').forEach(x=>{if(x.textContent===item.word)x.classList.add('correct');});}document.getElementById('mscore').textContent=mscore;document.getElementById('mtotal').textContent=idx+1;ch.querySelectorAll('.match-btn').forEach(x=>x.style.pointerEvents='none');AudioManager.speak(item.word,{rate:.8});idx++;setTimeout(loadRound,1500);});ch.appendChild(btn);});}
-function endGame(){document.querySelector('main').innerHTML=`<div class="match-card"><div style="font-size:4rem;margin-bottom:16px">${mscore>=9?'🏆':'⭐'}</div><h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${mscore>=9?'Excellent!':'Nice work!'}</h2><p style="font-size:1.1rem;color:#666;margin-bottom:24px">Score: ${mscore}/${TOTAL}</p><button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Play Again</button><br><br><a href="index.html" class="btn btn-secondary">🏠 Home</a></div>`;UI.setScore('word-match',{stars:mscore,total:TOTAL});if(typeof analytics!=='undefined')analytics.trackActivityComplete('word-match',mscore,TOTAL);if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('word-match');}
+'use strict';
+const ITEMS=UI.shuffle(PHONICS_DATA.cvc).slice(0,12);
+const TOTAL=ITEMS.length;
+let idx=0,mscore=0;
+
+function switchMode(m){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  event.target.classList.add('active');
+  if(m==='memory')initMemory();
+  if(m==='whack')resetWhack();
+}
+
+/* PICTURE MATCH */
+function loadRound(){
+  if(idx>=TOTAL){endGame();return;}
+  const item=ITEMS[idx];
+  document.getElementById('round-label').textContent=`Round ${idx+1} of ${TOTAL}`;
+  document.getElementById('target-emoji').textContent=item.emoji;
+  UI.updateProgress(document.getElementById('prog-bar'),idx+1,TOTAL);
+  const pool=UI.shuffle(ITEMS.filter(x=>x.word!==item.word)).slice(0,3);
+  const opts=UI.shuffle([item,...pool]);
+  const ch=document.getElementById('match-choices');ch.innerHTML='';
+  opts.forEach(o=>{
+    const btn=document.createElement('button');btn.className='match-btn';btn.textContent=o.word;
+    btn.addEventListener('click',()=>{
+      const right=o.word===item.word;
+      btn.classList.add(right?'correct':'wrong');
+      if(right){mscore++;AudioManager.playTone('correct');UI.showFeedback(true);}
+      else{AudioManager.playTone('wrong');ch.querySelectorAll('.match-btn').forEach(x=>{if(x.textContent===item.word)x.classList.add('correct');});}
+      document.getElementById('mscore').textContent=mscore;
+      document.getElementById('mtotal').textContent=idx+1;
+      ch.querySelectorAll('.match-btn').forEach(x=>x.style.pointerEvents='none');
+      AudioManager.speak(item.word,{rate:.8});
+      idx++;setTimeout(loadRound,1500);
+    });
+    ch.appendChild(btn);
+  });
+}
+function endGame(){
+  document.querySelector('#panel-match').innerHTML=`
+    <div class="match-card">
+      <div style="font-size:4rem;margin-bottom:16px">${mscore>=9?'🏆':'⭐'}</div>
+      <h2 style="font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:8px">${mscore>=9?'Excellent!':'Nice work!'}</h2>
+      <p style="font-size:1.1rem;color:#666;margin-bottom:24px">Score: ${mscore}/${TOTAL}</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Play Again</button>
+        <button class="btn btn-purple" onclick="switchMode('memory')">🃏 Memory Flip!</button>
+        <button class="btn btn-accent" onclick="switchMode('whack')">🔨 Whack-a-Word!</button>
+      </div>
+    </div>`;
+  UI.setScore('word-match',{stars:mscore,total:TOTAL});
+  if(typeof analytics!=='undefined')analytics.trackActivityComplete('word-match',mscore,TOTAL);
+}
 loadRound();
+
+/* MEMORY FLIP */
+const MEM_POOL=UI.shuffle([...PHONICS_DATA.cvc]).slice(0,6);
+let memFlipped=[],memMatched=0,memTries=0,memLocked=false,memStars=0;
+const MEM_TOTAL=MEM_POOL.length;
+
+function initMemory(){
+  memFlipped=[];memMatched=0;memTries=0;memLocked=false;memStars=0;
+  document.getElementById('mem-pairs').textContent='0';
+  document.getElementById('mem-tries').textContent='0';
+  document.getElementById('mem-stars').textContent='0';
+  document.getElementById('mem-total-pairs').textContent=MEM_TOTAL;
+  // Create pairs: emoji card + word card
+  const cards=UI.shuffle([
+    ...MEM_POOL.map((item,i)=>({id:i,display:item.emoji,type:'emoji',word:item.word})),
+    ...MEM_POOL.map((item,i)=>({id:i,display:item.word, type:'word', word:item.word}))
+  ]);
+  const grid=document.getElementById('mem-grid');grid.innerHTML='';
+  cards.forEach((c,idx)=>{
+    const cell=document.createElement('div');cell.className='mem-cell';
+    cell.dataset.id=c.id;cell.dataset.display=c.display;cell.dataset.type=c.type;
+    cell.innerHTML=`<div class="card-back">🌟</div><div class="card-front">${c.display}</div>`;
+    cell.addEventListener('click',()=>flipMemCell(cell));
+    grid.appendChild(cell);
+  });
+}
+
+function flipMemCell(cell){
+  if(memLocked)return;
+  if(cell.classList.contains('flipped')||cell.classList.contains('matched'))return;
+  cell.classList.add('flipped');
+  AudioManager.speak(cell.dataset.type==='word'?cell.dataset.display:PHONICS_DATA.cvc.find(c=>c.emoji===cell.dataset.display)?.word||'',{rate:.7});
+  memFlipped.push(cell);
+  if(memFlipped.length===2){
+    memTries++;document.getElementById('mem-tries').textContent=memTries;
+    memLocked=true;setTimeout(checkMemPair,700);
+  }
+}
+
+function checkMemPair(){
+  const[a,b]=memFlipped;
+  if(a.dataset.id===b.dataset.id&&a.dataset.type!==b.dataset.type){
+    a.classList.add('matched');b.classList.add('matched');
+    AudioManager.playTone('correct');UI.showFeedback(true,400);
+    memMatched++;memStars++;
+    document.getElementById('mem-pairs').textContent=memMatched;
+    document.getElementById('mem-stars').textContent=memStars;
+    if(memMatched===MEM_TOTAL){
+      setTimeout(()=>{
+        const eff=Math.round((MEM_TOTAL/memTries)*100);
+        document.getElementById('mem-grid').insertAdjacentHTML('afterend',`
+          <div class="mem-complete">
+            <div style="font-size:3rem;margin-bottom:8px">${eff>=80?'🏆':'⭐'}</div>
+            <div style="font-family:'Fredoka One',cursive;font-size:1.6rem;color:#6366f1;margin-bottom:6px">${eff>=80?'Perfect Memory!':'All matched!'}</div>
+            <p style="color:#666;font-size:.95rem;margin-bottom:16px">${MEM_TOTAL} pairs in ${memTries} tries (${eff}% efficiency)</p>
+          </div>`);
+        AudioManager.speak('All matched! Amazing!',{rate:.8});
+      },400);
+    }
+  } else {
+    a.classList.add('wrong-flash');b.classList.add('wrong-flash');
+    AudioManager.playTone('wrong');
+    setTimeout(()=>{[a,b].forEach(c=>{c.classList.remove('flipped','wrong-flash');});},700);
+  }
+  memFlipped=[];memLocked=false;
+}
+
+document.getElementById('mem-hint').addEventListener('click',()=>{
+  // Briefly reveal all unmatched cards
+  document.querySelectorAll('.mem-cell:not(.matched)').forEach(c=>{c.classList.add('flipped');});
+  setTimeout(()=>{document.querySelectorAll('.mem-cell:not(.matched)').forEach(c=>{if(!memFlipped.includes(c))c.classList.remove('flipped');});},1200);
+  memStars=Math.max(0,memStars-1);document.getElementById('mem-stars').textContent=memStars;
+});
+
+/* WHACK-A-WORD */
+const WHACK_POOL=UI.shuffle([...PHONICS_DATA.cvc]).slice(0,20);
+const MOLE_EMOJIS=['🐹','🐭','🐸','🦊','🐻','🐼'];
+let wScore=0,wLives=3,wTimer=45,wInterval=null,wRunning=false,wMoleTimers=[];
+let wTarget=null;
+
+function resetWhack(){
+  document.getElementById('whack-start').style.display='block';
+  document.getElementById('whack-game').style.display='none';
+  document.getElementById('whack-end').style.display='none';
+}
+
+function startWhack(){
+  wScore=0;wLives=3;wTimer=45;wRunning=true;wMoleTimers=[];
+  document.getElementById('whack-start').style.display='none';
+  document.getElementById('whack-game').style.display='block';
+  document.getElementById('whack-end').style.display='none';
+  document.getElementById('w-score').textContent='0';
+  document.getElementById('w-lives').textContent='❤️❤️❤️';
+  document.getElementById('w-timer').textContent='45s';
+  document.getElementById('w-timer').classList.remove('urgent');
+  buildWhackGrid();
+  pickWhackTarget();
+  wInterval=setInterval(tickWhack,1000);
+  startMoleCycle();
+}
+
+function buildWhackGrid(){
+  const grid=document.getElementById('w-grid');grid.innerHTML='';
+  for(let i=0;i<6;i++){
+    const hole=document.createElement('div');hole.className='mole-hole';
+    const mole=document.createElement('div');mole.className='mole';mole.dataset.idx=i;
+    mole.innerHTML=`<span class="mole-emoji">${MOLE_EMOJIS[i]}</span><span class="mole-word"></span>`;
+    mole.addEventListener('click',()=>whackMole(mole));
+    hole.appendChild(mole);grid.appendChild(hole);
+  }
+}
+
+function pickWhackTarget(){
+  wTarget=WHACK_POOL[Math.floor(Math.random()*WHACK_POOL.length)];
+  document.getElementById('w-target-emoji').textContent=wTarget.emoji;
+  document.getElementById('w-target-word').textContent=wTarget.word;
+  AudioManager.speak(wTarget.word,{rate:.8});
+}
+
+function startMoleCycle(){popMoles();}
+
+function popMoles(){
+  if(!wRunning)return;
+  const moles=document.querySelectorAll('.mole');
+  const toShow=UI.shuffle([...moles]).slice(0,Math.min(3,moles.length));
+  const wrongWords=UI.shuffle(WHACK_POOL.filter(w=>w.word!==wTarget?.word)).slice(0,toShow.length-1);
+  const wordSet=UI.shuffle([wTarget,...wrongWords]);
+  toShow.forEach((mole,i)=>{
+    const item=wordSet[i]||WHACK_POOL[0];
+    mole.querySelector('.mole-word').textContent=item.word;
+    mole.dataset.word=item.word;
+    mole.classList.remove('correct','wrong');mole.classList.add('up');
+    const t=setTimeout(()=>{if(mole.classList.contains('up'))mole.classList.remove('up');},2200);
+    wMoleTimers.push(t);
+  });
+  const t=setTimeout(()=>{if(wRunning)popMoles();},2000);
+  wMoleTimers.push(t);
+}
+
+function whackMole(mole){
+  if(!wRunning||!mole.classList.contains('up'))return;
+  mole.classList.remove('up');
+  if(mole.dataset.word===wTarget?.word){
+    wScore++;mole.classList.add('correct');
+    document.getElementById('w-score').textContent=wScore;
+    AudioManager.playTone('correct');UI.showFeedback(true,300);
+    pickWhackTarget();setTimeout(()=>mole.classList.remove('correct'),500);
+  } else {
+    wLives--;mole.classList.add('wrong');AudioManager.playTone('wrong');
+    document.getElementById('w-lives').textContent='❤️'.repeat(Math.max(0,wLives))||'💔';
+    setTimeout(()=>mole.classList.remove('wrong'),500);
+    if(wLives<=0)endWhack();
+  }
+}
+
+function tickWhack(){
+  wTimer--;const el=document.getElementById('w-timer');
+  el.textContent=`${wTimer}s`;
+  if(wTimer<=10)el.classList.add('urgent');
+  if(wTimer<=0)endWhack();
+}
+
+function endWhack(){
+  wRunning=false;clearInterval(wInterval);wMoleTimers.forEach(clearTimeout);
+  document.querySelectorAll('.mole').forEach(m=>m.classList.remove('up'));
+  document.getElementById('whack-game').style.display='none';
+  document.getElementById('whack-end').style.display='block';
+  const emoji=wScore>=15?'🏆':wScore>=8?'⭐':'💪';
+  document.getElementById('w-end-emoji').textContent=emoji;
+  document.getElementById('w-end-title').textContent=wScore>=15?'Word Master!':wScore>=8?'Nice Work!':'Keep Going!';
+  document.getElementById('w-end-msg').textContent=`You whacked ${wScore} words correctly!`;
+}
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("word-match");</script>
-</body></html>
+</body>
+</html>

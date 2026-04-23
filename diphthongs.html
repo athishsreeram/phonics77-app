@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎯 Diphthongs · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.mode-bar{display:flex;gap:6px;justify-content:center;margin:16px 0 20px;flex-wrap:wrap}
+.mode-tab{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s}
+.mode-tab.active{background:#ec4899;color:white;border-color:#ec4899;transform:scale(1.05)}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .3s ease}
+/* original */
+.diphthong-card{background:white;border-radius:28px;padding:36px 24px;text-align:center;box-shadow:var(--shadow-md);max-width:520px;margin:28px auto}
+.diphthong-emoji{font-size:clamp(4rem,12vw,6rem);display:block;margin-bottom:12px}
+.diphthong-word{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,2.8rem);color:var(--clr-text);margin:16px 0;font-weight:900}
+.quiz-question{font-size:1.1rem;font-weight:800;color:var(--clr-primary);margin:16px 0 20px}
+.choices-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:360px;margin:0 auto 20px}
+.choice-btn{background:#f3f4f6;border:3px solid #e5e7eb;border-radius:14px;padding:16px 12px;font-family:'Fredoka One',cursive;font-size:1.4rem;cursor:pointer;transition:all .2s;font-weight:700}
+.choice-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.choice-btn.correct{background:#dcfce7;border-color:var(--clr-green);color:#16a34a}
+.choice-btn.wrong{background:#fee2e2;border-color:#dc2626;color:#be123c}
+/* SORT */
+.sort-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:500px;margin:0 auto 28px}
+.sort-word-big{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--clr-text);text-align:center;margin:12px 0}
+.sort-emoji-big{font-size:2.8rem;text-align:center;display:block}
+.bins-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.bin{border-radius:16px;padding:14px 10px;text-align:center;border:3px dashed #d1d5db;cursor:pointer;transition:all .2s;font-family:'Fredoka One',cursive;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.bin:hover{transform:scale(1.04)}
+.bin.oi-bin{background:#fef3c7;border-color:#fde68a}
+.bin.ou-bin{background:#dbeafe;border-color:#93c5fd}
+.bin-label{font-size:1.1rem}
+.bin-ex{font-size:.7rem;font-weight:700;color:#888;margin-top:3px}
+.sort-res{border-radius:12px;padding:10px 14px;text-align:center;margin:8px 0;font-family:'Fredoka One',cursive;font-size:1.1rem;display:none;animation:fadeIn .2s ease}
+.sort-res.correct{background:#dcfce7;color:#15803d;border:2px solid #22c55e;display:block}
+.sort-res.wrong{background:#fee2e2;color:#991b1b;border:2px solid #ef4444;display:block}
+/* CROSSWORD */
+.cross-card{background:white;border-radius:28px;padding:24px 20px;box-shadow:var(--shadow-md);max-width:520px;margin:0 auto 28px}
+.cross-grid-wrap{text-align:center;overflow-x:auto;margin:12px 0}
+.cross-grid{display:grid;margin:0 auto}
+.cross-cell{width:40px;height:40px;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;position:relative;background:white}
+.cross-cell.black{background:#1f2937;border-color:#1f2937}
+.cross-cell input{width:100%;height:100%;border:none;text-align:center;font-family:'Fredoka One',cursive;font-size:1.2rem;outline:none;background:transparent;text-transform:uppercase;padding:0}
+.cross-cell input:focus{background:#fdf4ff}
+.cross-cell .cell-num{position:absolute;top:1px;left:2px;font-size:.55rem;font-weight:900;color:#ec4899;line-height:1}
+.cross-cell.correct-cell{background:#dcfce7}
+.cross-cell.wrong-cell{background:#fee2e2}
+.clues-section{background:#f9fafb;border-radius:14px;padding:14px;margin:12px 0}
+.clue{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-size:.9rem;font-weight:700}
+.clue-num{background:#ec4899;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;flex-shrink:0}
+.cross-res{font-family:'Fredoka One',cursive;font-size:1.1rem;text-align:center;padding:10px;border-radius:12px;margin-top:8px;display:none}
+.cross-res.show{display:block}
+.cross-res.correct{background:#dcfce7;color:#15803d}
+.cross-res.partial{background:#fef3c7;color:#92400e}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Diphthongs</span>
+  </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#ec4899,#be185d)">
+  <h1>🎯 Diphthongs</h1>
+  <p>Two vowel sounds in one syllable!</p>
+</div>
+<main>
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('quiz')">🎯 Quiz</button>
+  <button class="mode-tab" onclick="switchMode('sort')">🗂️ Sorting Bin!</button>
+  <button class="mode-tab" onclick="switchMode('cross')">✝️ Mini Crossword!</button>
+</div>
+
+<!-- QUIZ (original) -->
+<div id="panel-quiz" class="panel active">
+<div class="diphthong-card" id="main-card">
+  <div style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin:12px 0" id="progress-info">Question 1 of 10</div>
+  <div class="progress-wrap"><div class="progress-bar" id="prog-bar" style="width:10%"></div></div>
+  <span class="diphthong-emoji" id="emoji">🪙</span>
+  <div class="diphthong-word" id="word">coin</div>
+  <button class="btn btn-primary btn-lg" id="btn-speak" style="margin:12px auto 16px;display:flex">🔊 Hear Word</button>
+  <div class="quiz-question">Which diphthong letters make this word?</div>
+  <div class="choices-grid" id="choices"></div>
+  <div style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--clr-primary)">⭐ <span id="score-txt">0</span>/10</div>
+</div>
+</div>
+
+<!-- SORT -->
+<div id="panel-sort" class="panel">
+<div class="sort-card">
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);text-align:center;margin-bottom:8px" id="sort-prog">Word 1 of 12</p>
+  <div class="progress-wrap" style="margin-bottom:14px"><div class="progress-bar" id="sort-pb" style="width:8%"></div></div>
+  <p style="text-align:center;font-size:.9rem;font-weight:700;color:#888;margin-bottom:8px">Which diphthong sound does this word have?</p>
+  <span class="sort-emoji-big" id="sort-emoji">🪙</span>
+  <div class="sort-word-big" id="sort-word">coin</div>
+  <div class="bins-row">
+    <div class="bin oi-bin" onclick="tapSort('oi')">
+      <div class="bin-label">OI / OY sound</div>
+      <div style="font-size:1.5rem">🪙</div>
+      <div class="bin-ex">coin · boy · joy</div>
+    </div>
+    <div class="bin ou-bin" onclick="tapSort('ou')">
+      <div class="bin-label">OU / OW sound</div>
+      <div style="font-size:1.5rem">🏠</div>
+      <div class="bin-ex">house · cow · owl</div>
+    </div>
+  </div>
+  <div class="sort-res" id="sort-res"></div>
+  <div style="display:flex;gap:10px;justify-content:center;margin:8px 0">
+    <button class="btn btn-primary" id="sort-hear">🔊 Hear Word</button>
+    <button class="btn btn-secondary" id="sort-skip">Skip →</button>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:center;font-weight:700;font-size:.85rem">
+    <div style="background:#f3f4f6;border-radius:8px;padding:4px 10px">✅ <span id="sort-corr">0</span></div>
+    <div style="background:#f3f4f6;border-radius:8px;padding:4px 10px">❌ <span id="sort-wr">0</span></div>
+  </div>
+</div>
+</div>
+
+<!-- CROSSWORD -->
+<div id="panel-cross" class="panel">
+<div class="cross-card">
+  <div style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#ec4899;text-align:center;margin-bottom:6px">✝️ Diphthong Crossword!</div>
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);text-align:center;margin-bottom:8px">All answers have diphthong sounds!</p>
+  <div class="cross-grid-wrap" id="cross-wrap"></div>
+  <div class="clues-section" id="cross-clues"></div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-pink btn-lg" id="cross-check" style="background:#ec4899;color:white;border:none;border-radius:14px;padding:12px 22px;font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer">✅ Check!</button>
+    <button class="btn btn-secondary" id="cross-reveal">💡 Reveal</button>
+    <button class="btn btn-accent" id="cross-new">🔄 New Puzzle</button>
+  </div>
+  <div class="cross-res" id="cross-res"></div>
+</div>
+</div>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+'use strict';
+const DIPHTHONGS=PHONICS_DATA.diphthongs;
+const TOTAL_ROUNDS=10;
+const QUESTIONS=UI.shuffle(DIPHTHONGS).slice(0,TOTAL_ROUNDS);
+let currentQ=0,score=0,answered=false;
+const allLetterPairs=[...new Set(DIPHTHONGS.map(d=>d.letters))];
+
+function switchMode(m){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  event.target.classList.add('active');
+  if(m==='sort')initSort();
+  if(m==='cross')initCross();
+}
+
+/* QUIZ */
+function genChoices(correct){const c=[correct];const o=allLetterPairs.filter(x=>x!==correct);while(c.length<3&&o.length>0)c.push(o.splice(Math.floor(Math.random()*o.length),1)[0]);return UI.shuffle(c);}
+function loadQuestion(){
+  if(currentQ>=TOTAL_ROUNDS){showCompletion();return;}
+  answered=false;const q=QUESTIONS[currentQ];
+  document.getElementById('emoji').textContent=q.emoji;
+  document.getElementById('word').textContent=q.word;
+  document.getElementById('progress-info').textContent=`Question ${currentQ+1} of ${TOTAL_ROUNDS}`;
+  document.getElementById('score-txt').textContent=score;
+  UI.updateProgress(document.getElementById('prog-bar'),currentQ+1,TOTAL_ROUNDS);
+  const ch=document.getElementById('choices');ch.innerHTML='';
+  genChoices(q.letters).forEach(choice=>{
+    const btn=document.createElement('button');btn.className='choice-btn';btn.textContent=choice;
+    btn.addEventListener('click',()=>handleAnswer(btn,choice===q.letters));ch.appendChild(btn);
+  });
+}
+function handleAnswer(btn,isCorrect){
+  if(answered)return;answered=true;
+  if(isCorrect){btn.classList.add('correct');score++;document.getElementById('score-txt').textContent=score;setTimeout(()=>{currentQ++;loadQuestion();},800);}
+  else{btn.classList.add('wrong');const q=QUESTIONS[currentQ];document.querySelectorAll('.choice-btn').forEach(b=>{if(b.textContent===q.letters)b.classList.add('correct');});setTimeout(()=>{currentQ++;loadQuestion();},1200);}
+}
+function showCompletion(){
+  const pct=Math.round((score/TOTAL_ROUNDS)*100);
+  document.getElementById('main-card').innerHTML=`<div style="font-size:5rem;margin-bottom:16px">${pct>=70?'🎉':'👍'}</div><div style="font-family:'Fredoka One',cursive;font-size:2rem;color:#ec4899;margin-bottom:8px">Round Complete!</div><div style="font-size:1.8rem;font-weight:800;margin:16px 0">${score}/${TOTAL_ROUNDS}</div><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px"><button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button><button class="btn btn-accent" onclick="switchMode('sort')">🗂️ Sorting Bin!</button></div>`;
+}
+document.getElementById('btn-speak').addEventListener('click',()=>{const q=QUESTIONS[currentQ];if(q)AudioManager.speak(q.word,{rate:.8});});
+loadQuestion();
+
+/* SORT */
+const SORT_POOL=UI.shuffle([
+  {word:'coin',emoji:'🪙',group:'oi'},{word:'boy',emoji:'👦',group:'oi'},{word:'toy',emoji:'🧸',group:'oi'},
+  {word:'joy',emoji:'😊',group:'oi'},{word:'boil',emoji:'💧',group:'oi'},{word:'foil',emoji:'🌿',group:'oi'},
+  {word:'house',emoji:'🏠',group:'ou'},{word:'mouse',emoji:'🐭',group:'ou'},{word:'cow',emoji:'🐄',group:'ou'},
+  {word:'owl',emoji:'🦉',group:'ou'},{word:'cloud',emoji:'☁️',group:'ou'},{word:'loud',emoji:'📢',group:'ou'},
+]);
+let si=0,sCorr=0,sWr=0;
+function initSort(){si=0;sCorr=0;sWr=0;loadSort();}
+function loadSort(){
+  if(si>=SORT_POOL.length)si=0;
+  const item=SORT_POOL[si];
+  document.getElementById('sort-prog').textContent=`Word ${si+1} of ${SORT_POOL.length}`;
+  UI.updateProgress(document.getElementById('sort-pb'),si+1,SORT_POOL.length);
+  document.getElementById('sort-emoji').textContent=item.emoji;
+  document.getElementById('sort-word').textContent=item.word;
+  document.getElementById('sort-res').className='sort-res';
+  AudioManager.speak(item.word,{rate:.75});
+}
+function tapSort(choice){
+  const item=SORT_POOL[si];const correct=choice===item.group;
+  const res=document.getElementById('sort-res');
+  if(correct){sCorr++;res.textContent=`✅ "${item.word}" has the ${item.group.toUpperCase()} sound!`;res.className='sort-res correct';AudioManager.playTone('correct');UI.showFeedback(true);}
+  else{sWr++;res.textContent=`❌ "${item.word}" has the ${item.group.toUpperCase()} sound!`;res.className='sort-res wrong';AudioManager.playTone('wrong');}
+  document.getElementById('sort-corr').textContent=sCorr;document.getElementById('sort-wr').textContent=sWr;
+  si++;setTimeout(loadSort,1400);
+}
+document.getElementById('sort-hear').addEventListener('click',()=>{if(SORT_POOL[si])AudioManager.speak(SORT_POOL[si].word,{rate:.7});});
+document.getElementById('sort-skip').addEventListener('click',()=>{si++;loadSort();});
+
+/* CROSSWORD */
+const CROSS_PUZZLES=[
+  {words:[{word:'boy',clue:'👦 (OI/OY)',dir:'across',row:0,col:0,num:1},{word:'bow',clue:'🏹 (OU/OW)',dir:'down',row:0,col:0,num:2},{word:'owl',clue:'🦉 (OU/OW)',dir:'across',row:2,col:0,num:3}],rows:3,cols:3},
+  {words:[{word:'toy',clue:'🧸 (OI/OY)',dir:'across',row:0,col:0,num:1},{word:'top',clue:'🔄 starts with T',dir:'down',row:0,col:0,num:2},{word:'put',clue:'👋 (rhymes with foot)',dir:'across',row:2,col:0,num:3}],rows:3,cols:3},
+  {words:[{word:'cow',clue:'🐄 (OU/OW)',dir:'across',row:0,col:0,num:1},{word:'cup',clue:'☕ starts with C',dir:'down',row:0,col:0,num:2},{word:'pan',clue:'🍳 rhymes with man',dir:'across',row:2,col:0,num:3}],rows:3,cols:3},
+];
+let crossIdx=0;
+function initCross(){crossIdx=Math.floor(Math.random()*CROSS_PUZZLES.length);buildCross();}
+function buildCross(){
+  const p=CROSS_PUZZLES[crossIdx];const gd=Array.from({length:p.rows},()=>Array(p.cols).fill(null));
+  p.words.forEach(w=>w.word.split('').forEach((ch,i)=>{const r=w.dir==='across'?w.row:w.row+i;const c=w.dir==='across'?w.col+i:w.col;gd[r][c]={answer:ch.toUpperCase(),num:i===0?w.num:''};;}));
+  const wrap=document.getElementById('cross-wrap');wrap.innerHTML='';
+  const grid=document.createElement('div');grid.className='cross-grid';grid.style.gridTemplateColumns=`repeat(${p.cols},40px)`;grid.style.margin='0 auto';grid.style.display='inline-grid';
+  for(let r=0;r<p.rows;r++)for(let c=0;c<p.cols;c++){
+    const cell=document.createElement('div');cell.className='cross-cell';
+    if(!gd[r][c]){cell.classList.add('black');}
+    else{const inp=document.createElement('input');inp.maxLength=1;inp.dataset.r=r;inp.dataset.c=c;inp.dataset.answer=gd[r][c].answer;inp.addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().slice(-1));cell.appendChild(inp);if(gd[r][c].num){const n=document.createElement('span');n.className='cell-num';n.textContent=gd[r][c].num;cell.appendChild(n);}}
+    grid.appendChild(cell);
+  }
+  wrap.appendChild(grid);
+  const clues=document.getElementById('cross-clues');clues.innerHTML='<div style="font-family:\'Fredoka One\',cursive;font-size:1rem;color:#888;margin-bottom:8px">Clues — tap to hear the word!</div>';
+  p.words.forEach(w=>{const d=document.createElement('div');d.className='clue';d.innerHTML=`<span class="clue-num">${w.num}</span><span>${w.dir==='across'?'➡️':'⬇️'} ${w.clue} (${w.word.length} letters)</span>`;d.addEventListener('click',()=>AudioManager.speak(w.word,{rate:.75}));clues.appendChild(d);});
+  document.getElementById('cross-res').className='cross-res';
+}
+document.getElementById('cross-check').addEventListener('click',()=>{
+  const inputs=document.querySelectorAll('#cross-wrap input');let correct=0,total=inputs.length;
+  inputs.forEach(inp=>{inp.parentElement.classList.remove('correct-cell','wrong-cell');if(inp.value===inp.dataset.answer){inp.parentElement.classList.add('correct-cell');correct++;}else if(inp.value)inp.parentElement.classList.add('wrong-cell');});
+  const res=document.getElementById('cross-res');
+  if(correct===total){res.textContent='🎉 Perfect!';res.className='cross-res show correct';AudioManager.playTone('star');}
+  else{res.textContent=`⭐ ${correct}/${total} correct!`;res.className='cross-res show partial';}
+});
+document.getElementById('cross-reveal').addEventListener('click',()=>{document.querySelectorAll('#cross-wrap input').forEach(inp=>{inp.value=inp.dataset.answer;inp.parentElement.classList.add('correct-cell');});});
+document.getElementById('cross-new').addEventListener('click',()=>{crossIdx=(crossIdx+1)%CROSS_PUZZLES.length;buildCross();});
+</script>
+<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("diphthongs");
+window.addEventListener('beforeunload',function(){if(typeof analytics!=="undefined")analytics.trackActivityComplete("diphthongs",score||0,10);});</script>
+</body>
+</html>

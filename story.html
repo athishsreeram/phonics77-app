@@ -1,29 +1,311 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>📖 Story Time · Phonics Hub</title><link rel="stylesheet" href="css/shared.css">
-<style>.story-card{background:white;border-radius:28px;padding:32px 24px;box-shadow:var(--shadow-md);max-width:600px;margin:28px auto}.story-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}.stab{background:#f3f4f6;border:3px solid transparent;border-radius:12px;padding:10px 16px;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s}.stab.active{background:var(--clr-primary);color:white}.story-emoji{font-size:4rem;text-align:center;display:block;margin:12px 0}.story-title{font-family:'Fredoka One',cursive;font-size:2rem;text-align:center;color:var(--clr-primary);margin-bottom:20px}.story-body{font-size:1.15rem;line-height:2;font-weight:600;color:#2d2d2d}.story-body .phonics-word{color:var(--clr-primary);font-weight:800;cursor:pointer;border-bottom:2px dotted var(--clr-primary)}.read-controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}</style>
-</head><body>
-<nav class="top-nav"><div class="nav-left"><a href="index.html" class="nav-home-btn">🏠</a><span class="nav-title">Story Time</span></div></nav>
-<div class="page-header" style="background:linear-gradient(135deg,#f97316,#ea580c)"><h1>📖 Story Time</h1><p>Read along — tap words to hear them!</p></div>
-<main><div class="story-card">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📖 Story Time · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.mode-bar{display:flex;gap:6px;justify-content:center;margin:16px 0 20px;flex-wrap:wrap}
+.mode-tab{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s}
+.mode-tab.active{background:#f97316;color:white;border-color:#f97316;transform:scale(1.05)}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .3s ease}
+/* STORY READ (original) */
+.story-card{background:white;border-radius:28px;padding:32px 24px;box-shadow:var(--shadow-md);max-width:600px;margin:28px auto}
+.story-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.stab{background:#f3f4f6;border:3px solid transparent;border-radius:12px;padding:10px 16px;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s}
+.stab.active{background:var(--clr-primary);color:white}
+.story-emoji{font-size:4rem;text-align:center;display:block;margin:12px 0}
+.story-title{font-family:'Fredoka One',cursive;font-size:2rem;text-align:center;color:var(--clr-primary);margin-bottom:20px}
+.story-body{font-size:1.15rem;line-height:2;font-weight:600;color:#2d2d2d}
+.story-body .phonics-word{color:var(--clr-primary);font-weight:800;cursor:pointer;border-bottom:2px dotted var(--clr-primary)}
+.story-body .phonics-word:hover{background:#fff0f0;border-radius:4px}
+.read-controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.loading-msg{text-align:center;padding:32px;color:#888;font-size:1rem}
+/* READ ALOUD panel */
+.readloud-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:580px;margin:0 auto 28px}
+.readloud-story-select{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.rl-stab{background:#f3f4f6;border:3px solid transparent;border-radius:12px;padding:8px 14px;font-weight:800;font-size:.85rem;cursor:pointer;transition:all .2s}
+.rl-stab.active{background:#f97316;color:white}
+.readloud-text{background:#fff8f0;border:2px solid #fed7aa;border-radius:16px;padding:20px;font-size:1.1rem;line-height:2;font-weight:600;color:#2d2d2d;margin-bottom:16px;max-height:240px;overflow-y:auto}
+.readloud-word{cursor:pointer;padding:2px 4px;border-radius:4px;transition:background .1s}
+.readloud-word:hover{background:#fed7aa}
+.readloud-word.speaking{background:#fef3c7;color:#92400e}
+.mic-section{background:#f0fdf4;border:2px solid #bbf7d0;border-radius:16px;padding:16px;margin-bottom:14px}
+.mic-title{font-family:'Fredoka One',cursive;font-size:1rem;color:#15803d;margin-bottom:10px}
+.mic-btn{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;font-size:2rem;cursor:pointer;box-shadow:0 4px 14px rgba(34,197,94,.35);transition:all .2s;margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
+.mic-btn:hover{transform:scale(1.08)}
+.mic-btn.recording{background:linear-gradient(135deg,#ef4444,#dc2626);animation:pop .6s ease infinite;box-shadow:0 4px 14px rgba(239,68,68,.4)}
+.mic-status{font-size:.9rem;font-weight:700;color:#15803d;text-align:center;min-height:22px}
+.wpm-display{font-family:'Fredoka One',cursive;font-size:1.4rem;color:#f97316;text-align:center;margin-top:8px}
+/* STORY CONTINUE */
+.continue-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:580px;margin:0 auto 28px}
+.story-snippet{background:#fff8f0;border-left:4px solid #f97316;border-radius:0 14px 14px 0;padding:16px 18px;font-size:1rem;font-weight:700;color:#2d2d2d;line-height:1.7;margin-bottom:16px;font-style:italic}
+.continue-prompt{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:14px;padding:12px 16px;font-size:.95rem;font-weight:700;color:#5b21b6;margin-bottom:14px}
+.continue-input{width:100%;min-height:130px;border:3px solid #e5e7eb;border-radius:16px;padding:14px 16px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;outline:none;resize:vertical;transition:border-color .2s;line-height:1.6}
+.continue-input:focus{border-color:#f97316}
+.continue-input::placeholder{color:#d1d5db;font-weight:600}
+.saved-continuations{margin-top:16px}
+.saved-title{font-family:'Fredoka One',cursive;font-size:1rem;color:#888;margin-bottom:10px}
+.saved-entry{background:#f9fafb;border:2px solid #e5e7eb;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.saved-entry:hover{background:#fff8f0;border-color:#fed7aa}
+.saved-entry-story{font-size:.75rem;font-weight:800;color:#f97316;margin-bottom:3px}
+.saved-entry-text{font-size:.9rem;font-weight:700;color:var(--clr-text);line-height:1.5}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Story Time</span>
+  </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#f97316,#ea580c)">
+  <h1>📖 Story Time</h1>
+  <p>Read, speak, and continue the stories!</p>
+</div>
+<main>
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('read')">📖 Read Along</button>
+  <button class="mode-tab" onclick="switchMode('readloud')">🎤 Read Aloud!</button>
+  <button class="mode-tab" onclick="switchMode('continue')">✍️ Continue Story!</button>
+</div>
+
+<!-- READ ALONG (original) -->
+<div id="panel-read" class="panel active">
+<div class="story-card">
   <div class="story-tabs" id="story-tabs"></div>
   <span class="story-emoji" id="story-emoji">⏳</span>
   <h2 class="story-title" id="story-title">Loading stories…</h2>
-  <div class="story-body" id="story-body"><p style="text-align:center;color:#888">Fetching stories…</p></div>
+  <div class="story-body" id="story-body"><p class="loading-msg">Fetching stories from the library…</p></div>
   <div class="read-controls">
     <button class="btn btn-primary btn-lg" id="btn-read">🔊 Read Story</button>
     <button class="btn btn-secondary" id="btn-stop">⏹ Stop</button>
+    <button class="btn btn-accent" id="btn-continue-from-read">✍️ Continue This Story</button>
   </div>
-</div></main>
-<script src="js/config.js"></script><script src="js/api.js"></script><script src="js/analytics.js"></script><script src="js/audio.js"></script><script src="js/ui.js"></script>
+</div>
+</div>
+
+<!-- READ ALOUD -->
+<div id="panel-readloud" class="panel">
+<div class="readloud-card">
+  <div style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#f97316;margin-bottom:8px;text-align:center">🎤 Read Aloud Practice!</div>
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);text-align:center;margin-bottom:14px">Tap each word to hear it — then read the whole story yourself!</p>
+  <div class="readloud-story-select" id="rl-story-tabs"></div>
+  <div class="readloud-text" id="rl-text"></div>
+  <div class="mic-section">
+    <div class="mic-title">🎙️ Practice Reading Aloud</div>
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <button class="mic-btn" id="rl-mic-btn" onclick="toggleRlMic()">🎤</button>
+      <div class="mic-status" id="rl-mic-status">Tap 🎤 and read the story aloud!</div>
+      <div class="wpm-display" id="rl-wpm"></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-primary" id="rl-play-story">🔊 Hear Story</button>
+    <button class="btn btn-secondary" id="rl-play-slow">🐢 Slow Mode</button>
+    <button class="btn btn-accent" id="rl-stop">⏹ Stop</button>
+  </div>
+</div>
+</div>
+
+<!-- CONTINUE STORY -->
+<div id="panel-continue" class="panel">
+<div class="continue-card">
+  <div style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#f97316;margin-bottom:8px">✍️ Continue the Story!</div>
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);margin-bottom:14px">Read the beginning — then write what happens next!</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px" id="cont-story-tabs"></div>
+  <div class="story-snippet" id="cont-snippet">Loading story…</div>
+  <div class="continue-prompt">
+    💭 What happens next? <br>
+    <em style="opacity:.7">Keep using the phonics words from the story!</em>
+  </div>
+  <textarea class="continue-input" id="cont-input" placeholder="The story continues… write what happens next!" maxlength="400"></textarea>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+    <button class="btn btn-primary" id="cont-save">💾 Save My Ending</button>
+    <button class="btn btn-accent" id="cont-read">🔊 Read It!</button>
+    <button class="btn btn-secondary" id="cont-clear">🗑 Clear</button>
+  </div>
+  <div class="saved-continuations" id="saved-cont" style="display:none">
+    <div class="saved-title">📚 My Story Endings</div>
+    <div id="saved-cont-list"></div>
+  </div>
+</div>
+</div>
+
+</main>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/ui.js"></script>
 <script>
-const FALLBACK_STORIES=[{id:'f1',title:'Mac and Tab',emoji:'🐱',phonics:['mac','tab','cat','sad','mad','pal','rat','nap'],text:'Tab is a sad cat. Tab has a pal. His pal is Mac. Mac is a rat. "I got mad at Mac," said Tab. "I ate Mac up." "I did like Mac," said Tab. "I am a bad cat." Tab ran to get the vet. "I can save Mac," said the vet. Mac gave Tab a hug. "I like Tab," said Mac. Mac and Tab ran home.'},{id:'f2',title:'The Bee',emoji:'🐝',phonics:['bee','black','yellow','flower','busy'],text:'A bee was in the grass. The bee was black and yellow. The bee went up in the air. A cat saw the bee. "I will get the bee," said the cat. The bee went up high. The bee went to a flower. A kid watched the bee. The bee was busy.'},{id:'f3',title:'Slide',emoji:'🛝',phonics:['slide','slid','fast','kid'],text:'A kid had a slide. The slide was big and red. The kid slid on the slide. "Look at me," said the kid. "I can slide fast." A pig ran up. "I can slide," said the pig. They slid and slid. They had a nap.'}];
-let STORIES=[],curStory=0;
-function renderTabs(){const tabs=document.getElementById('story-tabs');tabs.innerHTML='';STORIES.forEach((s,i)=>{const btn=document.createElement('button');btn.className=`stab${i===curStory?' active':''}`;btn.textContent=(s.emoji||'📖')+' '+(s.title||'').split(' ').slice(0,2).join(' ');btn.addEventListener('click',()=>{curStory=i;renderStory();renderTabs();});tabs.appendChild(btn);});}
-function renderStory(){const s=STORIES[curStory];if(!s)return;document.getElementById('story-emoji').textContent=s.emoji||'📖';document.getElementById('story-title').textContent=s.title;const storyText=s.content||s.text||'';const phonicsWords=new Set((s.words||s.phonics||[]).map(w=>w.toLowerCase()));const body=document.getElementById('story-body');body.innerHTML=storyText.split(/\b/).map(w=>{const clean=w.toLowerCase().replace(/[^a-z]/g,'');if(phonicsWords.has(clean))return`<span class="phonics-word" onclick="AudioManager.speak('${clean}',{rate:.7})">${w}</span>`;return w;}).join('');}
-async function loadStories(){try{const api=await PhonicsAPI.getStories();STORIES=api&&api.length>0?api:FALLBACK_STORIES;}catch(e){STORIES=FALLBACK_STORIES;}curStory=0;renderTabs();renderStory();}
-document.getElementById('btn-read').addEventListener('click',()=>{const s=STORIES[curStory];if(s)AudioManager.speak(s.content||s.text||'',{rate:.8});if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('story-time');});
+'use strict';
+const FALLBACK_STORIES=[
+  {id:'f1',title:'Mac and Tab',emoji:'🐱',set:1,phonics:['mac','tab','cat','sad','mad','pal','rat','nap'],text:'Tab is a sad cat. Tab has a pal. His pal is Mac. Mac is a rat. "I got mad at Mac," said Tab. "I ate Mac up." "I did like Mac," said Tab. "I am a bad cat." Tab ran to get the vet. "I can save Mac," said the vet. Mac gave Tab a hug. "I like Tab," said Mac. Mac and Tab ran home.'},
+  {id:'f2',title:'The Bee',emoji:'🐝',set:2,phonics:['bee','black','yellow','flower','busy'],text:'A bee was in the grass. The bee was black and yellow. The bee went up in the air. A cat saw the bee. "I will get the bee," said the cat. The bee went up high. The bee went to a flower. A kid watched the bee. The bee was busy.'},
+  {id:'f3',title:'Slide',emoji:'🛝',set:3,phonics:['slide','slid','fast','kid'],text:'A kid had a slide. The slide was big and red. The kid slid on the slide. "Look at me," said the kid. "I can slide fast." A pig ran up. "I can slide," said the pig. They slid and slid. They had a nap.'},
+];
+let STORIES=[],curStory=0,curRlStory=0,curContStory=0;
+const CONT_KEY='ph_story_endings';
+
+function switchMode(m){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  event.target.classList.add('active');
+}
+
+/* READ ALONG */
+function renderTabs(){
+  const tabs=document.getElementById('story-tabs');tabs.innerHTML='';
+  STORIES.forEach((s,i)=>{
+    const btn=document.createElement('button');btn.className=`stab${i===curStory?' active':''}`;
+    btn.textContent=(s.emoji||'📖')+' '+(s.title||'').split(' ').slice(0,2).join(' ');
+    btn.addEventListener('click',()=>{curStory=i;renderStory();renderTabs();});tabs.appendChild(btn);
+  });
+}
+function renderStory(){
+  const s=STORIES[curStory];if(!s)return;
+  document.getElementById('story-emoji').textContent=s.emoji||'📖';
+  document.getElementById('story-title').textContent=s.title;
+  const storyText=s.content||s.text||'';
+  const phonicsWords=new Set((s.words||s.phonics||[]).map(w=>w.toLowerCase()));
+  const body=document.getElementById('story-body');
+  body.innerHTML=storyText.split(/\b/).map(w=>{
+    const clean=w.toLowerCase().replace(/[^a-z]/g,'');
+    if(phonicsWords.has(clean))return`<span class="phonics-word" onclick="AudioManager.speak('${clean}',{rate:.7})">${w}</span>`;
+    return w;
+  }).join('');
+  // Update read-aloud + continue panels
+  updateRlStory();updateContStory();
+}
+async function loadStories(){
+  let api=[];
+  try{api=await PhonicsAPI.getStories();}catch(e){}
+  STORIES=api?.length>0?api:FALLBACK_STORIES;
+  curStory=0;renderTabs();renderStory();
+  buildRlTabs();buildContTabs();renderSavedCont();
+}
+document.getElementById('btn-read').addEventListener('click',()=>{
+  const s=STORIES[curStory];if(s)AudioManager.speak(s.content||s.text||'',{rate:.8});
+  if(window.CurriculumManager)window.CurriculumManager.markActivityComplete('story-time');
+});
 document.getElementById('btn-stop').addEventListener('click',()=>AudioManager.stop());
+document.getElementById('btn-continue-from-read').addEventListener('click',()=>{
+  curContStory=curStory;switchMode('continue');updateContStory();
+  document.querySelectorAll('.mode-tab')[2].classList.add('active');
+  document.querySelectorAll('.mode-tab')[0].classList.remove('active');
+});
+
+/* READ ALOUD */
+function buildRlTabs(){
+  const tabs=document.getElementById('rl-story-tabs');tabs.innerHTML='';
+  STORIES.forEach((s,i)=>{
+    const btn=document.createElement('button');btn.className=`rl-stab${i===curRlStory?' active':''}`;
+    btn.textContent=(s.emoji||'📖')+' '+(s.title||'').split(' ').slice(0,2).join(' ');
+    btn.addEventListener('click',()=>{curRlStory=i;updateRlStory();buildRlTabs();});tabs.appendChild(btn);
+  });
+}
+function updateRlStory(){
+  const s=STORIES[curRlStory];if(!s)return;
+  const text=s.content||s.text||'';
+  const rlText=document.getElementById('rl-text');rlText.innerHTML='';
+  text.split(/(\s+)/).forEach(part=>{
+    if(part.trim()){
+      const span=document.createElement('span');span.className='readloud-word';span.textContent=part;
+      span.addEventListener('click',()=>{
+        document.querySelectorAll('.readloud-word').forEach(x=>x.classList.remove('speaking'));
+        span.classList.add('speaking');
+        AudioManager.speak(part.replace(/[^a-zA-Z]/g,''),{rate:.7,onEnd:()=>span.classList.remove('speaking')});
+      });
+      rlText.appendChild(span);
+    } else {rlText.appendChild(document.createTextNode(part));}
+  });
+}
+document.getElementById('rl-play-story').addEventListener('click',()=>{const s=STORIES[curRlStory];if(s)AudioManager.speak(s.content||s.text||'',{rate:.82});});
+document.getElementById('rl-play-slow').addEventListener('click',()=>{const s=STORIES[curRlStory];if(s)AudioManager.speak(s.content||s.text||'',{rate:.6});});
+document.getElementById('rl-stop').addEventListener('click',()=>AudioManager.stop());
+
+// Mic for read aloud
+let rlRec=null,rlRecording=false,rlStartTime=0;
+function toggleRlMic(){
+  if(rlRecording){stopRlMic();return;}
+  const SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRec){document.getElementById('rl-mic-status').textContent='Microphone not available on this device.';return;}
+  rlRec=new SpeechRec();rlRec.lang='en-US';rlRec.interimResults=false;rlRec.maxAlternatives=1;
+  rlRecording=true;rlStartTime=Date.now();
+  document.getElementById('rl-mic-btn').classList.add('recording');
+  document.getElementById('rl-mic-status').textContent='🔴 Listening… read the story aloud!';
+  rlRec.onresult=e=>{
+    stopRlMic();
+    const heard=e.results[0][0].transcript;
+    const wordCount=heard.trim().split(/\s+/).length;
+    const mins=(Date.now()-rlStartTime)/60000;
+    const wpm=Math.round(wordCount/Math.max(mins,0.05));
+    document.getElementById('rl-wpm').textContent=`📊 ~${wpm} words/min — great reading!`;
+    document.getElementById('rl-mic-status').textContent='✅ Read detected! Keep practising!';
+  };
+  rlRec.onerror=()=>{stopRlMic();document.getElementById('rl-mic-status').textContent='Could not hear. Try again!';};
+  rlRec.onend=()=>stopRlMic();
+  rlRec.start();
+}
+function stopRlMic(){
+  rlRecording=false;
+  document.getElementById('rl-mic-btn').classList.remove('recording');
+  if(rlRec){try{rlRec.stop();}catch(e){}}
+}
+
+/* CONTINUE STORY */
+function buildContTabs(){
+  const tabs=document.getElementById('cont-story-tabs');tabs.innerHTML='';
+  STORIES.forEach((s,i)=>{
+    const btn=document.createElement('button');btn.className=`rl-stab${i===curContStory?' active':''}`;
+    btn.textContent=(s.emoji||'📖')+' '+(s.title||'').split(' ').slice(0,2).join(' ');
+    btn.addEventListener('click',()=>{curContStory=i;updateContStory();buildContTabs();});tabs.appendChild(btn);
+  });
+}
+function updateContStory(){
+  const s=STORIES[curContStory];if(!s)return;
+  const text=s.content||s.text||'';
+  // Show first 2 sentences as snippet
+  const sentences=text.match(/[^.!?]+[.!?]+/g)||[text];
+  document.getElementById('cont-snippet').textContent=sentences.slice(0,2).join(' ')+'…';
+}
+function loadCont(){try{return JSON.parse(localStorage.getItem(CONT_KEY)||'[]');}catch{return[];}}
+function saveCont(arr){try{localStorage.setItem(CONT_KEY,JSON.stringify(arr));}catch{}}
+function renderSavedCont(){
+  const items=loadCont();
+  const wrap=document.getElementById('saved-cont');
+  const list=document.getElementById('saved-cont-list');
+  if(!items.length){wrap.style.display='none';return;}
+  wrap.style.display='block';list.innerHTML='';
+  items.forEach((item,i)=>{
+    const div=document.createElement('div');div.className='saved-entry';
+    div.innerHTML=`<div class="saved-entry-story">📖 ${item.story}</div><div class="saved-entry-text">${item.text}</div>`;
+    div.addEventListener('click',()=>AudioManager.speak(item.text,{rate:.8}));
+    list.appendChild(div);
+  });
+}
+document.getElementById('cont-save').addEventListener('click',()=>{
+  const text=document.getElementById('cont-input').value.trim();
+  if(!text){UI.toast('Write your ending first! ✍️');return;}
+  const s=STORIES[curContStory];
+  const items=loadCont();
+  items.unshift({story:s?.title||'Story',text,ts:Date.now()});
+  if(items.length>8)items.pop();
+  saveCont(items);renderSavedCont();
+  UI.toast('Story ending saved! 🌟');AudioManager.playTone('star');
+});
+document.getElementById('cont-read').addEventListener('click',()=>{
+  const text=document.getElementById('cont-input').value.trim();
+  if(!text){UI.toast('Write something first!');return;}
+  AudioManager.speak(text,{rate:.8});
+});
+document.getElementById('cont-clear').addEventListener('click',()=>{document.getElementById('cont-input').value='';});
+
 loadStories();
 </script>
 <script>if(typeof analytics!=="undefined")analytics.trackActivityStart("story-time");</script>
-</body></html>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 Vowel Variants · Phonics Hub</title>
+<link rel="stylesheet" href="css/shared.css">
+<style>
+.mode-bar{display:flex;gap:6px;justify-content:center;margin:16px 0 20px;flex-wrap:wrap}
+.mode-tab{background:#f3f4f6;border:3px solid transparent;border-radius:14px;padding:10px 18px;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .2s}
+.mode-tab.active{background:#06b6d4;color:white;border-color:#06b6d4;transform:scale(1.05)}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .3s ease}
+/* original */
+.variant-card{background:white;border-radius:28px;padding:36px 24px;text-align:center;box-shadow:var(--shadow-md);max-width:540px;margin:28px auto}
+.variant-emoji{font-size:clamp(4rem,12vw,6rem);display:block;margin-bottom:12px}
+.variant-word{font-family:'Fredoka One',cursive;font-size:clamp(2.2rem,6vw,3rem);color:var(--clr-text);margin:16px 0;font-weight:900}
+.variant-letters{font-size:1.2rem;font-weight:800;color:var(--clr-primary);background:#f9fafb;padding:8px 16px;border-radius:12px;display:inline-block;margin-bottom:16px}
+.quiz-q{font-size:1rem;font-weight:800;color:var(--clr-text);margin:16px 0 20px}
+.sound-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:380px;margin:0 auto 20px}
+.sound-btn{background:#f3f4f6;border:3px solid #e5e7eb;border-radius:14px;padding:20px 12px;font-size:.95rem;cursor:pointer;transition:all .2s;font-weight:700;line-height:1.4}
+.sound-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.sound-btn.correct{background:#dcfce7;border-color:var(--clr-green);color:#16a34a}
+.sound-btn.wrong{background:#fee2e2;border-color:#dc2626;color:#be123c}
+.sound-phonetic{font-family:monospace;font-size:1.1rem;font-weight:700}
+/* SORT */
+.sort-card{background:white;border-radius:28px;padding:28px 20px;box-shadow:var(--shadow-md);max-width:500px;margin:0 auto 28px}
+.sort-word-big{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--clr-text);text-align:center;margin:12px 0}
+.sort-emoji-big{font-size:2.8rem;text-align:center;display:block}
+.sort-target-info{background:linear-gradient(135deg,#06b6d4,#0891b2);color:white;border-radius:14px;padding:10px 16px;text-align:center;margin-bottom:14px;font-family:'Fredoka One',cursive;font-size:1.1rem}
+.bins-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.bin{border-radius:16px;padding:14px 10px;text-align:center;border:3px dashed #d1d5db;cursor:pointer;transition:all .2s;font-family:'Fredoka One',cursive;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.bin:hover{transform:scale(1.04)}
+.bin.bin-eh{background:#fff0f0;border-color:#fca5a5}
+.bin.bin-ay{background:#eff6ff;border-color:#93c5fd}
+.bin.bin-uh{background:#fef3c7;border-color:#fde68a}
+.bin.bin-oo{background:#f0fdf4;border-color:#86efac}
+.bin-label{font-size:1rem}
+.bin-ex{font-size:.7rem;font-weight:700;color:#888;margin-top:3px}
+.sort-res{border-radius:12px;padding:10px 14px;text-align:center;margin:8px 0;font-family:'Fredoka One',cursive;font-size:1.1rem;display:none;animation:fadeIn .2s ease}
+.sort-res.correct{background:#dcfce7;color:#15803d;border:2px solid #22c55e;display:block}
+.sort-res.wrong{background:#fee2e2;color:#991b1b;border:2px solid #ef4444;display:block}
+/* CROSSWORD */
+.cross-card{background:white;border-radius:28px;padding:24px 20px;box-shadow:var(--shadow-md);max-width:520px;margin:0 auto 28px}
+.cross-grid-wrap{text-align:center;overflow-x:auto;margin:12px 0}
+.cross-grid{display:inline-grid}
+.cross-cell{width:40px;height:40px;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;position:relative;background:white}
+.cross-cell.black{background:#1f2937;border-color:#1f2937}
+.cross-cell input{width:100%;height:100%;border:none;text-align:center;font-family:'Fredoka One',cursive;font-size:1.2rem;outline:none;background:transparent;text-transform:uppercase;padding:0}
+.cross-cell input:focus{background:#e0f2fe}
+.cross-cell .cell-num{position:absolute;top:1px;left:2px;font-size:.55rem;font-weight:900;color:#06b6d4;line-height:1}
+.cross-cell.correct-cell{background:#dcfce7}
+.cross-cell.wrong-cell{background:#fee2e2}
+.clues-section{background:#f9fafb;border-radius:14px;padding:14px;margin:12px 0}
+.clue{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-size:.9rem;font-weight:700}
+.clue-num{background:#06b6d4;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;flex-shrink:0}
+.cross-res{font-family:'Fredoka One',cursive;font-size:1.1rem;text-align:center;padding:10px;border-radius:12px;margin-top:8px;display:none}
+.cross-res.show{display:block}
+.cross-res.correct{background:#dcfce7;color:#15803d}
+.cross-res.partial{background:#fef3c7;color:#92400e}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="nav-home-btn">🏠</a>
+    <span class="nav-title">Vowel Variants</span>
+  </div>
+</nav>
+<div class="page-header" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">
+  <h1>🎨 Vowel Variants</h1>
+  <p>Same letters, different sounds!</p>
+</div>
+<main>
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="switchMode('quiz')">🎯 Quiz</button>
+  <button class="mode-tab" onclick="switchMode('sort')">🗂️ Sorting Bin!</button>
+  <button class="mode-tab" onclick="switchMode('cross')">✝️ Mini Crossword!</button>
+</div>
+
+<!-- QUIZ (original) -->
+<div id="panel-quiz" class="panel active">
+<div class="variant-card" id="main-card">
+  <div style="font-size:.9rem;font-weight:700;color:var(--clr-text-soft);margin:12px 0" id="progress-info">Question 1 of 8</div>
+  <div class="progress-wrap"><div class="progress-bar" id="prog-bar" style="width:12.5%"></div></div>
+  <span class="variant-emoji" id="emoji">🍞</span>
+  <div class="variant-word" id="word">bread</div>
+  <div class="variant-letters" id="letters">ea</div>
+  <div class="quiz-q">What sound does "<span id="letter-combo">ea</span>" make in this word?</div>
+  <button class="btn btn-primary btn-lg" id="btn-speak" style="margin:8px auto 16px;display:flex">🔊 Hear Word</button>
+  <div class="sound-options" id="choices"></div>
+  <div style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--clr-primary)">⭐ <span id="score-txt">0</span>/8</div>
+</div>
+</div>
+
+<!-- SORT -->
+<div id="panel-sort" class="panel">
+<div class="sort-card">
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);text-align:center;margin-bottom:8px" id="sort-prog">Word 1 of 16</p>
+  <div class="progress-wrap" style="margin-bottom:12px"><div class="progress-bar" id="sort-pb" style="width:6%"></div></div>
+  <div class="sort-target-info" id="sort-target-info">What sound does "ea" make here?</div>
+  <span class="sort-emoji-big" id="sort-emoji">🍞</span>
+  <div class="sort-word-big" id="sort-word">bread</div>
+  <div class="bins-row" id="bins-row"></div>
+  <div class="sort-res" id="sort-res"></div>
+  <div style="display:flex;gap:10px;justify-content:center;margin:8px 0">
+    <button class="btn btn-primary" id="sort-hear">🔊 Hear Word</button>
+    <button class="btn btn-secondary" id="sort-skip">Skip →</button>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:center;font-weight:700;font-size:.85rem">
+    <div style="background:#f3f4f6;border-radius:8px;padding:4px 10px">✅ <span id="sort-corr">0</span></div>
+    <div style="background:#f3f4f6;border-radius:8px;padding:4px 10px">❌ <span id="sort-wr">0</span></div>
+  </div>
+</div>
+</div>
+
+<!-- CROSSWORD -->
+<div id="panel-cross" class="panel">
+<div class="cross-card">
+  <div style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#06b6d4;text-align:center;margin-bottom:6px">✝️ Vowel Variant Crossword!</div>
+  <p style="font-size:.85rem;font-weight:700;color:var(--clr-text-soft);text-align:center;margin-bottom:8px">All words have tricky vowel sounds!</p>
+  <div class="cross-grid-wrap" id="cross-wrap"></div>
+  <div class="clues-section" id="cross-clues"></div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-primary" id="cross-check" style="background:#06b6d4">✅ Check!</button>
+    <button class="btn btn-secondary" id="cross-reveal">💡 Reveal</button>
+    <button class="btn btn-accent" id="cross-new">🔄 New Puzzle</button>
+  </div>
+  <div class="cross-res" id="cross-res"></div>
+</div>
+</div>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/materials.js"></script>
+<script src="js/ui.js"></script>
+<script>
+'use strict';
+const VARIANTS=PHONICS_DATA.vowelVariants;
+const TOTAL_ROUNDS=8;
+const QUESTIONS=UI.shuffle(VARIANTS).slice(0,TOTAL_ROUNDS);
+let currentQ=0,score=0,answered=false;
+const SOUND_MAP={'eh':'Short E sound (/ĕ/)','ay':'Long A sound (/ā/)','uh':'Short OO (/ŏŏ/)','oo':'Long OO (/ōō/)'};
+
+function switchMode(m){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+m).classList.add('active');
+  event.target.classList.add('active');
+  if(m==='sort')initSort();
+  if(m==='cross')initCross();
+}
+
+/* QUIZ */
+function loadQuestion(){
+  if(currentQ>=TOTAL_ROUNDS){showCompletion();return;}
+  answered=false;const q=QUESTIONS[currentQ];
+  document.getElementById('emoji').textContent=q.emoji;
+  document.getElementById('word').textContent=q.word;
+  document.getElementById('letters').textContent=q.letters;
+  document.getElementById('letter-combo').textContent=q.letters;
+  document.getElementById('progress-info').textContent=`Question ${currentQ+1} of ${TOTAL_ROUNDS}`;
+  document.getElementById('score-txt').textContent=score;
+  UI.updateProgress(document.getElementById('prog-bar'),currentQ+1,TOTAL_ROUNDS);
+  const choices=[{sound:q.sound1,correct:q.sound1===q.primary},{sound:q.sound2,correct:q.sound2===q.primary}];
+  const ch=document.getElementById('choices');ch.innerHTML='';
+  choices.forEach(c=>{
+    const btn=document.createElement('button');btn.className='sound-btn';
+    btn.innerHTML=`<div class="sound-phonetic">${c.sound}</div><div>${SOUND_MAP[c.sound]||c.sound}</div>`;
+    btn.addEventListener('click',()=>handleAnswer(btn,c.correct,c.sound));ch.appendChild(btn);
+  });
+}
+function handleAnswer(btn,isCorrect,selectedSound){
+  if(answered)return;answered=true;
+  if(isCorrect){btn.classList.add('correct');score++;document.getElementById('score-txt').textContent=score;setTimeout(()=>{currentQ++;loadQuestion();},800);}
+  else{btn.classList.add('wrong');const q=QUESTIONS[currentQ];document.querySelectorAll('.sound-btn').forEach(b=>{if(b.textContent.includes(q.primary))b.classList.add('correct');});setTimeout(()=>{currentQ++;loadQuestion();},1200);}
+}
+function showCompletion(){
+  const pct=Math.round((score/TOTAL_ROUNDS)*100);
+  document.getElementById('main-card').innerHTML=`<div style="font-size:5rem;margin-bottom:16px">${pct>=75?'🎉':'👍'}</div><div style="font-family:'Fredoka One',cursive;font-size:2rem;color:#06b6d4;margin-bottom:8px">Great Work!</div><div style="font-size:1.8rem;font-weight:800;margin:16px 0">${score}/${TOTAL_ROUNDS}</div><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px"><button class="btn btn-primary btn-lg" onclick="location.reload()">🔄 Try Again</button><button class="btn btn-accent" onclick="switchMode('sort')">🗂️ Sorting Bin!</button></div>`;
+}
+document.getElementById('btn-speak').addEventListener('click',()=>{const q=QUESTIONS[currentQ];if(q)AudioManager.speak(q.word,{rate:.8});});
+loadQuestion();
+
+/* SORT */
+const EA_WORDS=[
+  {word:'bread',emoji:'🍞',letters:'ea',sound:'eh'},{word:'leaf',emoji:'🍃',letters:'ea',sound:'ay'},
+  {word:'head',emoji:'🦴',letters:'ea',sound:'eh'},{word:'read',emoji:'📖',letters:'ea',sound:'ay'},
+  {word:'sweat',emoji:'💧',letters:'ea',sound:'eh'},{word:'bean',emoji:'🫘',letters:'ea',sound:'ay'},
+  {word:'thread',emoji:'🧵',letters:'ea',sound:'eh'},{word:'clean',emoji:'✨',letters:'ea',sound:'ay'},
+];
+const OO_WORDS=[
+  {word:'book',emoji:'📕',letters:'oo',sound:'uh'},{word:'moon',emoji:'🌙',letters:'oo',sound:'oo'},
+  {word:'foot',emoji:'🦶',letters:'oo',sound:'uh'},{word:'food',emoji:'🍕',letters:'oo',sound:'oo'},
+  {word:'wood',emoji:'🪵',letters:'oo',sound:'uh'},{word:'cool',emoji:'🌊',letters:'oo',sound:'oo'},
+  {word:'hook',emoji:'🪝',letters:'oo',sound:'uh'},{word:'tool',emoji:'🔧',letters:'oo',sound:'oo'},
+];
+const SORT_POOL=UI.shuffle([...EA_WORDS,...OO_WORDS]);
+let si=0,sCorr=0,sWr=0;
+
+function initSort(){si=0;sCorr=0;sWr=0;loadSort();}
+function loadSort(){
+  if(si>=SORT_POOL.length)si=0;
+  const item=SORT_POOL[si];
+  document.getElementById('sort-prog').textContent=`Word ${si+1} of ${SORT_POOL.length}`;
+  UI.updateProgress(document.getElementById('sort-pb'),si+1,SORT_POOL.length);
+  document.getElementById('sort-emoji').textContent=item.emoji;
+  document.getElementById('sort-word').textContent=item.word;
+  document.getElementById('sort-target-info').textContent=`What sound does "${item.letters}" make in "${item.word}"?`;
+  document.getElementById('sort-res').className='sort-res';
+  AudioManager.speak(item.word,{rate:.75});
+  // Build bins based on letters
+  const binsRow=document.getElementById('bins-row');binsRow.innerHTML='';
+  const pairs=item.letters==='ea'?
+    [{sound:'eh',label:'Short E sound',ex:'bread, head',cls:'bin-eh'},{sound:'ay',label:'Long A/E sound',ex:'leaf, clean',cls:'bin-ay'}]:
+    [{sound:'uh',label:'Short OO sound',ex:'book, foot',cls:'bin-uh'},{sound:'oo',label:'Long OO sound',ex:'moon, food',cls:'bin-oo'}];
+  pairs.forEach(p=>{
+    const bin=document.createElement('div');bin.className=`bin ${p.cls}`;
+    bin.innerHTML=`<div class="bin-label">${p.label}</div><div class="bin-ex">${p.ex}</div>`;
+    bin.addEventListener('click',()=>tapSort(p.sound,item));
+    binsRow.appendChild(bin);
+  });
+}
+function tapSort(choice,item){
+  const correct=choice===item.sound;
+  const res=document.getElementById('sort-res');
+  if(correct){sCorr++;res.textContent=`✅ "${item.word}" — "${item.letters}" says "${item.sound}"!`;res.className='sort-res correct';AudioManager.playTone('correct');UI.showFeedback(true);}
+  else{sWr++;res.textContent=`❌ "${item.letters}" in "${item.word}" says "${item.sound}"!`;res.className='sort-res wrong';AudioManager.playTone('wrong');}
+  document.getElementById('sort-corr').textContent=sCorr;document.getElementById('sort-wr').textContent=sWr;
+  si++;setTimeout(loadSort,1400);
+}
+document.getElementById('sort-hear').addEventListener('click',()=>{if(SORT_POOL[si])AudioManager.speak(SORT_POOL[si].word,{rate:.7});});
+document.getElementById('sort-skip').addEventListener('click',()=>{si++;loadSort();});
+
+/* CROSSWORD */
+const CROSS_PUZZLES=[
+  {words:[{word:'leaf',clue:'🍃 (ea says "ee")',dir:'across',row:0,col:0,num:1},{word:'look',clue:'👁️ (oo says "uh")',dir:'down',row:0,col:0,num:2},{word:'keen',clue:'🔪 sharp (ea=ee)',dir:'across',row:3,col:0,num:3}],rows:4,cols:4},
+  {words:[{word:'head',clue:'🦴 (ea says "eh")',dir:'across',row:0,col:0,num:1},{word:'hood',clue:'🧢 (oo says "uh")',dir:'down',row:0,col:0,num:2},{word:'dean',clue:'👨‍🏫 (ea says "ee")',dir:'across',row:3,col:0,num:3}],rows:4,cols:4},
+  {words:[{word:'read',clue:'📖 (ea says "ee")',dir:'across',row:0,col:0,num:1},{word:'roof',clue:'🏠 (oo says "oo")',dir:'down',row:0,col:0,num:2},{word:'deal',clue:'🤝 (ea says "ee")',dir:'across',row:3,col:0,num:3}],rows:4,cols:4},
+];
+let crossIdx=0;
+function initCross(){crossIdx=Math.floor(Math.random()*CROSS_PUZZLES.length);buildCross();}
+function buildCross(){
+  const p=CROSS_PUZZLES[crossIdx];const gd=Array.from({length:p.rows},()=>Array(p.cols).fill(null));
+  p.words.forEach(w=>w.word.split('').forEach((ch,i)=>{const r=w.dir==='across'?w.row:w.row+i;const c=w.dir==='across'?w.col+i:w.col;if(r<p.rows&&c<p.cols)gd[r][c]={answer:ch.toUpperCase(),num:i===0?w.num:''};;}));
+  const wrap=document.getElementById('cross-wrap');wrap.innerHTML='';
+  const grid=document.createElement('div');grid.className='cross-grid';grid.style.gridTemplateColumns=`repeat(${p.cols},40px)`;
+  for(let r=0;r<p.rows;r++)for(let c=0;c<p.cols;c++){
+    const cell=document.createElement('div');cell.className='cross-cell';
+    if(!gd[r][c]){cell.classList.add('black');}
+    else{const inp=document.createElement('input');inp.maxLength=1;inp.dataset.r=r;inp.dataset.c=c;inp.dataset.answer=gd[r][c].answer;inp.addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().slice(-1));cell.appendChild(inp);if(gd[r][c].num){const n=document.createElement('span');n.className='cell-num';n.textContent=gd[r][c].num;cell.appendChild(n);}}
+    grid.appendChild(cell);
+  }
+  wrap.appendChild(grid);
+  const clues=document.getElementById('cross-clues');clues.innerHTML='<div style="font-family:\'Fredoka One\',cursive;font-size:1rem;color:#888;margin-bottom:8px">Clues — tap to hear!</div>';
+  p.words.forEach(w=>{const d=document.createElement('div');d.className='clue';d.innerHTML=`<span class="clue-num">${w.num}</span><span>${w.dir==='across'?'➡️':'⬇️'} ${w.clue} (${w.word.length} letters)</span>`;d.addEventListener('click',()=>AudioManager.speak(w.word,{rate:.75}));clues.appendChild(d);});
+  document.getElementById('cross-res').className='cross-res';
+}
+document.getElementById('cross-check').addEventListener('click',()=>{
+  const inputs=document.querySelectorAll('#cross-wrap input');let correct=0,total=inputs.length;
+  inputs.forEach(inp=>{inp.parentElement.classList.remove('correct-cell','wrong-cell');if(inp.value===inp.dataset.answer){inp.parentElement.classList.add('correct-cell');correct++;}else if(inp.value)inp.parentElement.classList.add('wrong-cell');});
+  const res=document.getElementById('cross-res');
+  if(correct===total){res.textContent='🎉 Perfect!';res.className='cross-res show correct';AudioManager.playTone('star');}
+  else{res.textContent=`⭐ ${correct}/${total} correct!`;res.className='cross-res show partial';}
+});
+document.getElementById('cross-reveal').addEventListener('click',()=>{document.querySelectorAll('#cross-wrap input').forEach(inp=>{inp.value=inp.dataset.answer;inp.parentElement.classList.add('correct-cell');});});
+document.getElementById('cross-new').addEventListener('click',()=>{crossIdx=(crossIdx+1)%CROSS_PUZZLES.length;buildCross();});
+</script>
+<script>if(typeof analytics!=="undefined")analytics.trackActivityStart("vowel-variants");
+window.addEventListener('beforeunload',function(){if(typeof analytics!=="undefined")analytics.trackActivityComplete("vowel-variants",score||0,8);});</script>
+</body>
+</html>
